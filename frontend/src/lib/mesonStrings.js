@@ -2,6 +2,10 @@
 
 export const STRINGS = {
   sq: {
+    months: {
+      jan: 'Jan', feb: 'Shk', mar: 'Mar', apr: 'Prill', may: 'Maj', jun: 'Qersh',
+      jul: 'Korr', aug: 'Gush', sep: 'Shtat', oct: 'Tet', nov: 'Nënt', dec: 'Dhjet'
+    },
     header: {
       skip: 'Kalo te përmbajtja kryesore',
       mainNav: 'Navigimi kryesor',
@@ -265,6 +269,7 @@ export const STRINGS = {
           enrollments: 'Regjistrime'
         },
         services: {
+          title: 'Shërbimet e Disponueshme',
           users: {
             title: 'Menaxhimi i Përdoruesve',
             desc: 'Menaxho llogaritë, rolet dhe qasjen e përdoruesve në platformë.'
@@ -291,7 +296,23 @@ export const STRINGS = {
           },
           enter: 'Hyr në shërbim',
           comingSoon: 'Ky modul është në fazën e zhvillimit dhe do të jetë i disponueshëm së shpejti.',
-          backToPanel: 'Kthehu te Paneli'
+          backToPanel: 'Kthehu te Paneli',
+          charts: {
+            registrations: 'Trendi i Regjistrimeve',
+            categories: 'Shpërndarja sipas Kategorisë',
+            enrollments: 'Gjendja e Regjistrimeve',
+            students: 'Studentë',
+            courses: 'Kurse',
+            month: 'Muaji',
+            total: 'Gjithsej',
+            active: 'Aktive',
+            completed: 'Përfunduara',
+            pending: 'Në pritje',
+            prog: 'Programim',
+            design: 'Dizajn',
+            biz: 'Biznes',
+            lang: 'Gjuhë'
+          }
         }
       },
       teacher: {
@@ -562,6 +583,10 @@ export const STRINGS = {
     },
   },
   en: {
+    months: {
+      jan: 'Jan', feb: 'Feb', mar: 'Mar', apr: 'Apr', may: 'May', jun: 'Jun',
+      jul: 'Jul', aug: 'Aug', sep: 'Sep', oct: 'Oct', nov: 'Nov', dec: 'Dec'
+    },
     header: {
       skip: 'Skip to main content',
       mainNav: 'Main navigation',
@@ -823,6 +848,7 @@ export const STRINGS = {
           enrollments: 'Enrollments'
         },
         services: {
+          title: 'Available Services',
           users: {
             title: 'User Management',
             desc: 'Manage user accounts, roles, and platform access.'
@@ -849,7 +875,23 @@ export const STRINGS = {
           },
           enter: 'Enter service',
           comingSoon: 'This module is under development and will be available soon.',
-          backToPanel: 'Back to Panel'
+          backToPanel: 'Back to Panel',
+          charts: {
+            registrations: 'Registration Trends',
+            categories: 'Category Distribution',
+            enrollments: 'Enrollment Status',
+            students: 'Students',
+            courses: 'Courses',
+            month: 'Month',
+            total: 'Total',
+            active: 'Active',
+            completed: 'Completed',
+            pending: 'Pending',
+            prog: 'Programming',
+            design: 'Design',
+            biz: 'Business',
+            lang: 'Languages'
+          }
         }
       },
       teacher: {
