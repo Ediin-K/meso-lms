@@ -341,6 +341,7 @@ export const STRINGS = {
       },
     },
     adminUsers: {
+      overline: 'MENAXHIMI I SISTEMIT',
       title: 'Menaxhimi i Përdoruesve',
       subtitle: 'Menaxho llogaritë, rolet dhe statusin e përdoruesve.',
       searchPlaceholder: 'Kërko me emër ose email...',
@@ -382,30 +383,39 @@ export const STRINGS = {
       confirmDelete: 'A jeni i sigurt që dëshironi ta fshini këtë përdorues?'
     },
     adminCourses: {
-      title: 'Menaxhimi i Kurseve',
-      subtitle: 'Krijo, ndrysho dhe menaxho kurset e platformës.',
-      searchPlaceholder: 'Kërko kurse...',
-      addTitle: 'Shto Kurs të Ri',
-      editTitle: 'Ndrysho Kursin',
-      noCourses: 'Nuk u gjet asnjë kurs.',
+      overline: 'KURIKULA AKADEMIKE',
+      title: 'Lëndët',
+      subtitle: 'Menaxhoni planin mësimor, kreditet ECTS dhe instruktorët për çdo lëndë.',
+      searchPlaceholder: 'Kërko lëndët...',
+      addTitle: 'Shto Lëndë',
+      editTitle: 'Ndrysho Lëndën',
+      noCourses: 'Nuk u gjet asnjë lëndë',
+      stats: {
+        total: 'Gjithsej Lëndë',
+        credits: 'Kreditet Totale',
+        categories: 'Kategori',
+        average: 'Mesatarja ECTS',
+        active: 'Semestri Aktiv'
+      },
+      catalogTitle: 'Katalogu i Lëndëve',
       table: {
-        title: 'Titulli',
+        title: 'Lënda',
         category: 'Kategoria',
         semester: 'Semestri',
+        credits: 'ECTS',
         instructor: 'Instruktori',
         actions: 'Veprime'
       },
       form: {
-        title: 'Titulli i Kursit',
-        description: 'Përshkrimi',
-        categoryId: 'Kategoria (ID)',
+        title: 'Titulli i Lëndës',
+        description: 'Përshkrimi i Shkurtër',
+        categoryId: 'Kategoria',
         semester: 'Semestri',
-        imageUrl: 'URL e Fotos',
-        credits: 'Kreditet',
-        instructorId: 'ID e Instruktorit',
-        save: 'Ruaj Kursin',
-        creating: 'Duke krijuar...',
-        updating: 'Duke ruajtur...'
+        credits: 'Kreditet (ECTS)',
+        instructorId: 'Instruktori',
+        save: 'Ruaj Lëndën',
+        creating: 'Duke ruajtur...',
+        cancel: 'Anulo'
       }
     },
     about: {
@@ -920,6 +930,7 @@ export const STRINGS = {
       },
     },
     adminUsers: {
+      overline: 'SYSTEM MANAGEMENT',
       title: 'User Management',
       subtitle: 'Manage user accounts, roles, and status.',
       searchPlaceholder: 'Search by name or email...',
@@ -961,30 +972,39 @@ export const STRINGS = {
       confirmDelete: 'Are you sure you want to delete this user?'
     },
     adminCourses: {
-      title: 'Course Management',
-      subtitle: 'Create, edit, and manage platform courses.',
-      searchPlaceholder: 'Search courses...',
-      addTitle: 'Add New Course',
-      editTitle: 'Edit Course',
-      noCourses: 'No courses found.',
+      overline: 'ACADEMIC CURRICULUM',
+      title: 'Subjects',
+      subtitle: 'Manage the curriculum, ECTS credits, and instructors for each subject.',
+      searchPlaceholder: 'Search subjects...',
+      addTitle: 'Add Subject',
+      editTitle: 'Edit Subject',
+      noCourses: 'No subjects found',
+      stats: {
+        total: 'Total Subjects',
+        credits: 'Total Credits',
+        categories: 'Categories',
+        average: 'Average ECTS',
+        active: 'Active Semester'
+      },
+      catalogTitle: 'Subject Catalog',
       table: {
-        title: 'Title',
+        title: 'Subject',
         category: 'Category',
         semester: 'Semester',
+        credits: 'ECTS',
         instructor: 'Instructor',
         actions: 'Actions'
       },
       form: {
-        title: 'Course Title',
-        description: 'Description',
-        categoryId: 'Category (ID)',
+        title: 'Subject Title',
+        description: 'Short Description',
+        categoryId: 'Category',
         semester: 'Semester',
-        imageUrl: 'Image URL',
-        credits: 'Credits',
-        instructorId: 'Instructor ID',
-        save: 'Save Course',
-        creating: 'Creating...',
-        updating: 'Saving...'
+        credits: 'Credits (ECTS)',
+        instructorId: 'Instructor',
+        save: 'Save Subject',
+        creating: 'Saving...',
+        cancel: 'Cancel'
       }
     },
     about: {
