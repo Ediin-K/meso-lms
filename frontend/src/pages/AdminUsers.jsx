@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import {useEffect, useState} from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppPreferences } from '../context/appPreferencesContext'
 import {
@@ -34,23 +34,21 @@ const AVATAR_GRADIENT = {
     parent:  'from-amber-500 to-orange-600',
 }
 
-const EMPTY_FORM = { firstName: '', lastName: '', email: '', password: '', role: 'student', status: 'active' }
-
+const EMPTY_FORM = {
+    emri: '',
+    mbiemri: '',
+    email: '',
+    passwordHash: '',
+    role: 'student',
+    statusi: 'active'
+}
 export default function AdminUsers() {
     const navigate = useNavigate()
     const { t, mode } = useAppPreferences()
     const isDark = mode === 'dark'
 
-    // MOCK DATA
-    const [users] = useState([
-        { id: 1, firstName: 'Arben', lastName: 'Hoxha', email: 'arben.hoxha@gmail.com', role: 'admin', status: 'active', joined: '12 Maj 2024' },
-        { id: 2, firstName: 'Elira', lastName: 'Krasniqi', email: 'elira.k@outlook.com', role: 'teacher', status: 'active', joined: '15 Maj 2024' },
-        { id: 3, firstName: 'Dritan', lastName: 'Leka', email: 'dritan.leka@student.edu', role: 'student', status: 'active', joined: '18 Maj 2024' },
-        { id: 4, firstName: 'Besnik', lastName: 'Vata', email: 'besnik.v@gmail.com', role: 'parent', status: 'inactive', joined: '20 Maj 2024' },
-        { id: 5, firstName: 'Sara', lastName: 'Gashi', email: 'sara.gashi@teacher.edu', role: 'teacher', status: 'active', joined: '22 Maj 2024' },
-    ])
-
-    const [loading] = useState(false)
+    const [users ,setUsers] = useState([])
+    const [loading,setLoading] = useState(false)
     const [searchTerm, setSearchTerm] = useState('')
     const [roleFilter, setRoleFilter] = useState('all')
     const [openDialog, setOpenDialog] = useState(false)
@@ -59,10 +57,36 @@ export default function AdminUsers() {
     const [formData, setFormData] = useState(EMPTY_FORM)
 
     const filtered = users.filter(u => {
-        const matchesSearch = `${u.firstName} ${u.lastName} ${u.email}`.toLowerCase().includes(searchTerm.toLowerCase())
+        const matchesSearch = `${u.emri} ${u.mbiemri} ${u.email}`.toLowerCase().includes(searchTerm.toLowerCase())
         const matchesRole = roleFilter === 'all' || u.role === roleFilter
         return matchesSearch && matchesRole
     })
+
+    useEffect(() => {
+        const token = localStorage.getItem("token")
+
+        setLoading(true)
+
+        fetch("http://localhost:8080/api/users", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            }
+        })
+            .then(async res => {
+                if (!res.ok) {
+                    const msg = await res.text()
+                    throw new Error(msg || "Error fetching users")
+                }
+                return res.json()
+            })
+            .then(data => setUsers(data))
+            .catch(err => {
+                console.error("API ERROR:", err.message)
+            })
+            .finally(() => setLoading(false))
+    }, [])
 
     const handleOpenAdd = () => {
         setIsEdit(false); setSelectedUser(null)
@@ -71,7 +95,14 @@ export default function AdminUsers() {
 
     const handleOpenEdit = (user) => {
         setIsEdit(true); setSelectedUser(user)
-        setFormData({ ...user, password: '' })
+        setFormData({
+            emri: user.emri || '',
+            mbiemri: user.mbiemri || '',
+            email: user.email || '',
+            role: user.role || 'student',
+            statusi: user.statusi || 'active',
+            passwordHash: ''
+        })
         setOpenDialog(true)
     }
 
@@ -141,7 +172,7 @@ export default function AdminUsers() {
                 <Grid container spacing={3} className="mb-10">
                     {[
                         { label: 'Gjithsej', value: users.length, color: 'text-indigo-600', bg: 'bg-indigo-50 dark:bg-indigo-900/20' },
-                        { label: 'Aktivë', value: users.filter(u => u.status === 'active').length, color: 'text-emerald-600', bg: 'bg-emerald-50 dark:bg-emerald-900/20' },
+                        { label: 'Aktivë', value: users.filter(u => u.statusi === 'active').length, color: 'text-emerald-600', bg: 'bg-emerald-50 dark:bg-emerald-900/20' },
                         { label: 'Mësues', value: users.filter(u => u.role === 'teacher').length, color: 'text-sky-600', bg: 'bg-sky-50 dark:bg-sky-900/20' },
                         { label: 'Studentë', value: users.filter(u => u.role === 'student').length, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-900/20' },
                     ].map((s, i) => (
@@ -214,11 +245,11 @@ export default function AdminUsers() {
                                             <TableCell className="!pl-8 !py-6">
                                                 <Box className="flex items-center gap-4">
                                                     <Avatar className={`!w-12 !h-12 !rounded-2xl !text-base !bg-gradient-to-br ${AVATAR_GRADIENT[user.role] || 'from-slate-400 to-slate-500'} shadow-lg shadow-indigo-500/10`}>
-                                                        {user.firstName?.charAt(0)}{user.lastName?.charAt(0)}
+                                                        {user.emri?.charAt(0)}{user.mbiemri?.charAt(0)}
                                                     </Avatar>
                                                     <div>
                                                         <Typography variant="body1" className="!font-black !text-slate-900 dark:!text-white !flex items-center gap-1.5">
-                                                            {user.firstName} {user.lastName}
+                                                            {user.emri} {user.mbiemri}
                                                             {user.role === 'admin' && <VerifiedUserRounded className="!text-sky-500 !text-sm" />}
                                                         </Typography>
                                                         <Typography variant="caption" className="!text-slate-500 !font-medium">{user.email}</Typography>
@@ -232,9 +263,9 @@ export default function AdminUsers() {
                                             </TableCell>
                                             <TableCell>
                                                 <Box className="flex items-center gap-2">
-                                                    <div className={`h-2 w-2 rounded-full ${user.status === 'active' ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300 dark:bg-slate-700'}`} />
-                                                    <Typography variant="caption" className={`!font-black !uppercase !tracking-widest ${user.status === 'active' ? 'text-emerald-600' : 'text-slate-400'}`}>
-                                                        {user.status === 'active' ? t('adminUsers.status.active', 'Aktiv') : t('adminUsers.status.inactive', 'Joaktiv')}
+                                                    <div className={`h-2 w-2 rounded-full ${user.statusi === 'active' ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300 dark:bg-slate-700'}`} />
+                                                    <Typography variant="caption" className={`!font-black !uppercase !tracking-widest ${user.statusi === 'active' ? 'text-emerald-600' : 'text-slate-400'}`}>
+                                                        {user.statusi === 'active' ? t('adminUsers.status.active', 'Aktiv') : t('adminUsers.status.inactive', 'Joaktiv')}
                                                     </Typography>
                                                 </Box>
                                             </TableCell>
@@ -294,15 +325,15 @@ export default function AdminUsers() {
                                 <TextField 
                                     label="Emri" 
                                     fullWidth 
-                                    value={formData.firstName} 
-                                    onChange={field('firstName')} 
+                                    value={formData.emri}
+                                    onChange={field('emri')}
                                     InputProps={{ className: "!rounded-2xl" }}
                                 />
                                 <TextField 
                                     label="Mbiemri" 
                                     fullWidth 
-                                    value={formData.lastName} 
-                                    onChange={field('lastName')} 
+                                    value={formData.mbiemri}
+                                    onChange={field('mbiemri')}
                                     InputProps={{ className: "!rounded-2xl" }}
                                 />
                             </Box>
@@ -319,8 +350,8 @@ export default function AdminUsers() {
                                     label="Fjalëkalimi" 
                                     type="password" 
                                     fullWidth 
-                                    value={formData.password} 
-                                    onChange={field('password')} 
+                                    value={formData.passwordHash}
+                                    onChange={field('passwordHash')}
                                     InputProps={{ className: "!rounded-2xl" }}
                                 />
                             )}
@@ -342,9 +373,9 @@ export default function AdminUsers() {
                                 <FormControl fullWidth>
                                     <InputLabel>Statusi</InputLabel>
                                     <Select 
-                                        value={formData.status} 
+                                        value={formData.statusi}
                                         label="Statusi" 
-                                        onChange={field('status')} 
+                                        onChange={field('statusi')}
                                         sx={{ borderRadius: '1rem' }}
                                     >
                                         <MenuItem value="active">Aktiv</MenuItem>
@@ -363,7 +394,7 @@ export default function AdminUsers() {
                         </Button>
                         <Button 
                             variant="contained" 
-                            disabled={!formData.firstName || !formData.email}
+                            disabled={!formData.emri || !formData.email}
                             className="!rounded-2xl !px-10 !py-3 !normal-case !font-black !bg-indigo-600 hover:!bg-indigo-700 shadow-lg shadow-indigo-500/20"
                         >
                             {isEdit ? 'Përditëso' : 'Krijo Llogarinë'}
