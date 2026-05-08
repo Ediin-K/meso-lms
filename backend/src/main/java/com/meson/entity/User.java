@@ -49,6 +49,9 @@ public class User {
     @Column(nullable = false)
     private String statusi = "active";
 
+    @Transient
+    private String role;
+
     @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private Set<UserRole> userRoles;

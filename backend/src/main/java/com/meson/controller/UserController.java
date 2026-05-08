@@ -1,5 +1,6 @@
 package com.meson.controller;
 
+import com.meson.dto.UserDTO;
 import com.meson.entity.User;
 import com.meson.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public ResponseEntity<List<User>> getAll() {
+    public ResponseEntity<List<UserDTO>> getAll() {
         return ResponseEntity.ok(userService.getAll());
     }
 

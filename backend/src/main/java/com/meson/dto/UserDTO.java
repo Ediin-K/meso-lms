@@ -13,5 +13,5 @@ public class UserDTO {
     private String email;
     private String statusi;
     private String role;
-    private LocalDateTime dataKrijimit;
+    private LocalDateTime joined;
 }
