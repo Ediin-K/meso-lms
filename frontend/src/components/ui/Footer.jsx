@@ -13,16 +13,27 @@ import LinkedIn from '@mui/icons-material/LinkedIn'
 import XIcon from '@mui/icons-material/X'
 
 import { useAppPreferences } from '../../context/appPreferencesContext.js'
+import { useState } from 'react'
+import LegalDocumentModal from '../legal/LegalDocumentModal.jsx'
+import {
+  PRIVACY_POLICY,
+  TERMS_OF_SERVICE,
+  COOKIE_POLICY,
+} from '../../legal/mesonLegalDocuments.js'
 
 const footerLinkClass =
   'inline-flex text-slate-300 no-underline transition-colors hover:text-sky-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400'
+
+const legalLinkClass =
+  'font-medium text-indigo-600 underline decoration-indigo-600/50 underline-offset-2 transition-colors hover:text-indigo-500 dark:text-indigo-400 dark:decoration-indigo-400/50 dark:hover:text-indigo-300'
 
 const columnTitleClass =
   '!text-xs !font-bold !uppercase !tracking-[0.2em] !text-sky-400/95'
 
 export default function Footer() {
   const year = new Date().getFullYear()
-  const { t } = useAppPreferences()
+  const { t, locale } = useAppPreferences()
+  const [activeLegalDoc, setActiveLegalDoc] = useState(null)
 
   const quick = [
     [t('header.navHome'), '#'],
@@ -32,9 +43,9 @@ export default function Footer() {
   ]
 
   const legal = [
-    [t('footer.privacy'), '#'],
-    [t('footer.terms'), '#'],
-    [t('footer.cookies'), '#'],
+    { label: t('footer.privacy'), document: PRIVACY_POLICY[locale] },
+    { label: t('footer.terms'), document: TERMS_OF_SERVICE[locale] },
+    { label: t('footer.cookies'), document: COOKIE_POLICY[locale] },
   ]
 
   return (
@@ -184,11 +195,15 @@ export default function Footer() {
                 </Typography>
               </div>
               <ul className="mt-6 flex list-none flex-col gap-2.5 p-0">
-                {legal.map(([label, href]) => (
-                  <li key={label}>
-                    <Link href={href} className={footerLinkClass} variant="body2">
-                      {label}
-                    </Link>
+                {legal.map((item) => (
+                  <li key={item.label}>
+                    <button
+                      type="button"
+                      onClick={() => setActiveLegalDoc(item.document)}
+                      className={legalLinkClass}
+                    >
+                      {item.label}
+                    </button>
                   </li>
                 ))}
               </ul>
@@ -207,6 +222,12 @@ export default function Footer() {
           </Typography>
         </div>
       </Container>
+      <LegalDocumentModal
+        open={Boolean(activeLegalDoc)}
+        onClose={() => setActiveLegalDoc(null)}
+        document={activeLegalDoc}
+        onAcknowledge={() => {}}
+      />
     </Box>
   )
 }

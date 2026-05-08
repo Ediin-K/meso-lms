@@ -1,5 +1,5 @@
 @import "tailwindcss";
-
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -16,6 +16,7 @@ body {
   min-height: 100dvh;
   background-color: #d8e8f2;
   overflow-x: hidden;
+  font-family: 'Inter', sans-serif;
 }
 
 #root {

@@ -22,6 +22,7 @@ import LegalDocumentModal from '../components/legal/LegalDocumentModal.jsx'
 import {
   PRIVACY_POLICY,
   TERMS_OF_SERVICE,
+  COOKIE_POLICY,
 } from '../legal/mesonLegalDocuments.js'
 import { register } from '../services/authService.js'
 
@@ -129,7 +130,7 @@ function GoogleIcon() {
 }
 
 export default function Register() {
-  const { colorMode, t } = useAppPreferences()
+  const { colorMode, t, locale } = useAppPreferences()
   const [values, setValues] = useState(initialValues)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -138,8 +139,10 @@ export default function Register() {
   const [roleDismissed, setRoleDismissed] = useState(false)
   const [termsModalOpen, setTermsModalOpen] = useState(false)
   const [privacyModalOpen, setPrivacyModalOpen] = useState(false)
+  const [cookieModalOpen, setCookieModalOpen] = useState(false)
   const [termsReadAcknowledged, setTermsReadAcknowledged] = useState(false)
   const [privacyReadAcknowledged, setPrivacyReadAcknowledged] = useState(false)
+  const [cookieReadAcknowledged, setCookieReadAcknowledged] = useState(false)
   const [loading, setLoading] = useState(false)
   const [globalError, setGlobalError] = useState('')
   const navigate = useNavigate()
@@ -179,7 +182,7 @@ export default function Register() {
   const validationErrors = useMemo(() => {
     let termsMsg = ''
     if (attemptedSubmit) {
-      if (!termsReadAcknowledged || !privacyReadAcknowledged) {
+      if (!termsReadAcknowledged || !privacyReadAcknowledged || !cookieReadAcknowledged) {
         termsMsg = t('auth.errTermsMsg1')
       } else if (!values.terms) {
         termsMsg = t('auth.errTermsMsg2')
@@ -193,7 +196,7 @@ export default function Register() {
       confirmPassword: validateConfirm(values.password, values.confirmPassword, t),
       terms: termsMsg,
     }
-  }, [values, attemptedSubmit, termsReadAcknowledged, privacyReadAcknowledged, t])
+  }, [values, attemptedSubmit, termsReadAcknowledged, privacyReadAcknowledged, cookieReadAcknowledged, t])
 
   const getFieldError = (field) => {
     if (!attemptedSubmit) return ''
@@ -263,7 +266,7 @@ export default function Register() {
 
     } catch (error) {
       setGlobalError(
-        error.message || 'Regjistrimi dështoi'
+        error.message || t('auth.registerError')
       )
     } finally {
       setLoading(false)
@@ -450,7 +453,7 @@ export default function Register() {
                         checked={values.terms}
                         onChange={handleChange('terms')}
                         color="primary"
-                        disabled={!termsReadAcknowledged || !privacyReadAcknowledged}
+                        disabled={!termsReadAcknowledged || !privacyReadAcknowledged || !cookieReadAcknowledged}
                         aria-describedby="terms-description terms-legal-hint"
                       />
                     }
@@ -474,6 +477,14 @@ export default function Register() {
                           onClick={() => setPrivacyModalOpen(true)}
                         >
                           {t('auth.privacyPolicy')}
+                        </button>{' '}
+                        {t('auth.and')} {' '}
+                        <button
+                          type="button"
+                          className="font-medium text-indigo-600 underline decoration-indigo-600/50 underline-offset-2 transition-colors hover:text-indigo-500 dark:text-indigo-400 dark:decoration-indigo-400/50 dark:hover:text-indigo-300"
+                          onClick={() => setCookieModalOpen(true)}
+                        >
+                          {t('auth.cookiePolicy')}
                         </button>
                       </span>
                     }
@@ -555,15 +566,22 @@ export default function Register() {
       <LegalDocumentModal
         open={termsModalOpen}
         onClose={() => setTermsModalOpen(false)}
-        document={TERMS_OF_SERVICE}
+        document={TERMS_OF_SERVICE[locale]}
         onAcknowledge={() => setTermsReadAcknowledged(true)}
         requireScrollToAcknowledge={REQUIRE_SCROLL_TO_ACKNOWLEDGE_LEGAL}
       />
       <LegalDocumentModal
         open={privacyModalOpen}
         onClose={() => setPrivacyModalOpen(false)}
-        document={PRIVACY_POLICY}
+        document={PRIVACY_POLICY[locale]}
         onAcknowledge={() => setPrivacyReadAcknowledged(true)}
+        requireScrollToAcknowledge={REQUIRE_SCROLL_TO_ACKNOWLEDGE_LEGAL}
+      />
+      <LegalDocumentModal
+        open={cookieModalOpen}
+        onClose={() => setCookieModalOpen(false)}
+        document={COOKIE_POLICY[locale]}
+        onAcknowledge={() => setCookieReadAcknowledged(true)}
         requireScrollToAcknowledge={REQUIRE_SCROLL_TO_ACKNOWLEDGE_LEGAL}
       />
     </ThemeProvider>
