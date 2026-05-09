@@ -91,8 +91,20 @@ export const STRINGS = {
       errPassLength: 'Përdorni të paktën 8 karaktere',
       errPassConfirm: 'Konfirmoni fjalëkalimin',
       errPassMatch: 'Fjalëkalimet nuk përputhen',
-      errTermsMsg1: 'Hapni Kushtet e Shërbimit dhe Politikën e Privatësisë dhe shtypni "Lexova dhe kuptova" për secilën.',
-      errTermsMsg2: 'Duhet të pranoni Kushtet e Shërbimit dhe Politikën e Privatësisë.'
+      errTermsMsg1: 'Hapni Kushtet e Shërbimit, Politikën e Privatësisë dhe Rregullat e Cookies dhe shtypni "Lexova dhe kuptova" për secilën.',
+      errTermsMsg2: 'Duhet të pranoni Kushtet, Privatësinë dhe Cookies për të vazhduar.',
+      cookiePolicy: 'Rregullat e Cookies',
+      registerError: 'Regjistrimi dështoi'
+    },
+    cookies: {
+      title: 'Privatësia & Cookies',
+      bannerText: 'Ne përdorim cookies për të përmirësuar përvojën tuaj. Duke vazhduar, ju pranoni',
+      rulesLink: 'rregullat tona',
+      privacySuffix: 'të privatësisë.',
+      acceptAll: 'Prano të gjitha',
+      reject: 'Refuzo',
+      manage: 'Menaxho',
+      gdpr: 'Platformë e përputhur me GDPR'
     },
     home: {
       brand: 'Meson LMS',
@@ -682,8 +694,20 @@ export const STRINGS = {
       errPassLength: 'Use at least 8 characters',
       errPassConfirm: 'Confirm your password',
       errPassMatch: 'Passwords do not match',
-      errTermsMsg1: 'Open the Terms of Service and Privacy Policy and tap "I have read and understood" for each.',
-      errTermsMsg2: 'You must agree to the Terms of Service and Privacy Policy.'
+      errTermsMsg1: 'Open the Terms of Service, Privacy Policy, and Cookie Policy and tap "I have read and understood" for each.',
+      errTermsMsg2: 'You must agree to the Terms, Privacy, and Cookie Policy to continue.',
+      cookiePolicy: 'Cookie Policy',
+      registerError: 'Registration failed'
+    },
+    cookies: {
+      title: 'Privacy & Cookies',
+      bannerText: 'We use cookies to enhance your experience. By continuing, you agree to',
+      rulesLink: 'our rules',
+      privacySuffix: 'regarding privacy.',
+      acceptAll: 'Accept All',
+      reject: 'Reject',
+      manage: 'Manage',
+      gdpr: 'GDPR Compliant Platform'
     },
     home: {
       brand: 'Meson LMS',
