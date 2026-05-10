@@ -44,8 +44,9 @@ public class JwtFilter extends OncePerRequestFilter {
         // 3. Nxjerr token (hiq "Bearer ")
         String token = authHeader.substring(7);
 
-        // 4. Nxjerr emailin nga token
+        // 4. Nxjerr emailin dhe rolin nga token
         String email = jwtService.extractEmail(token);
+        String tokenRole = jwtService.extractRole(token);
 
         // 5. Kontrollo nëse useri ekziston dhe nuk është autentifikuar
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -54,12 +55,12 @@ public class JwtFilter extends OncePerRequestFilter {
             var userOptional = userRepository.findByEmail(email);
 
             if (userOptional.isPresent() && jwtService.isTokenValid(token, email)) {
-                var appUser = userOptional.get();
-
-                // 7. Merr rolet dhe krijo UserDetails
-                var authorities = userRoleRepository.findByUser(appUser).stream()
-                        .map(ur -> new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_" + ur.getRole().getNormalizedName().toUpperCase()))
-                        .collect(java.util.stream.Collectors.toList());
+                
+                // 7. Merr rolet nga token dhe krijo UserDetails
+                var authorities = new java.util.ArrayList<org.springframework.security.core.GrantedAuthority>();
+                if (tokenRole != null) {
+                    authorities.add(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_" + tokenRole.toUpperCase()));
+                }
 
                 UserDetails userDetails = User.builder()
                         .username(email)

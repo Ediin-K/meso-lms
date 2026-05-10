@@ -40,14 +40,17 @@ public class AuthService {
         }
 
         // 3. Merr rolin e userit
-        String role = userRoleRepository.findByUser(user)
+        Role userRole = userRoleRepository.findByUser(user)
                 .stream()
                 .findFirst()
-                .map(ur -> ur.getRole().getEmertimi().toLowerCase())
-                .orElse("guest");
+                .map(UserRole::getRole)
+                .orElse(null);
+                
+        String role = userRole != null ? userRole.getEmertimi().toLowerCase() : "guest";
+        String normalizedRole = userRole != null ? userRole.getNormalizedName().toUpperCase() : "GUEST";
 
         // 4. Gjenero access token
-        String token = jwtService.generateToken(user.getEmail());
+        String token = jwtService.generateToken(user.getEmail(), normalizedRole);
 
         // 5. Invalido token-at e vjetra
         refreshTokenService.revokeAllUserTokens(user);
@@ -84,7 +87,7 @@ public class AuthService {
         userRole.setRole(role);
         userRoleRepository.save(userRole);
 
-        String token = jwtService.generateToken(user.getEmail());
+        String token = jwtService.generateToken(user.getEmail(), role.getNormalizedName().toUpperCase());
         return new AuthResponse(token, user.getEmail(), role.getEmertimi().toLowerCase(), null, user.getId());
     }
 }

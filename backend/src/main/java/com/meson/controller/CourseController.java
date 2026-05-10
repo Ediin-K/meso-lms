@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import java.util.List;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("/api/courses")
@@ -25,11 +26,9 @@ public class CourseController {
     @GetMapping("/search")
     public ResponseEntity<List<CourseResponse>> getByCategoryAndSemester(
             @RequestParam Long categoryId,
-            @RequestParam Integer semester
-    ) {
+            @RequestParam Integer semester) {
         return ResponseEntity.ok(
-                courseService.getByCategoryAndSemester(categoryId, semester)
-        );
+                courseService.getByCategoryAndSemester(categoryId, semester));
     }
 
     @GetMapping("/{id}")
@@ -42,20 +41,22 @@ public class CourseController {
         return ResponseEntity.ok(courseService.getBySemester(semester));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<CourseResponse> create(@Valid @RequestBody CourseRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(courseService.create(request));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<CourseResponse> update(
             @Valid @PathVariable Long id,
-            @RequestBody CourseRequest request
-    ) {
+            @RequestBody CourseRequest request) {
         return ResponseEntity.ok(courseService.update(id, request));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         courseService.delete(id);

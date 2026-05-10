@@ -46,15 +46,21 @@ public class RefreshTokenService {
 
         User user = refreshToken.getUser();
 
-        String newAccessToken = jwtService.generateToken(user.getEmail());
-
-        RefreshToken newRefreshToken = generateRefreshToken(user);
-
         String role = user.getUserRoles()
                 .stream()
                 .findFirst()
                 .map(ur -> ur.getRole().getEmertimi().toLowerCase())
                 .orElse("guest");
+
+        String normalizedRole = user.getUserRoles()
+                .stream()
+                .findFirst()
+                .map(ur -> ur.getRole().getNormalizedName().toUpperCase())
+                .orElse("GUEST");
+
+        String newAccessToken = jwtService.generateToken(user.getEmail(), normalizedRole);
+
+        RefreshToken newRefreshToken = generateRefreshToken(user);
 
         return new AuthResponse(newAccessToken, user.getEmail(), role, newRefreshToken.getToken(), user.getId());
     }

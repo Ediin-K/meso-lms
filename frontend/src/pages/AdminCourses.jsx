@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppPreferences } from "../context/appPreferencesContext";
 import {
@@ -29,6 +29,8 @@ import {
   Tooltip,
   Zoom,
   Grid,
+  Alert,
+  Snackbar,
 } from "@mui/material";
 import SearchRounded from "@mui/icons-material/SearchRounded";
 import AddRounded from "@mui/icons-material/AddRounded";
@@ -42,6 +44,8 @@ import AutoStoriesRounded from "@mui/icons-material/AutoStoriesRounded";
 import LayersRounded from "@mui/icons-material/LayersRounded";
 import Footer from "../components/ui/Footer";
 
+const BASE_URL = "http://localhost:8080/api";
+
 const SEMESTER_COLORS = {
   1: "bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300",
   2: "bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300",
@@ -52,147 +56,223 @@ const SEMESTER_COLORS = {
 };
 
 const EMPTY_FORM = {
-  title: "",
-  description: "",
-  categoryName: "",
+  titulli: "",
+  pershkrimi: "",
+  teacherId: "",
+  categoryId: "",
   semester: 1,
-  credits: 6,
-  instructorName: "",
+  enrollmentKey: "",
+  cmimi: 0.0,
+  niveli: "FILLESTAR",
+  statusi: "DRAFT",
 };
 
 export default function AdminCourses() {
   const navigate = useNavigate();
-  const { t, mode, locale } = useAppPreferences();
+  const { t, mode } = useAppPreferences();
   const isDark = mode === "dark";
 
-  // MOCK DATA FOR LËNDËT (Bilingual)
-  const coursesSq = [
-    {
-      id: 1,
-      title: "Matematikë I",
-      description: "Bazat e analizës matematike dhe algjebrës lineale.",
-      categoryName: "Shkencë",
-      semester: 1,
-      credits: 6,
-      instructorName: "Dr. Agim Rama",
-    },
-    {
-      id: 2,
-      title: "Programim në Java",
-      description: "Hyrje në programimin e orientuar nga objektet.",
-      categoryName: "Programim",
-      semester: 2,
-      credits: 7,
-      instructorName: "Msc. Elira Krasniqi",
-    },
-    {
-      id: 3,
-      title: "Dizajn Grafik",
-      description: "Teoria e ngjyrave dhe bazat e Photoshop.",
-      categoryName: "Dizajn",
-      semester: 1,
-      credits: 5,
-      instructorName: "Sara Gashi",
-    },
-    {
-      id: 4,
-      title: "Bazat e të Dhënave",
-      description: "Modelimi SQL dhe menaxhimi i sistemeve DBMS.",
-      categoryName: "TI",
-      semester: 3,
-      credits: 6,
-      instructorName: "Dritan Leka",
-    },
-    {
-      id: 5,
-      title: "Gjuhë Angleze",
-      description: "Anglisht teknike për studentët e TI.",
-      categoryName: "Gjuhë",
-      semester: 1,
-      credits: 3,
-      instructorName: "Besnik Vata",
-    },
-  ];
-
-  const coursesEn = [
-    {
-      id: 1,
-      title: "Mathematics I",
-      description: "Basics of mathematical analysis and linear algebra.",
-      categoryName: "Science",
-      semester: 1,
-      credits: 6,
-      instructorName: "Dr. Agim Rama",
-    },
-    {
-      id: 2,
-      title: "Java Programming",
-      description: "Introduction to object-oriented programming.",
-      categoryName: "Programming",
-      semester: 2,
-      credits: 7,
-      instructorName: "Msc. Elira Krasniqi",
-    },
-    {
-      id: 3,
-      title: "Graphic Design",
-      description: "Color theory and basics of Photoshop.",
-      categoryName: "Design",
-      semester: 1,
-      credits: 5,
-      instructorName: "Sara Gashi",
-    },
-    {
-      id: 4,
-      title: "Database Basics",
-      description: "SQL modeling and DBMS system management.",
-      categoryName: "IT",
-      semester: 3,
-      credits: 6,
-      instructorName: "Dritan Leka",
-    },
-    {
-      id: 5,
-      title: "English Language",
-      description: "Technical English for IT students.",
-      categoryName: "Languages",
-      semester: 1,
-      credits: 3,
-      instructorName: "Besnik Vata",
-    },
-  ];
-
-  const courses = locale === "en" ? coursesEn : coursesSq;
-
-  const [loading] = useState(false);
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+
   const [openDialog, setOpenDialog] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [formData, setFormData] = useState(EMPTY_FORM);
+  const [saving, setSaving] = useState(false);
+  const [formError, setFormError] = useState(null);
 
-  const filtered = courses.filter(
-    (c) =>
-      (c.title?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
-      (c.categoryName?.toLowerCase() || "").includes(searchTerm.toLowerCase()),
-  );
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [openSnackbar, setOpenSnackbar] = useState(false);
 
+  const fetchCourses = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${BASE_URL}/courses`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      if (!response.ok) throw new Error("Gabim gjatë marrjes së kurseve");
+      const data = await response.json();
+      setCourses(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const createCourse = async (courseData) => {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${BASE_URL}/courses`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(courseData),
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(text || "Gabim gjatë krijimit");
+    }
+
+    // Nëse body është bosh, mos provo ta parse-sh
+    const text = await response.text();
+    return text ? JSON.parse(text) : {};
+  };
+
+  const updateCourse = async (id, courseData) => {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${BASE_URL}/courses/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(courseData),
+    });
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(text || "Gabim gjatë përditësimit");
+    }
+    const text = await response.text();
+    return text ? JSON.parse(text) : {};
+  };
+
+  const deleteCourse = async (id) => {
+    const token = localStorage.getItem("token");
+    console.log(
+      "Fshij kurs me ID:",
+      id,
+      "Token:",
+      token ? "Ekziston" : "Nuk ekziston",
+    );
+    const response = await fetch(`${BASE_URL}/courses/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log("Response status:", response.status, response.statusText);
+    if (!response.ok) {
+      const text = await response.text();
+      console.log("Error response text:", text);
+      throw new Error(
+        text || `Gabim ${response.status}: ${response.statusText}`,
+      );
+    }
+  };
+
+  // ─── HANDLERS ─────────────────────────────────────────────────
+
+  // Hap dialogun për shtim
   const handleOpenAdd = () => {
     setIsEdit(false);
     setSelectedCourse(null);
     setFormData(EMPTY_FORM);
+    setFormError(null);
     setOpenDialog(true);
   };
 
+  // Hap dialogun për editim
   const handleOpenEdit = (course) => {
     setIsEdit(true);
     setSelectedCourse(course);
-    setFormData({ ...course });
+    // Mbush form-in me të dhënat e kursit ekzistues
+    setFormData({
+      titulli: course.titulli,
+      pershkrimi: course.pershkrimi,
+      teacherId: course.teacherId,
+      categoryId: course.categoryId,
+      semester: course.semester,
+      enrollmentKey: course.enrollmentKey || "",
+      cmimi: course.cmimi,
+      niveli: course.niveli,
+      statusi: course.statusi,
+    });
+    setFormError(null);
     setOpenDialog(true);
+  };
+
+  // Submit - Krijo ose Përditëso
+  const handleSubmit = async () => {
+    setSaving(true);
+    setFormError(null);
+    try {
+      if (isEdit) {
+        const updated = await updateCourse(selectedCourse.id, formData);
+        // Zëvendëso kursin e vjetër me të riun në state
+        setCourses((prev) =>
+          prev.map((c) => (c.id === updated.id ? updated : c)),
+        );
+        setSnackbarMessage("Kursi u përditësua me sukses.");
+      } else {
+        const created = await createCourse(formData);
+        // Shto kursin e ri në listë
+        setCourses((prev) => [...prev, created]);
+        setSnackbarMessage("Kursi u krijua me sukses.");
+      }
+      setOpenSnackbar(true);
+      setOpenDialog(false);
+    } catch (err) {
+      setFormError(err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Fshi kurs
+  const handleOpenDelete = (course) => {
+    setDeleteTarget(course);
+    setOpenDeleteConfirm(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+
+    try {
+      await deleteCourse(deleteTarget.id);
+      // Largo kursin nga state pa re-fetch
+      setCourses((prev) => prev.filter((c) => c.id !== deleteTarget.id));
+      setSnackbarMessage(`${deleteTarget.titulli} u fshi me sukses.`);
+      setOpenSnackbar(true);
+      setDeleteTarget(null);
+      setOpenDeleteConfirm(false);
+    } catch (err) {
+      console.error("Delete error:", err);
+      setError(err.message || "Gabim gjatë fshirjes");
+      setOpenDeleteConfirm(false);
+      setDeleteTarget(null);
+    }
   };
 
   const field = (k) => (e) =>
     setFormData((f) => ({ ...f, [k]: e.target.value }));
+
+  // Merr kurset kur komponenti ngarkohet
+  useEffect(() => {
+    fetchCourses();
+  }, []);
+
+  // Filtro kurset sipas kërkimit
+  const filtered = courses.filter(
+    (c) =>
+      (c.titulli?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+      (c.categoryName?.toLowerCase() || "").includes(searchTerm.toLowerCase()),
+  );
+
+  // ─── UI ───────────────────────────────────────────────────────
 
   return (
     <Box className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-950">
@@ -208,7 +288,7 @@ export default function AdminCourses() {
           </Button>
         </Box>
 
-        {/* HEADER SECTION */}
+        {/* HEADER */}
         <Box className="mb-12 flex flex-col lg:flex-row lg:items-end justify-between gap-8">
           <div>
             <Typography
@@ -267,48 +347,50 @@ export default function AdminCourses() {
           </Box>
         </Box>
 
-        {/* QUICK STATS STRIP */}
+        {/* ERROR GLOBAL */}
+        {error && (
+          <Alert
+            severity="error"
+            className="mb-6 !rounded-2xl"
+            onClose={() => setError(null)}
+          >
+            {error}
+          </Alert>
+        )}
+
+        {/* STATS */}
         <Grid container spacing={3} className="mb-10">
           {[
             {
-              label: t("adminCourses.stats.total"),
+              label: t("adminCourses.stats.total", "Gjithsej"),
               value: courses.length,
               icon: BookRounded,
               color: "text-sky-600",
               bg: "bg-sky-50 dark:bg-sky-900/20",
             },
             {
-              label: t("adminCourses.stats.credits"),
-              value: courses.reduce((acc, c) => acc + c.credits, 0),
-              icon: LayersRounded,
-              color: "text-violet-600",
-              bg: "bg-violet-50 dark:bg-violet-900/20",
-            },
-            {
-              label: t("adminCourses.stats.categories"),
+              label: t("adminCourses.stats.categories", "Kategori"),
               value: new Set(courses.map((c) => c.categoryName)).size,
               icon: AutoStoriesRounded,
               color: "text-emerald-600",
               bg: "bg-emerald-50 dark:bg-emerald-900/20",
             },
             {
-              label: t("adminCourses.stats.average"),
-              value: (
-                courses.reduce((acc, c) => acc + c.credits, 0) / courses.length
-              ).toFixed(1),
+              label: t("adminCourses.stats.teachers", "Mësues"),
+              value: new Set(courses.map((c) => c.teacherId)).size,
               icon: SchoolRounded,
               color: "text-amber-600",
               bg: "bg-amber-50 dark:bg-amber-900/20",
             },
             {
-              label: t("adminCourses.stats.active"),
-              value: "2",
+              label: t("adminCourses.stats.semesters", "Semestra"),
+              value: new Set(courses.map((c) => c.semester)).size,
               icon: LayersRounded,
               color: "text-indigo-600",
               bg: "bg-indigo-50 dark:bg-indigo-900/20",
             },
           ].map((s, i) => (
-            <Grid item xs={6} sm={4} md={2.4} key={i}>
+            <Grid item xs={6} sm={4} md={3} key={i}>
               <Box className="p-6 rounded-[2rem] bg-white dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800/50 shadow-sm flex items-center gap-4">
                 <div
                   className={`h-12 w-12 rounded-2xl ${s.bg} ${s.color} flex items-center justify-center font-black text-xl`}
@@ -334,7 +416,7 @@ export default function AdminCourses() {
           ))}
         </Grid>
 
-        {/* TABLE CONTAINER */}
+        {/* TABLE */}
         <Card
           elevation={0}
           className="!rounded-[2.5rem] border border-slate-200/60 bg-white/80 dark:!bg-slate-900/50 backdrop-blur-xl overflow-hidden shadow-2xl shadow-slate-200/20 dark:shadow-none"
@@ -344,7 +426,7 @@ export default function AdminCourses() {
               variant="h6"
               className="!font-black !text-slate-800 dark:!text-white"
             >
-              {t("adminCourses.catalogTitle")}
+              {t("adminCourses.catalogTitle", "Katalogu i Lëndëve")}
             </Typography>
           </Box>
 
@@ -367,10 +449,10 @@ export default function AdminCourses() {
                       {t("adminCourses.table.semester", "Semestri")}
                     </TableCell>
                     <TableCell className="!font-black !text-slate-400 !uppercase !text-[10px] !tracking-widest !py-6">
-                      {t("adminCourses.table.credits", "ECTS")}
+                      {t("adminCourses.table.instructor", "Instruktori")}
                     </TableCell>
                     <TableCell className="!font-black !text-slate-400 !uppercase !text-[10px] !tracking-widest !py-6">
-                      {t("adminCourses.table.instructor", "Instruktori")}
+                      {t("adminCourses.table.status", "Statusi")}
                     </TableCell>
                     <TableCell
                       align="right"
@@ -399,7 +481,8 @@ export default function AdminCourses() {
                               variant="body2"
                               className="!text-slate-400"
                             >
-                              Provo të ndryshosh kërkimin tend.
+                              Provo të ndryshosh kërkimin ose shto një lëndë të
+                              re.
                             </Typography>
                           </div>
                         </Box>
@@ -421,13 +504,13 @@ export default function AdminCourses() {
                                 variant="body1"
                                 className="!font-black !text-slate-900 dark:!text-white"
                               >
-                                {course.title}
+                                {course.titulli}
                               </Typography>
                               <Typography
                                 variant="caption"
                                 className="!text-slate-500 !font-medium line-clamp-1 max-w-[250px]"
                               >
-                                {course.description}
+                                {course.pershkrimi}
                               </Typography>
                             </div>
                           </Box>
@@ -443,38 +526,43 @@ export default function AdminCourses() {
                           <span
                             className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest ${SEMESTER_COLORS[course.semester] || SEMESTER_COLORS[1]}`}
                           >
-                            {t("adminCourses.table.semester")} {course.semester}
+                            Sem. {course.semester}
                           </span>
                         </TableCell>
-                        <TableCell>
-                          <Box className="flex items-center gap-2">
-                            <LayersRounded className="text-violet-400 !text-sm" />
-                            <Typography
-                              variant="body2"
-                              className="!font-black !text-slate-700 dark:!text-slate-300"
-                            >
-                              {course.credits} ECTS
-                            </Typography>
-                          </Box>
-                        </TableCell>
                         <TableCell className="!text-slate-600 dark:!text-slate-400 !font-bold !text-sm">
-                          {course.instructorName}
+                          {course.teacherName}
+                        </TableCell>
+                        <TableCell>
+                          <Chip
+                            label={course.statusi}
+                            size="small"
+                            className={`!font-bold !rounded-lg ${
+                              course.statusi === "AKTIV"
+                                ? "!bg-emerald-100 !text-emerald-700 dark:!bg-emerald-900/30 dark:!text-emerald-400"
+                                : "!bg-slate-100 !text-slate-500 dark:!bg-slate-800 dark:!text-slate-400"
+                            }`}
+                          />
                         </TableCell>
                         <TableCell align="right" className="!pr-8">
                           <Box className="flex justify-end gap-1">
-                            <IconButton
-                              size="small"
-                              onClick={() => handleOpenEdit(course)}
-                              className="!bg-slate-100 dark:!bg-slate-800 !text-slate-400 hover:!text-sky-600 !rounded-xl transition-all"
-                            >
-                              <EditRounded fontSize="small" />
-                            </IconButton>
-                            <IconButton
-                              size="small"
-                              className="!bg-slate-100 dark:!bg-slate-800 !text-slate-400 hover:!text-rose-600 !rounded-xl transition-all"
-                            >
-                              <DeleteRounded fontSize="small" />
-                            </IconButton>
+                            <Tooltip title="Ndrysho">
+                              <IconButton
+                                size="small"
+                                onClick={() => handleOpenEdit(course)}
+                                className="!bg-slate-100 dark:!bg-slate-800 !text-slate-400 hover:!text-sky-600 !rounded-xl transition-all"
+                              >
+                                <EditRounded fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Fshi">
+                              <IconButton
+                                size="small"
+                                onClick={() => handleOpenDelete(course)}
+                                className="!bg-slate-100 dark:!bg-slate-800 !text-slate-400 hover:!text-rose-600 !rounded-xl transition-all"
+                              >
+                                <DeleteRounded fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
                           </Box>
                         </TableCell>
                       </TableRow>
@@ -486,7 +574,7 @@ export default function AdminCourses() {
           )}
         </Card>
 
-        {/* MODERN DIALOG FOR LËNDËT */}
+        {/* DIALOG - SHTO / NDRYSHO */}
         <Dialog
           open={openDialog}
           onClose={() => setOpenDialog(false)}
@@ -524,18 +612,31 @@ export default function AdminCourses() {
                 isDark ? "!text-slate-300 !mt-1" : "!text-slate-600 !mt-1"
               }
             >
-              Planimetria e lëndës, kreditet dhe instruktori përgjegjës.
+              Plotëso të dhënat e lëndës dhe ruaji ndryshimet.
             </Typography>
           </DialogTitle>
+
           <DialogContent
             className={`!px-6 !py-4 ${isDark ? "!bg-slate-900/20" : ""}`}
           >
+            {/* ERROR NË FORM */}
+            {formError && (
+              <Alert
+                severity="error"
+                className="mb-4 !rounded-2xl"
+                onClose={() => setFormError(null)}
+              >
+                {formError}
+              </Alert>
+            )}
+
             <Box className="flex flex-col gap-5 mt-4">
+              {/* TITULLI */}
               <TextField
-                label="Titulli i Lëndës"
+                label="Titulli i Lëndës *"
                 fullWidth
-                value={formData.title}
-                onChange={field("title")}
+                value={formData.titulli}
+                onChange={field("titulli")}
                 InputProps={{ className: "!rounded-2xl" }}
                 sx={{
                   "& .MuiOutlinedInput-root": {
@@ -544,7 +645,7 @@ export default function AdminCourses() {
                       borderColor: isDark ? "#334155" : "#cbd5e1",
                     },
                     "&:hover fieldset": {
-                      borderColor: isDark ? "#475569" : "#cbd5e1",
+                      borderColor: isDark ? "#475569" : "#94a3b8",
                     },
                   },
                   "& .MuiInputLabel-root": {
@@ -552,13 +653,15 @@ export default function AdminCourses() {
                   },
                 }}
               />
+
+              {/* PERSHKRIMI */}
               <TextField
-                label="Përshkrimi i Shkurtër"
+                label="Përshkrimi"
                 fullWidth
                 multiline
                 rows={3}
-                value={formData.description}
-                onChange={field("description")}
+                value={formData.pershkrimi}
+                onChange={field("pershkrimi")}
                 InputProps={{ className: "!rounded-2xl" }}
                 sx={{
                   "& .MuiOutlinedInput-root": {
@@ -567,7 +670,7 @@ export default function AdminCourses() {
                       borderColor: isDark ? "#334155" : "#cbd5e1",
                     },
                     "&:hover fieldset": {
-                      borderColor: isDark ? "#475569" : "#cbd5e1",
+                      borderColor: isDark ? "#475569" : "#94a3b8",
                     },
                   },
                   "& .MuiInputLabel-root": {
@@ -575,21 +678,21 @@ export default function AdminCourses() {
                   },
                 }}
               />
+
+              {/* TEACHER ID & CATEGORY ID */}
               <Box className="flex gap-4">
                 <TextField
-                  label={t("adminCourses.table.category")}
+                  label="Teacher ID *"
                   fullWidth
-                  value={formData.categoryName}
-                  onChange={field("categoryName")}
+                  type="number"
+                  value={formData.teacherId}
+                  onChange={field("teacherId")}
                   InputProps={{ className: "!rounded-2xl" }}
                   sx={{
                     "& .MuiOutlinedInput-root": {
                       color: isDark ? "#f1f5f9" : "#1e293b",
                       "& fieldset": {
                         borderColor: isDark ? "#334155" : "#cbd5e1",
-                      },
-                      "&:hover fieldset": {
-                        borderColor: isDark ? "#475569" : "#cbd5e1",
                       },
                     },
                     "& .MuiInputLabel-root": {
@@ -598,19 +701,17 @@ export default function AdminCourses() {
                   }}
                 />
                 <TextField
-                  label={t("adminCourses.table.instructor")}
+                  label="Category ID *"
                   fullWidth
-                  value={formData.instructorName}
-                  onChange={field("instructorName")}
+                  type="number"
+                  value={formData.categoryId}
+                  onChange={field("categoryId")}
                   InputProps={{ className: "!rounded-2xl" }}
                   sx={{
                     "& .MuiOutlinedInput-root": {
                       color: isDark ? "#f1f5f9" : "#1e293b",
                       "& fieldset": {
                         borderColor: isDark ? "#334155" : "#cbd5e1",
-                      },
-                      "&:hover fieldset": {
-                        borderColor: isDark ? "#475569" : "#cbd5e1",
                       },
                     },
                     "& .MuiInputLabel-root": {
@@ -619,23 +720,22 @@ export default function AdminCourses() {
                   }}
                 />
               </Box>
+
+              {/* SEMESTER & CMIMI */}
               <Box className="flex gap-4">
                 <FormControl fullWidth>
                   <InputLabel sx={{ color: isDark ? "#cbd5e1" : "#64748b" }}>
-                    {t("adminCourses.table.semester")}
+                    Semestri *
                   </InputLabel>
                   <Select
                     value={formData.semester}
-                    label={t("adminCourses.table.semester")}
+                    label="Semestri *"
                     onChange={field("semester")}
                     sx={{
                       borderRadius: "1rem",
                       color: isDark ? "#f1f5f9" : "#1e293b",
                       "& .MuiOutlinedInput-notchedOutline": {
                         borderColor: isDark ? "#334155" : "#cbd5e1",
-                      },
-                      "&:hover .MuiOutlinedInput-notchedOutline": {
-                        borderColor: isDark ? "#475569" : "#cbd5e1",
                       },
                       "& .MuiSvgIcon-root": {
                         color: isDark ? "#cbd5e1" : "#64748b",
@@ -644,59 +744,236 @@ export default function AdminCourses() {
                   >
                     {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
                       <MenuItem key={s} value={s}>
-                        {t("adminCourses.table.semester")} {s}
+                        Semestri {s}
                       </MenuItem>
                     ))}
                   </Select>
                 </FormControl>
+
+                <TextField
+                  label="Çmimi (€)"
+                  fullWidth
+                  type="number"
+                  value={formData.cmimi}
+                  onChange={field("cmimi")}
+                  InputProps={{ className: "!rounded-2xl" }}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      color: isDark ? "#f1f5f9" : "#1e293b",
+                      "& fieldset": {
+                        borderColor: isDark ? "#334155" : "#cbd5e1",
+                      },
+                    },
+                    "& .MuiInputLabel-root": {
+                      color: isDark ? "#cbd5e1" : "#64748b",
+                    },
+                  }}
+                />
+              </Box>
+
+              {/* NIVELI & STATUSI */}
+              <Box className="flex gap-4">
                 <FormControl fullWidth>
                   <InputLabel sx={{ color: isDark ? "#cbd5e1" : "#64748b" }}>
-                    {t("adminCourses.table.credits")}
+                    Niveli
                   </InputLabel>
                   <Select
-                    value={formData.credits}
-                    label={t("adminCourses.table.credits")}
-                    onChange={field("credits")}
+                    value={formData.niveli}
+                    label="Niveli"
+                    onChange={field("niveli")}
                     sx={{
                       borderRadius: "1rem",
                       color: isDark ? "#f1f5f9" : "#1e293b",
                       "& .MuiOutlinedInput-notchedOutline": {
                         borderColor: isDark ? "#334155" : "#cbd5e1",
                       },
-                      "&:hover .MuiOutlinedInput-notchedOutline": {
-                        borderColor: isDark ? "#475569" : "#cbd5e1",
+                      "& .MuiSvgIcon-root": {
+                        color: isDark ? "#cbd5e1" : "#64748b",
+                      },
+                    }}
+                  >
+                    <MenuItem value="FILLESTAR">Fillestar</MenuItem>
+                    <MenuItem value="MESEM">Mesëm</MenuItem>
+                    <MenuItem value="AVANCUAR">Avancuar</MenuItem>
+                  </Select>
+                </FormControl>
+
+                <FormControl fullWidth>
+                  <InputLabel sx={{ color: isDark ? "#cbd5e1" : "#64748b" }}>
+                    Statusi
+                  </InputLabel>
+                  <Select
+                    value={formData.statusi}
+                    label="Statusi"
+                    onChange={field("statusi")}
+                    sx={{
+                      borderRadius: "1rem",
+                      color: isDark ? "#f1f5f9" : "#1e293b",
+                      "& .MuiOutlinedInput-notchedOutline": {
+                        borderColor: isDark ? "#334155" : "#cbd5e1",
                       },
                       "& .MuiSvgIcon-root": {
                         color: isDark ? "#cbd5e1" : "#64748b",
                       },
                     }}
                   >
-                    {[2, 3, 4, 5, 6, 7, 8, 10].map((c) => (
-                      <MenuItem key={c} value={c}>
-                        {c} ECTS
-                      </MenuItem>
-                    ))}
+                    <MenuItem value="DRAFT">Draft</MenuItem>
+                    <MenuItem value="AKTIV">Aktiv</MenuItem>
+                    <MenuItem value="ARKIVUAR">Arkivuar</MenuItem>
                   </Select>
                 </FormControl>
               </Box>
+
+              {/* ENROLLMENT KEY */}
+              <TextField
+                label="Enrollment Key (opsionale)"
+                fullWidth
+                value={formData.enrollmentKey}
+                onChange={field("enrollmentKey")}
+                InputProps={{ className: "!rounded-2xl" }}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    color: isDark ? "#f1f5f9" : "#1e293b",
+                    "& fieldset": {
+                      borderColor: isDark ? "#334155" : "#cbd5e1",
+                    },
+                  },
+                  "& .MuiInputLabel-root": {
+                    color: isDark ? "#cbd5e1" : "#64748b",
+                  },
+                }}
+              />
             </Box>
           </DialogContent>
+
           <DialogActions className="!px-8 !pb-8 !pt-4 gap-2">
             <Button
               onClick={() => setOpenDialog(false)}
+              disabled={saving}
               className="!rounded-2xl !px-6 !py-3 !normal-case !font-bold !text-slate-500 hover:!bg-slate-100 dark:hover:!bg-slate-800"
             >
               Anulo
             </Button>
             <Button
               variant="contained"
-              disabled={!formData.title}
+              onClick={handleSubmit}
+              disabled={
+                !formData.titulli ||
+                !formData.teacherId ||
+                !formData.categoryId ||
+                saving
+              }
               className="!rounded-2xl !px-10 !py-3 !normal-case !font-black !bg-sky-600 hover:!bg-sky-700 shadow-lg shadow-sky-500/20"
             >
-              {isEdit ? "Përditëso" : "Shto Lëndën"}
+              {saving ? (
+                <CircularProgress size={20} className="!text-white" />
+              ) : isEdit ? (
+                "Përditëso"
+              ) : (
+                "Shto Lëndën"
+              )}
             </Button>
           </DialogActions>
         </Dialog>
+
+        {/* DELETE CONFIRMATION DIALOG */}
+        <Dialog
+          open={openDeleteConfirm}
+          onClose={() => {
+            setOpenDeleteConfirm(false);
+            setDeleteTarget(null);
+          }}
+          maxWidth="xs"
+          fullWidth
+          TransitionComponent={Zoom}
+          PaperProps={{
+            sx: {
+              borderRadius: "2.5rem",
+              p: 2,
+              backgroundColor: isDark ? "#0f172a" : "white",
+              border: isDark
+                ? "1px solid #1e293b"
+                : "1px solid rgba(148,163,184,0.15)",
+              boxShadow: isDark
+                ? "0 30px 60px rgba(15,23,42,0.65)"
+                : "0 30px 60px rgba(148,163,184,0.15)",
+            },
+          }}
+        >
+          <DialogTitle className="!px-6 !pt-6 !pb-2">
+            <Typography
+              variant="h5"
+              component="p"
+              className={
+                isDark
+                  ? "!font-black !text-white"
+                  : "!font-black !text-slate-900"
+              }
+            >
+              A jeni i sigurt?
+            </Typography>
+          </DialogTitle>
+          <DialogContent className="!px-6 !py-4">
+            <Typography
+              variant="body2"
+              className={isDark ? "!text-slate-300" : "!text-slate-600"}
+            >
+              Do të fshihet përhershëm kursi:
+            </Typography>
+            <Typography
+              variant="body1"
+              className={
+                isDark
+                  ? "!font-bold !text-white !mt-3"
+                  : "!font-bold !text-slate-900 !mt-3"
+              }
+            >
+              {deleteTarget ? deleteTarget.titulli : ""}
+            </Typography>
+            <Typography
+              variant="caption"
+              className={isDark ? "!text-slate-400" : "!text-slate-500"}
+            >
+              {deleteTarget ? deleteTarget.pershkrimi : ""}
+            </Typography>
+          </DialogContent>
+          <DialogActions className="!px-8 !pb-8 !pt-4 gap-2">
+            <Button
+              onClick={() => {
+                setOpenDeleteConfirm(false);
+                setDeleteTarget(null);
+              }}
+              className="!rounded-2xl !px-6 !py-3 !normal-case !font-bold !text-slate-500 hover:!bg-slate-100 dark:hover:!bg-slate-800"
+            >
+              Anulo
+            </Button>
+            <Button
+              variant="contained"
+              color="error"
+              onClick={handleConfirmDelete}
+              className="!rounded-2xl !px-10 !py-3 !normal-case !font-black"
+            >
+              Fshi
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* SNACKBAR */}
+        <Snackbar
+          open={openSnackbar}
+          autoHideDuration={6000}
+          onClose={() => setOpenSnackbar(false)}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        >
+          <Alert
+            onClose={() => setOpenSnackbar(false)}
+            severity="success"
+            variant="filled"
+            className="!rounded-2xl !font-bold"
+          >
+            {snackbarMessage}
+          </Alert>
+        </Snackbar>
       </Container>
       <Footer />
     </Box>
