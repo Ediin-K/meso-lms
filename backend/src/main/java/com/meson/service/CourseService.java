@@ -79,6 +79,7 @@ public class CourseService {
         return toResponse(courseRepository.save(course));
     }
 
+    @org.springframework.transaction.annotation.Transactional
     public void delete(Long id) {
         if (!courseRepository.existsById(id)) {
             throw new RuntimeException("Kursi nuk u gjet");

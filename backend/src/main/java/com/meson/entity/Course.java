@@ -51,6 +51,11 @@ public class Course{
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    @ToString.Exclude
+    private java.util.Set<Enrollment> enrollments;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
