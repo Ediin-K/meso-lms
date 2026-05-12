@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppPreferences } from "../context/appPreferencesContext";
 import {
@@ -18,47 +18,166 @@ import {
   Avatar,
   IconButton,
   CircularProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Snackbar,
+  Alert,
+  Zoom,
 } from "@mui/material";
 import SearchRounded from "@mui/icons-material/SearchRounded";
+import AddRounded from "@mui/icons-material/AddRounded";
 import ArrowBackRounded from "@mui/icons-material/ArrowBackRounded";
 import WorkspacePremiumRounded from "@mui/icons-material/WorkspacePremiumRounded";
 import WorkspacePremiumOutlinedIcon from "@mui/icons-material/WorkspacePremiumOutlined";
-import DownloadRounded from "@mui/icons-material/DownloadRounded";
-import VerifiedRounded from "@mui/icons-material/VerifiedRounded";
-import PendingRounded from "@mui/icons-material/PendingRounded";
+import DeleteRounded from "@mui/icons-material/DeleteRounded";
 import Footer from "../components/ui/Footer";
+import axiosInstance from "../services/axiosInstance";
+import {
+  getAllCertificates,
+  createCertificate,
+  deleteCertificate,
+} from "../services/certificateService";
 
 export default function AdminCertificates() {
   const navigate = useNavigate();
   const { t } = useAppPreferences();
 
-  // TODO: replace with API call
-  const [certificates] = useState([]);
-  const [loading] = useState(false);
+  const [certificates, setCertificates] = useState([]);
+  const [enrollments, setEnrollments] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState("all");
+  const [openDialog, setOpenDialog] = useState(false);
+  const [formData, setFormData] = useState({ enrollmentId: "" });
+  const [submitting, setSubmitting] = useState(false);
+  const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+  const [openSnackbar, setOpenSnackbar] = useState(false);
 
-  const filtered = certificates.filter((c) => {
-    const matchSearch =
-      (c.studentName?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
-      (c.courseName?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
-      (c.certCode?.toLowerCase() || "").includes(searchTerm.toLowerCase());
-    const matchStatus = filterStatus === "all" || c.status === filterStatus;
-    return matchSearch && matchStatus;
+  const showToast = (message, severity = "success") => {
+    setSnackbarSeverity(severity);
+    setSnackbarMessage(message);
+    setOpenSnackbar(true);
+  };
+
+  const getErrorMessage = (error, fallback) => {
+    return (
+      error?.response?.data?.message ||
+      error?.response?.data?.error ||
+      error?.message ||
+      fallback
+    );
+  };
+
+  const loadCertificates = async () => {
+    setLoading(true);
+    try {
+      const response = await getAllCertificates();
+      setCertificates(response);
+    } catch (error) {
+      showToast(
+        getErrorMessage(error, "Gabim gjatë marrjes së certifikatave"),
+        "error",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadEnrollments = async () => {
+    try {
+      const response = await axiosInstance.get("/enrollments");
+      setEnrollments(response.data);
+    } catch (error) {
+      showToast(
+        getErrorMessage(error, "Gabim gjatë marrjes së regjistrimeve"),
+        "error",
+      );
+    }
+  };
+
+  useEffect(() => {
+    loadCertificates();
+    loadEnrollments();
+  }, []);
+
+  const availableEnrollments = enrollments.filter(
+    (enr) =>
+      enr.statusi === "PERFUNDUAR" &&
+      !certificates.some((cert) => cert.enrollmentId === enr.id),
+  );
+
+  const filtered = certificates.filter((cert) => {
+    const term = searchTerm.toLowerCase();
+    const matchStudent = (cert.userEmri?.toLowerCase() || "").includes(term);
+    const matchCourse = (cert.courseTitulli?.toLowerCase() || "").includes(
+      term,
+    );
+    const matchCode = (cert.kodiUnik?.toLowerCase() || "").includes(term);
+    return matchStudent || matchCourse || matchCode;
   });
 
-  const issued = certificates.filter((c) => c.status === "issued").length;
-  const pending = certificates.filter((c) => c.status === "pending").length;
+  const openAddDialog = () => {
+    setFormData({ enrollmentId: "" });
+    setOpenDialog(true);
+  };
 
-  const FILTERS = [
-    {
-      key: "all",
-      label: `Të gjitha (${certificates.length})`,
-      active: "bg-emerald-600",
-    },
-    { key: "issued", label: `Lëshuara (${issued})`, active: "bg-emerald-600" },
-    { key: "pending", label: `Në pritje (${pending})`, active: "bg-amber-500" },
-  ];
+  const handleFieldChange = (key) => (event) => {
+    setFormData((prev) => ({ ...prev, [key]: event.target.value }));
+  };
+
+  const handleSubmit = async () => {
+    if (!formData.enrollmentId) {
+      showToast("Zgjidh një regjistrim për të krijuar certifikatën", "error");
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      await createCertificate({ enrollmentId: Number(formData.enrollmentId) });
+      showToast("Certifikata u krijua me sukses", "success");
+      setOpenDialog(false);
+      setFormData({ enrollmentId: "" });
+      await loadCertificates();
+      await loadEnrollments();
+    } catch (error) {
+      showToast(
+        getErrorMessage(error, "Gabim gjatë krijimit të certifikatës"),
+        "error",
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+
+    setSubmitting(true);
+    try {
+      await deleteCertificate(deleteTarget.id);
+      showToast("Certifikata u fshi me sukses", "success");
+      setOpenDeleteConfirm(false);
+      setDeleteTarget(null);
+      await loadCertificates();
+      await loadEnrollments();
+    } catch (error) {
+      showToast(
+        getErrorMessage(error, "Gabim gjatë fshirjes së certifikatës"),
+        "error",
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <section className="flex flex-col min-h-screen">
@@ -71,7 +190,7 @@ export default function AdminCertificates() {
           {t("home.admin.services.backToPanel", "Kthehu te Paneli")}
         </Button>
 
-        <Box className="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <Box className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <Box className="flex items-center gap-3 mb-2">
               <div className="h-10 w-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center">
@@ -95,39 +214,33 @@ export default function AdminCertificates() {
               )}
             </Typography>
           </div>
-          <TextField
-            placeholder="Kërko student, kurs ose kod..."
-            variant="outlined"
-            size="small"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full md:w-72"
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchRounded className="text-slate-400" />
-                </InputAdornment>
-              ),
-            }}
-            sx={{ "& .MuiOutlinedInput-root": { borderRadius: "12px" } }}
-          />
-        </Box>
-
-        {/* FILTERS */}
-        <Box className="flex flex-wrap gap-2 mb-6">
-          {FILTERS.map(({ key, label, active }) => (
-            <button
-              key={key}
-              onClick={() => setFilterStatus(key)}
-              className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${
-                filterStatus === key
-                  ? `${active} text-white shadow-md`
-                  : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-emerald-400"
-              }`}
+          <div className="flex flex-col sm:flex-row gap-3 items-center">
+            <TextField
+              placeholder="Kërko student, kurs ose kod..."
+              variant="outlined"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full md:w-72"
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchRounded className="text-slate-400" />
+                  </InputAdornment>
+                ),
+                className:
+                  "!rounded-[1.5rem] !bg-white dark:!bg-slate-900 !border-none shadow-sm shadow-slate-200/50 dark:shadow-none",
+              }}
+              sx={{ "& .MuiOutlinedInput-notchedOutline": { border: "none" } }}
+            />
+            <Button
+              variant="contained"
+              startIcon={<AddRounded />}
+              onClick={openAddDialog}
+              className="!rounded-xl !py-2.5 !px-6 !normal-case !font-bold !bg-emerald-600 hover:!bg-emerald-700 shadow-lg shadow-emerald-500/20"
             >
-              {label}
-            </button>
-          ))}
+              Shto Certifikatë
+            </Button>
+          </div>
         </Box>
 
         <Card
@@ -150,13 +263,10 @@ export default function AdminCertificates() {
                       Kursi
                     </TableCell>
                     <TableCell className="!font-bold !text-slate-700 dark:!text-slate-200">
-                      Nota
+                      Data lëshimit
                     </TableCell>
                     <TableCell className="!font-bold !text-slate-700 dark:!text-slate-200">
                       Kodi
-                    </TableCell>
-                    <TableCell className="!font-bold !text-slate-700 dark:!text-slate-200">
-                      Statusi
                     </TableCell>
                     <TableCell
                       align="right"
@@ -169,13 +279,13 @@ export default function AdminCertificates() {
                 <TableBody>
                   {filtered.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6}>
+                      <TableCell colSpan={5}>
                         <Box className="flex flex-col items-center justify-center py-20 gap-4">
                           <div className="h-16 w-16 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center">
                             <WorkspacePremiumOutlinedIcon className="!text-4xl text-emerald-400" />
                           </div>
                           <Typography className="!font-semibold !text-slate-500">
-                            Nuk ka certifikata akoma.
+                            Nuk ka certifikata të disponueshme.
                           </Typography>
                         </Box>
                       </TableCell>
@@ -186,71 +296,42 @@ export default function AdminCertificates() {
                         <TableCell>
                           <Box className="flex items-center gap-3">
                             <Avatar className="!w-9 !h-9 !text-sm !bg-gradient-to-br from-emerald-500 to-teal-600 !font-bold">
-                              {cert.studentName?.charAt(0)}
+                              {cert.userEmri?.charAt(0)}
                             </Avatar>
                             <div>
                               <p className="font-semibold text-slate-800 dark:text-slate-100 text-sm">
-                                {cert.studentName}
+                                {cert.userEmri}
                               </p>
                               <p className="text-xs text-slate-500">
-                                {cert.studentEmail}
+                                ID: {cert.userId}
                               </p>
                             </div>
                           </Box>
                         </TableCell>
-                        <TableCell className="!text-slate-700 dark:!text-slate-300 max-w-[180px]">
-                          <p className="truncate text-sm font-medium">
-                            {cert.courseName}
-                          </p>
+                        <TableCell className="!text-slate-700 dark:!text-slate-300 !font-medium max-w-[220px]">
+                          <p className="truncate">{cert.courseTitulli}</p>
+                        </TableCell>
+                        <TableCell className="!text-slate-500 !text-sm">
+                          {cert.dataLeshimit
+                            ? new Date(cert.dataLeshimit).toLocaleString()
+                            : "—"}
                         </TableCell>
                         <TableCell>
-                          {cert.grade != null ? (
-                            <span
-                              className={`font-bold text-lg ${cert.grade >= 9 ? "text-emerald-600" : cert.grade >= 7 ? "text-sky-600" : "text-amber-600"}`}
-                            >
-                              {cert.grade}
-                            </span>
-                          ) : (
-                            <span className="text-slate-400 text-sm">—</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {cert.certCode ? (
-                            <code className="text-xs bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 px-2 py-1 rounded-lg font-semibold">
-                              {cert.certCode}
-                            </code>
-                          ) : (
-                            <span className="text-slate-400 text-sm">—</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {cert.status === "issued" ? (
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
-                              <VerifiedRounded className="!text-sm" /> Lëshuar
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
-                              <PendingRounded className="!text-sm" /> Në pritje
-                            </span>
-                          )}
+                          <code className="text-xs bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 px-2 py-1 rounded-lg font-semibold">
+                            {cert.kodiUnik}
+                          </code>
                         </TableCell>
                         <TableCell align="right">
-                          {cert.status === "issued" ? (
-                            <IconButton
-                              size="small"
-                              className="!text-slate-400 hover:!text-emerald-600"
-                            >
-                              <DownloadRounded fontSize="small" />
-                            </IconButton>
-                          ) : (
-                            <Button
-                              size="small"
-                              variant="outlined"
-                              className="!rounded-lg !normal-case !text-xs !font-bold !border-amber-400 !text-amber-600 hover:!bg-amber-50"
-                            >
-                              Lësho
-                            </Button>
-                          )}
+                          <IconButton
+                            size="small"
+                            className="!text-slate-400 hover:!text-rose-600"
+                            onClick={() => {
+                              setDeleteTarget(cert);
+                              setOpenDeleteConfirm(true);
+                            }}
+                          >
+                            <DeleteRounded fontSize="small" />
+                          </IconButton>
                         </TableCell>
                       </TableRow>
                     ))
@@ -261,6 +342,127 @@ export default function AdminCertificates() {
           )}
         </Card>
       </Container>
+
+      <Dialog
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+        maxWidth="sm"
+        fullWidth
+        TransitionComponent={Zoom}
+        PaperProps={{
+          sx: {
+            borderRadius: "2rem",
+            p: 2,
+            backgroundColor: "var(--mui-palette-background-paper)",
+          },
+        }}
+      >
+        <DialogTitle className="!px-6 !pt-6 !pb-2">
+          <Typography
+            variant="h5"
+            className="!font-black !text-slate-900 dark:!text-white"
+          >
+            Shto Certifikatë
+          </Typography>
+        </DialogTitle>
+        <DialogContent className="!px-6 !py-4">
+          <Box className="flex flex-col gap-4 mt-2">
+            <FormControl fullWidth>
+              <InputLabel id="select-enrollment-label">Regjistrimi</InputLabel>
+              <Select
+                labelId="select-enrollment-label"
+                value={formData.enrollmentId}
+                label="Regjistrimi"
+                onChange={handleFieldChange("enrollmentId")}
+              >
+                <MenuItem value="">Zgjidh</MenuItem>
+                {availableEnrollments.map((enr) => (
+                  <MenuItem key={enr.id} value={enr.id}>
+                    {enr.userEmri} — {enr.courseTitulli}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            {availableEnrollments.length === 0 && (
+              <Typography className="!text-slate-500 dark:!text-slate-400 text-sm">
+                Nuk ka regjistrime të përfunduara pa certifikatë.
+              </Typography>
+            )}
+          </Box>
+        </DialogContent>
+        <DialogActions className="!p-4 gap-2">
+          <Button
+            onClick={() => setOpenDialog(false)}
+            className="!rounded-xl !normal-case !text-slate-600"
+          >
+            Anulo
+          </Button>
+          <Button
+            variant="contained"
+            disabled={submitting || !formData.enrollmentId}
+            onClick={handleSubmit}
+            className="!rounded-xl !normal-case !font-bold !bg-emerald-600 hover:!bg-emerald-700"
+          >
+            {submitting ? "Duke ruajtur..." : "Krijo Certifikatë"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={openDeleteConfirm}
+        onClose={() => setOpenDeleteConfirm(false)}
+        maxWidth="xs"
+        fullWidth
+        TransitionComponent={Zoom}
+      >
+        <DialogTitle className="!px-6 !pt-6 !pb-2">
+          <Typography
+            variant="h5"
+            className="!font-black !text-slate-900 dark:!text-white"
+          >
+            Fshi Certifikatë
+          </Typography>
+        </DialogTitle>
+        <DialogContent className="!px-6 !py-4">
+          <Typography className="!text-slate-600 dark:!text-slate-300">
+            Je i sigurt që dëshiron të fshish certifikatën e "
+            {deleteTarget?.userEmri}"?
+          </Typography>
+        </DialogContent>
+        <DialogActions className="!p-4 gap-2">
+          <Button
+            onClick={() => setOpenDeleteConfirm(false)}
+            className="!rounded-xl !normal-case !text-slate-600"
+          >
+            Anulo
+          </Button>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={handleDelete}
+            disabled={submitting}
+            className="!rounded-xl !normal-case !font-bold"
+          >
+            {submitting ? "Po fshihet..." : "Fshi Certifikatë"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={() => setOpenSnackbar(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      >
+        <Alert
+          onClose={() => setOpenSnackbar(false)}
+          severity={snackbarSeverity}
+          sx={{ width: "100%" }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
+
       <Footer />
     </section>
   );

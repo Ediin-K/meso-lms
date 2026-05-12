@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppPreferences } from "../context/appPreferencesContext";
 import {
@@ -21,6 +21,8 @@ import {
   DialogContent,
   DialogActions,
   CircularProgress,
+  Alert,
+  Snackbar,
   Zoom,
 } from "@mui/material";
 import SearchRounded from "@mui/icons-material/SearchRounded";
@@ -31,48 +33,143 @@ import DeleteRounded from "@mui/icons-material/DeleteRounded";
 import CategoryRounded from "@mui/icons-material/CategoryRounded";
 import CategoryOutlinedIcon from "@mui/icons-material/CategoryOutlined";
 import Footer from "../components/ui/Footer";
+import {
+  getAllCategories,
+  createCategory,
+  updateCategory,
+  deleteCategory,
+} from "../services/categoryService";
 
-const EMPTY_FORM = { name: "", slug: "", color: "#3b82f6" };
+const EMPTY_FORM = { emertimi: "", pershkrimi: "" };
 
 export default function AdminCategories() {
   const navigate = useNavigate();
   const { t, mode } = useAppPreferences();
   const isDark = mode === "dark";
 
-  // TODO: replace with API call
-  const [categories] = useState([]);
-  const [loading] = useState(false);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
-  const [selectedCat, setSelectedCat] = useState(null);
-  const [submitting, setSubmitting] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const [formData, setFormData] = useState(EMPTY_FORM);
+  const [submitting, setSubmitting] = useState(false);
+  const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+  const [openSnackbar, setOpenSnackbar] = useState(false);
 
-  const filtered = categories.filter(
-    (c) =>
-      c.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.slug?.toLowerCase().includes(searchTerm.toLowerCase()),
+  const showToast = (message, severity = "success") => {
+    setSnackbarSeverity(severity);
+    setSnackbarMessage(message);
+    setOpenSnackbar(true);
+  };
+
+  const getErrorMessage = (error, fallback) => {
+    return (
+      error?.response?.data?.message ||
+      error?.response?.data?.error ||
+      error?.message ||
+      fallback
+    );
+  };
+
+  const loadCategories = async () => {
+    setLoading(true);
+    try {
+      const data = await getAllCategories();
+      setCategories(data);
+    } catch (error) {
+      showToast(
+        getErrorMessage(error, "Gabim gjatë marrjes së kategorive"),
+        "error",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadCategories();
+  }, []);
+
+  const filteredCategories = categories.filter(
+    (category) =>
+      category.emertimi?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      category.pershkrimi?.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  const handleOpenAdd = () => {
+  const openAddDialog = () => {
     setIsEdit(false);
-    setSelectedCat(null);
+    setSelectedCategory(null);
     setFormData(EMPTY_FORM);
     setOpenDialog(true);
   };
-  const handleOpenEdit = (cat) => {
+
+  const openEditDialog = (category) => {
     setIsEdit(true);
-    setSelectedCat(cat);
+    setSelectedCategory(category);
     setFormData({
-      name: cat.name,
-      slug: cat.slug,
-      color: cat.color || "#3b82f6",
+      emertimi: category.emertimi || "",
+      pershkrimi: category.pershkrimi || "",
     });
     setOpenDialog(true);
   };
-  const field = (k) => (e) =>
-    setFormData((f) => ({ ...f, [k]: e.target.value }));
+
+  const handleFieldChange = (key) => (event) => {
+    setFormData((prev) => ({ ...prev, [key]: event.target.value }));
+  };
+
+  const handleSubmit = async () => {
+    if (!formData.emertimi.trim()) {
+      showToast("Emertimi është i detyrueshëm", "error");
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      if (isEdit && selectedCategory) {
+        await updateCategory(selectedCategory.id, formData);
+        showToast("Category updated successfully", "success");
+      } else {
+        await createCategory(formData);
+        showToast("Category created successfully", "success");
+      }
+      setOpenDialog(false);
+      await loadCategories();
+    } catch (error) {
+      showToast(
+        getErrorMessage(error, "Gabim gjatë ruajtjes së kategorisë"),
+        "error",
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+
+    setSubmitting(true);
+
+    try {
+      await deleteCategory(deleteTarget.id);
+      showToast("Category deleted successfully", "success");
+      setOpenDeleteConfirm(false);
+      setDeleteTarget(null);
+      await loadCategories();
+    } catch (error) {
+      showToast(
+        getErrorMessage(error, "Gabim gjatë fshirjes së kategorisë"),
+        "error",
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <section className="flex flex-col min-h-screen">
@@ -123,13 +220,27 @@ export default function AdminCategories() {
                     <SearchRounded className="text-slate-400" />
                   </InputAdornment>
                 ),
+                className:
+                  "!rounded-[1.5rem] !bg-white dark:!bg-slate-900 !border-none shadow-sm shadow-slate-200/50 dark:shadow-none",
               }}
-              sx={{ "& .MuiOutlinedInput-root": { borderRadius: "12px" } }}
+              sx={{
+                "& .MuiOutlinedInput-notchedOutline": {
+                  border: "none",
+                },
+                input: {
+                  color: isDark ? "#f8fafc" : "#0f172a",
+                  "&::placeholder": {
+                    color: isDark
+                      ? "rgba(226,232,240,0.7)"
+                      : "rgba(100,116,139,0.75)",
+                  },
+                },
+              }}
             />
             <Button
               variant="contained"
               startIcon={<AddRounded />}
-              onClick={handleOpenAdd}
+              onClick={openAddDialog}
               className="!rounded-xl !py-2.5 !px-6 !normal-case !font-bold !bg-amber-600 hover:!bg-amber-700 shadow-lg shadow-amber-500/20"
             >
               Shto Kategori
@@ -151,16 +262,10 @@ export default function AdminCategories() {
                 <TableHead className="bg-slate-50 dark:!bg-slate-800/80">
                   <TableRow>
                     <TableCell className="!font-bold !text-slate-700 dark:!text-slate-200">
-                      Ngjyra
-                    </TableCell>
-                    <TableCell className="!font-bold !text-slate-700 dark:!text-slate-200">
                       Emri
                     </TableCell>
                     <TableCell className="!font-bold !text-slate-700 dark:!text-slate-200">
-                      Slug
-                    </TableCell>
-                    <TableCell className="!font-bold !text-slate-700 dark:!text-slate-200">
-                      Kurse
+                      Përshkrimi
                     </TableCell>
                     <TableCell
                       align="right"
@@ -171,9 +276,9 @@ export default function AdminCategories() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {filtered.length === 0 ? (
+                  {filteredCategories.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={5}>
+                      <TableCell colSpan={3}>
                         <Box className="flex flex-col items-center justify-center py-20 gap-4">
                           <div className="h-16 w-16 rounded-2xl bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center">
                             <CategoryOutlinedIcon className="!text-4xl text-amber-400" />
@@ -184,7 +289,7 @@ export default function AdminCategories() {
                           <Button
                             variant="outlined"
                             startIcon={<AddRounded />}
-                            onClick={handleOpenAdd}
+                            onClick={openAddDialog}
                             className="!rounded-xl !normal-case !border-amber-300 !text-amber-600"
                           >
                             Shto Kategorinë e Parë
@@ -193,35 +298,28 @@ export default function AdminCategories() {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    filtered.map((cat) => (
-                      <TableRow key={cat.id} hover>
-                        <TableCell>
-                          <div
-                            className="h-8 w-8 rounded-lg shadow-sm"
-                            style={{ backgroundColor: cat.color || "#94a3b8" }}
-                          />
-                        </TableCell>
+                    filteredCategories.map((category) => (
+                      <TableRow key={category.id} hover>
                         <TableCell className="!font-semibold !text-slate-800 dark:!text-slate-100">
-                          {cat.name}
-                        </TableCell>
-                        <TableCell>
-                          <code className="text-xs bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-lg text-slate-600 dark:text-slate-300">
-                            {cat.slug}
-                          </code>
+                          {category.emertimi}
                         </TableCell>
                         <TableCell className="!text-slate-500 !text-sm">
-                          {cat.courseCount ?? "—"}
+                          {category.pershkrimi || "—"}
                         </TableCell>
                         <TableCell align="right">
                           <IconButton
                             size="small"
-                            onClick={() => handleOpenEdit(cat)}
+                            onClick={() => openEditDialog(category)}
                             className="!text-slate-400 hover:!text-amber-600"
                           >
                             <EditRounded fontSize="small" />
                           </IconButton>
                           <IconButton
                             size="small"
+                            onClick={() => {
+                              setDeleteTarget(category);
+                              setOpenDeleteConfirm(true);
+                            }}
                             className="!text-slate-400 hover:!text-rose-600"
                           >
                             <DeleteRounded fontSize="small" />
@@ -273,10 +371,10 @@ export default function AdminCategories() {
           >
             <Box className="flex flex-col gap-4 mt-2">
               <TextField
-                label="Emri i Kategorisë"
+                label="Emertimi"
                 fullWidth
-                value={formData.name}
-                onChange={field("name")}
+                value={formData.emertimi}
+                onChange={handleFieldChange("emertimi")}
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     borderRadius: "12px",
@@ -294,10 +392,12 @@ export default function AdminCategories() {
                 }}
               />
               <TextField
-                label="Slug (URL)"
+                label="Përshkrimi"
                 fullWidth
-                value={formData.slug}
-                onChange={field("slug")}
+                multiline
+                rows={4}
+                value={formData.pershkrimi}
+                onChange={handleFieldChange("pershkrimi")}
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     borderRadius: "12px",
@@ -314,27 +414,9 @@ export default function AdminCategories() {
                   },
                 }}
               />
-              <Box>
-                <Typography
-                  variant="caption"
-                  className={
-                    isDark
-                      ? "!text-slate-300 !mb-2 block"
-                      : "!text-slate-600 !mb-2 block"
-                  }
-                >
-                  Ngjyra
-                </Typography>
-                <input
-                  type="color"
-                  value={formData.color}
-                  onChange={field("color")}
-                  className="h-10 w-16 rounded-lg cursor-pointer border border-slate-300"
-                />
-              </Box>
             </Box>
           </DialogContent>
-          <DialogActions className="!p-4">
+          <DialogActions className="!p-4 gap-2">
             <Button
               onClick={() => setOpenDialog(false)}
               className="!rounded-xl !normal-case !text-slate-600"
@@ -343,7 +425,8 @@ export default function AdminCategories() {
             </Button>
             <Button
               variant="contained"
-              disabled={submitting || !formData.name}
+              disabled={submitting || !formData.emertimi.trim()}
+              onClick={handleSubmit}
               className="!rounded-xl !normal-case !font-bold !bg-amber-600 hover:!bg-amber-700"
             >
               {submitting
@@ -354,6 +437,77 @@ export default function AdminCategories() {
             </Button>
           </DialogActions>
         </Dialog>
+
+        <Dialog
+          open={openDeleteConfirm}
+          onClose={() => setOpenDeleteConfirm(false)}
+          maxWidth="xs"
+          fullWidth
+          TransitionComponent={Zoom}
+          PaperProps={{
+            sx: {
+              borderRadius: "2rem",
+              p: 2,
+              backgroundColor: isDark ? "#0f172a" : "white",
+              border: isDark
+                ? "1px solid #1e293b"
+                : "1px solid rgba(148,163,184,0.15)",
+            },
+          }}
+        >
+          <DialogTitle className="!px-6 !pt-6 !pb-2">
+            <Typography
+              variant="h5"
+              className={
+                isDark
+                  ? "!font-black !text-white"
+                  : "!font-black !text-slate-900"
+              }
+            >
+              Fshi Kategorinë
+            </Typography>
+          </DialogTitle>
+          <DialogContent
+            className={`!px-6 !py-4 ${isDark ? "!bg-slate-900/20" : ""}`}
+          >
+            <Typography className="!text-slate-600 dark:!text-slate-300">
+              Je i sigurt që dëshiron të fshish kategorinë "
+              {deleteTarget?.emertimi}"?
+            </Typography>
+          </DialogContent>
+          <DialogActions className="!p-4 gap-2">
+            <Button
+              onClick={() => setOpenDeleteConfirm(false)}
+              className="!rounded-xl !normal-case !text-slate-600"
+            >
+              Anulo
+            </Button>
+            <Button
+              variant="contained"
+              color="error"
+              onClick={handleDelete}
+              disabled={submitting}
+              className="!rounded-xl !normal-case !font-bold"
+            >
+              {submitting ? "Po fshihet..." : "Fshi Kategorinë"}
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        <Snackbar
+          open={openSnackbar}
+          autoHideDuration={6000}
+          onClose={() => setOpenSnackbar(false)}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        >
+          <Alert
+            onClose={() => setOpenSnackbar(false)}
+            severity={snackbarSeverity}
+            sx={{ width: "100%" }}
+          >
+            {snackbarMessage}
+          </Alert>
+        </Snackbar>
       </Container>
       <Footer />
     </section>
