@@ -26,6 +26,7 @@ public class CourseCategory{
     @Column(columnDefinition = "TEXT")
     private String pershkrimi;
 
+    @Builder.Default
     @OneToMany(mappedBy="courseCategory" ,fetch = FetchType.LAZY)
     private List<Course> courses = new ArrayList<>();
 

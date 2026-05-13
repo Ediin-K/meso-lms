@@ -3,6 +3,7 @@ package com.meson.dto;
 import com.meson.entity.LessonType;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -19,4 +20,5 @@ public class LessonResponse {
     private Long moduleId;
     private String moduleTitulli;
     private LocalDateTime createdAt;
+    private List<LessonResourceResponse> resources;
 }

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 import axiosInstance from "../services/axiosInstance"
 import { useAppPreferences } from "../context/appPreferencesContext"
 import Footer from "../components/ui/Footer"
-import { Typography, Container, Box, Button, CircularProgress } from "@mui/material"
+import { Typography, Container, Box, Button, CircularProgress, CardContent } from "@mui/material"
 import ArrowBackRounded from "@mui/icons-material/ArrowBackRounded"
 import LibraryBooksRounded from "@mui/icons-material/LibraryBooksRounded"
 import PlayCircleFilledRounded from "@mui/icons-material/PlayCircleFilledRounded"
@@ -79,43 +79,64 @@ export default function SemesterPage() {
                                 to={`/course/${course.id}`} 
                                 key={course.id}
                                 onClick={() => localStorage.setItem('lastCourseId', course.id)}
-                                className="group block h-full focus:outline-none focus:ring-2 focus:ring-sky-500 rounded-3xl"
+                                className="group block focus:outline-none focus:ring-2 focus:ring-sky-500 rounded-[2.5rem]"
+                                style={{ height: "240px", minHeight: "240px", maxHeight: "240px" }}
                             >
-                                <div className="
-                                    relative flex flex-col h-full overflow-hidden rounded-3xl 
-                                    bg-white dark:bg-slate-900/50 
-                                    border border-slate-200/80 dark:border-slate-700/80
-                                    shadow-sm hover:shadow-xl hover:shadow-sky-200/40 dark:hover:shadow-sky-900/20
-                                    transition-all duration-300 hover:-translate-y-1.5
-                                ">
-                                    {/* Card Header / Image placeholder */}
-                                    <div className="h-32 bg-gradient-to-br from-sky-100 to-indigo-50 dark:from-slate-800 dark:to-slate-900 relative border-b border-slate-100/50 dark:border-slate-800">
-                                        <div className="absolute inset-0 opacity-40 dark:opacity-20" style={{ backgroundImage: 'radial-gradient(#94a3b8 1px, transparent 1px)', backgroundSize: '16px 16px' }}></div>
-                                        <div className="absolute bottom-3 left-4">
-                                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-white/95 text-sky-700 dark:bg-slate-800/95 dark:text-sky-400 shadow-sm border border-sky-100 dark:border-slate-700 uppercase tracking-wide">
-                                                {course.categoryName || t('semester.courseBadge', 'Subject')}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    
-                                    {/* Card Body */}
-                                    <div className="p-5 flex flex-col flex-grow">
-                                        <Typography variant="h6" className="!font-bold !text-slate-900 dark:!text-white !leading-tight mb-2 group-hover:!text-sky-600 dark:group-hover:!text-sky-400 transition-colors line-clamp-2">
-                                            {course.titulli}
-                                        </Typography>
-                                        <Typography variant="body2" className="!text-slate-600 dark:!text-slate-400 line-clamp-3 mb-4 flex-grow">
-                                            {course.pershkrimi || course.description || t('semester.noDescription', 'No description provided for this course.')}
-                                        </Typography>
+                                <Box
+                                    className="relative flex flex-col h-full overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-sky-200/40"
+                                    sx={{
+                                        height: "240px !important",
+                                        minHeight: "240px !important",
+                                        maxHeight: "240px !important",
+                                        borderRadius: "2.5rem !important",
+                                        border: "1px solid",
+                                        borderColor: "divider",
+                                        overflow: "hidden !important",
+                                        backgroundColor: "background.paper",
+                                        "&:hover": {
+                                            borderColor: "primary.main",
+                                        }
+                                    }}
+                                >
+                                    <CardContent 
+                                        sx={{ 
+                                            p: "40px !important", 
+                                            height: "100%", 
+                                            display: "flex", 
+                                            flexDirection: "column", 
+                                            justifyContent: "space-between",
+                                            overflow: "hidden"
+                                        }}
+                                    >
+                                        <Box sx={{ display: "flex", flexDirection: "column", gap: 3, overflow: "hidden" }}>
+                                            <Box className="h-14 w-14 rounded-2xl bg-sky-50 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400 flex items-center justify-center shadow-inner flex-shrink-0 transition-transform group-hover:scale-110">
+                                                <LibraryBooksRounded fontSize="large" />
+                                            </Box>
+                                            <Typography 
+                                                variant="h5" 
+                                                sx={{ 
+                                                    fontWeight: 900,
+                                                    display: "-webkit-box",
+                                                    WebkitLineClamp: 2,
+                                                    WebkitBoxOrient: "vertical",
+                                                    overflow: "hidden",
+                                                    lineHeight: 1.2,
+                                                    fontSize: "1.25rem"
+                                                }}
+                                                className="dark:text-white"
+                                            >
+                                                {course.titulli}
+                                            </Typography>
+                                        </Box>
                                         
-                                        {/* Card Footer */}
-                                        <div className="mt-auto pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                                            <span className="text-sm font-semibold text-sky-600 dark:text-sky-400 flex items-center gap-1.5">
-                                                {t('semester.viewCourse', 'View Course')}
-                                                <PlayCircleFilledRounded fontSize="small" className="group-hover:translate-x-1 transition-transform" />
+                                        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", pt: 3, borderTop: "1px solid", borderColor: "divider", flexShrink: 0 }}>
+                                            <span style={{ fontSize: "11px", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.25em", color: "gray" }}>
+                                                {course.categoryName || t('semester.courseBadge', 'SUBJECT')}
                                             </span>
-                                        </div>
-                                    </div>
-                                </div>
+                                            <PlayCircleFilledRounded className="!text-sky-600 dark:!text-sky-400 !text-2xl transition-all duration-300 group-hover:translate-x-3" />
+                                        </Box>
+                                    </CardContent>
+                                </Box>
                             </Link>
                         ))}
                     </div>

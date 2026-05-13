@@ -19,4 +19,5 @@ public class ModuleResponse{
     private LocalDateTime createdAt;
     private Long courseId;
     private String courseTitulli;
+    private Integer lessonCount;
 }

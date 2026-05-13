@@ -25,5 +25,7 @@ public class CourseResponse {
     private Double cmimi;
     private CourseLevel niveli;
     private CourseStatus statusi;
+    private Integer moduleCount;
+    private Integer studentCount;
     private LocalDateTime createdAt;
 }

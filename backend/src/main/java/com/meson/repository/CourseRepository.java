@@ -19,4 +19,5 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     boolean existsByTitulli(String titulli);
 
     long countByTeacherId(Long teacherId);
+    Optional<Course> findByIdAndTeacherId(Long id, Long teacherId);
 }

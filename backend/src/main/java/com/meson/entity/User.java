@@ -34,18 +34,23 @@ public class User {
 
     private String phoneNumber;
 
+    @Builder.Default
     @Column(nullable = false)
     private boolean emailConfirmed = false;
 
+    @Builder.Default
     @Column(nullable = false)
     private boolean lockoutEnabled = false;
 
+    @Builder.Default
     @Column(nullable = false)
     private int accessFailedCount = 0;
 
+    @Builder.Default
     @Column(nullable = false)
     private LocalDateTime dataKrijimit = LocalDateTime.now();
 
+    @Builder.Default
     @Column(nullable = false)
     private String statusi = "active";
 

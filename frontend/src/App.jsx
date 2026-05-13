@@ -9,12 +9,13 @@ import LessonDetail from "./pages/LessonDetail.jsx";
 import Contact from "./pages/ContactUs.jsx";
 import SemesterPage from "./pages/SemesterPage.jsx";
 import QuizPage from "./pages/QuizPage.jsx";
+import CoursesPage from "./pages/CoursesPage.jsx";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "swiper/css";
 import Notifications from "./pages/Notifications.jsx";
 import StudentDashboard from "./components/dashboard/StudentDashboard.jsx";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
-import TeacherDashboard from "./components/dashboard/TeacherDashboard.jsx";
+import TeacherDashboard from "./pages/teacher/TeacherDashboard.jsx";
 import AssignmentPage from "./pages/AssignmentPage.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
 import AdminDashboard from "./components/dashboard/AdminDashboard.jsx";
@@ -26,6 +27,13 @@ import AdminEnrollments from "./pages/AdminEnrollments.jsx";
 import AdminCertificates from "./pages/AdminCertificates.jsx";
 import AdminReports from "./pages/AdminReports.jsx";
 import ConsentBanner from "./components/cookies/ConsentBanner.jsx";
+import TeacherLayout from "./layouts/TeacherLayout.jsx";
+import TeacherCourses from "./pages/teacher/TeacherCourses.jsx";
+import TeacherModules from "./pages/teacher/TeacherModules.jsx";
+import TeacherLessons from "./pages/teacher/TeacherLessons.jsx";
+import TeacherQuizzes from "./pages/teacher/TeacherQuizzes.jsx";
+import TeacherAssignments from "./pages/teacher/TeacherAssignments.jsx";
+import TeacherStudents from "./pages/teacher/TeacherStudents.jsx";
 
 //sdsdsd
 
@@ -48,7 +56,9 @@ function App() {
                 path="/student/semester/:semesterId"
                 element={<SemesterPage />}
               />
+              <Route path="/courses" element={<CoursesPage />} />
               <Route path="/course/:courseId" element={<CourseDetail />} />
+              <Route path="/courses/:courseId" element={<CourseDetail />} />
               <Route path="/lesson/:lessonId" element={<LessonDetail />} />
               <Route path="/quiz/:quizId" element={<QuizPage />} />
               <Route
@@ -133,10 +143,14 @@ function App() {
                 path="/teacher"
                 element={
                   <ProtectedRoute requiredRole="teacher">
-                    <TeacherDashboard />
+                    <TeacherLayout />
                   </ProtectedRoute>
                 }
-              />
+              >
+                <Route index element={<TeacherDashboard />} />
+                <Route path="courses" element={<TeacherCourses />} />
+                <Route path="students" element={<TeacherStudents />} />
+              </Route>
               <Route
                 path="/notifications"
                 element={

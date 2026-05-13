@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@EqualsAndHashCode(exclude = {"teacher", "courseCategory", "modules", "enrollments"})
+@EqualsAndHashCode(exclude = {"teacher", "courseCategory", "enrollments"})
 public class Course{
 
     @Id

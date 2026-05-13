@@ -12,6 +12,22 @@ import PlayCircleFilledRounded from '@mui/icons-material/PlayCircleFilledRounded
 import ExpandMoreRounded from '@mui/icons-material/ExpandMoreRounded'
 import ExpandLessRounded from '@mui/icons-material/ExpandLessRounded'
 import LockRounded from '@mui/icons-material/LockRounded'
+import AddRounded from '@mui/icons-material/AddRounded'
+import EditRounded from '@mui/icons-material/EditRounded'
+import DeleteRounded from '@mui/icons-material/DeleteRounded'
+import MoreVertRounded from '@mui/icons-material/MoreVertRounded'
+import AttachFileRounded from '@mui/icons-material/AttachFileRounded'
+import FileDownloadRounded from '@mui/icons-material/FileDownloadRounded'
+import QuizRounded from '@mui/icons-material/QuizRounded'
+import AssignmentTurnedInRounded from '@mui/icons-material/AssignmentTurnedInRounded'
+import teacherContentService from '../services/teacherContentService'
+import FileUpload from '../components/common/FileUpload'
+import { 
+    Dialog, DialogTitle, DialogContent, DialogActions, TextField, 
+    IconButton, Menu, MenuItem, ListItemIcon, ListItemText,
+    FormControl, InputLabel, Select, Tooltip, Divider, Table, TableBody, TableCell, TableHead, TableRow,
+    Radio, Checkbox, FormControlLabel, TableContainer, Chip
+} from '@mui/material'
 
 export default function CourseDetail() {
     const { courseId } = useParams()
@@ -28,7 +44,28 @@ export default function CourseDetail() {
     const [showModal, setShowModal] = useState(false)
     const [enrollmentKey, setEnrollmentKey] = useState('')
     const [enrollError, setEnrollError] = useState('')
+    const { role } = useAppPreferences()
     const userId = localStorage.getItem('userId')
+    const [isOwner, setIsOwner] = useState(false)
+
+    // Management State
+    const [moduleModal, setModuleModal] = useState({ open: false, editing: null })
+    const [lessonModal, setLessonModal] = useState({ open: false, editing: null, moduleId: null })
+    const [moduleForm, setModuleForm] = useState({ titulli: '', pershkrimi: '', rradhitja: 1 })
+    const [lessonForm, setLessonForm] = useState({ titulli: '', permbajtja: '', lloji: 'TEKST', videoUrl: '', resourceUrl: '', rradhitja: 1 })
+    const [uploading, setUploading] = useState(false)
+    const [menuAnchor, setMenuAnchor] = useState({ el: null, type: null, id: null })
+
+    // Quiz Management State
+    const [quizModal, setQuizModal] = useState({ open: false, lessonId: null, quizId: null })
+    const [questions, setQuestions] = useState([])
+    const [questionForm, setQuestionForm] = useState({ teksti: '', lloji: 'RADIO', piket: 1 })
+    const [answerForm, setAnswerForm] = useState({ teksti: '', eshteSakte: false })
+
+    // Assignment Management State
+    const [submissionsModal, setSubmissionsModal] = useState({ open: false, assignmentId: null })
+    const [submissions, setSubmissions] = useState([])
+    const [gradingModal, setGradingModal] = useState({ open: false, submissionId: null, nota: 0, feedback: '' })
 
     useEffect(() => {
         const fetchData = async () => {
@@ -41,8 +78,12 @@ export default function CourseDetail() {
                 ])
                 setCourse(courseRes.data)
                 setModules(modulesRes.data)
+                
+                const owner = role === 'teacher' && courseRes.data.teacherId === Number(userId)
+                setIsOwner(owner)
+
                 const enrolled = enrollmentRes.data.some(e => e.courseId === Number(courseId))
-                setIsEnrolled(enrolled)
+                setIsEnrolled(enrolled || owner)
             } catch (err) {
                 console.error(err)
             } finally {
@@ -86,6 +127,132 @@ export default function CourseDetail() {
                 console.error(err)
             }
         }
+    }
+
+    const handleModuleSubmit = async () => {
+        try {
+            if (moduleModal.editing) {
+                await teacherContentService.updateModule(moduleModal.editing, moduleForm)
+            } else {
+                await teacherContentService.createModule({ ...moduleForm, courseId: Number(courseId) })
+            }
+            const res = await axiosInstance.get(`/courses/${courseId}/modules`)
+            setModules(res.data)
+            setModuleModal({ open: false, editing: null })
+        } catch (err) { console.error(err) }
+    }
+
+    const handleLessonSubmit = async () => {
+        try {
+            if (lessonModal.editing) {
+                await teacherContentService.updateLesson(lessonModal.editing, lessonForm)
+            } else {
+                await teacherContentService.createLesson({ ...lessonForm, moduleId: lessonModal.moduleId })
+            }
+            const res = await axiosInstance.get(`/modules/${lessonModal.moduleId}/lessons`)
+            setLessons(prev => ({ ...prev, [lessonModal.moduleId]: res.data }))
+            setLessonModal({ open: false, editing: null, moduleId: null })
+        } catch (err) { console.error(err) }
+    }
+
+    const deleteModule = async (id) => {
+        if (!window.confirm("A jeni të sigurt që dëshironi të fshini këtë modul?")) return
+        try {
+            await teacherContentService.deleteModule(id)
+            setModules(prev => prev.filter(m => m.id !== id))
+        } catch (err) { console.error(err) }
+    }
+
+    const deleteLesson = async (id, moduleId) => {
+        if (!window.confirm("A jeni të sigurt që dëshironi të fshini këtë lëndë?")) return
+        try {
+            await teacherContentService.deleteLesson(id)
+            setLessons(prev => ({ ...prev, [moduleId]: prev[moduleId].filter(l => l.id !== id) }))
+        } catch (err) { console.error(err) }
+    }
+
+    const handleFileUpload = async (file) => {
+        setUploading(true)
+        try {
+            await teacherContentService.uploadLessonFile(lessonModal.editing, file)
+            // Refresh lessons to show new file
+            const res = await axiosInstance.get(`/modules/${lessonModal.moduleId}/lessons`)
+            setLessons(prev => ({ ...prev, [lessonModal.moduleId]: res.data }))
+            // Also update editing lesson data if needed, but the list refresh should be enough
+        } catch (err) { console.error(err) }
+        finally { setUploading(false) }
+    }
+
+    const deleteFile = async (resourceId, moduleId) => {
+        if (!window.confirm("A jeni të sigurt?")) return
+        try {
+            await teacherContentService.deleteLessonFile(resourceId)
+            const res = await axiosInstance.get(`/modules/${moduleId}/lessons`)
+            setLessons(prev => ({ ...prev, [moduleId]: res.data }))
+        } catch (err) { console.error(err) }
+    }
+
+    // --- QUIZ HANDLERS ---
+    const handleOpenQuizManager = async (lessonId) => {
+        try {
+            const res = await teacherContentService.getQuizzes(lessonId);
+            let quizId = null;
+            if (res.data.length > 0) {
+                quizId = res.data[0].id;
+                const questionsRes = await teacherContentService.getQuestions(quizId);
+                setQuestions(questionsRes.data);
+            } else {
+                // Auto-create quiz if doesn't exist
+                const newQuiz = await teacherContentService.createQuiz({ lessonId, titulli: "Quiz", pershkrimi: "", kohaLimit: 30 });
+                quizId = newQuiz.data.id;
+                setQuestions([]);
+            }
+            setQuizModal({ open: true, lessonId, quizId });
+        } catch (err) { console.error(err); }
+    }
+
+    const handleCreateQuestion = async () => {
+        try {
+            const res = await teacherContentService.createQuestion({ ...questionForm, quizId: quizModal.quizId });
+            setQuestions(prev => [...prev, res.data]);
+            setQuestionForm({ teksti: '', lloji: 'RADIO', piket: 1 });
+        } catch (err) { console.error(err); }
+    }
+
+    const handleAddAnswer = async (questionId) => {
+        try {
+            await teacherContentService.addAnswer(questionId, answerForm);
+            const questionsRes = await teacherContentService.getQuestions(quizModal.quizId);
+            setQuestions(questionsRes.data);
+            setAnswerForm({ teksti: '', eshteSakte: false });
+        } catch (err) { console.error(err); }
+    }
+
+    // --- ASSIGNMENT HANDLERS ---
+    const handleOpenSubmissions = async (lessonId) => {
+        try {
+            const res = await teacherContentService.getAssignments(lessonId);
+            if (res.data.length > 0) {
+                const assignmentId = res.data[0].id;
+                const subsRes = await teacherContentService.getSubmissions(assignmentId);
+                setSubmissions(subsRes.data);
+                setSubmissionsModal({ open: true, assignmentId });
+            } else {
+                // Auto-create assignment
+                const newAss = await teacherContentService.createAssignment({ lessonId, titulli: "Detyrë", pershkrimi: "", afatiFundit: new Date(Date.now() + 7*24*60*60*1000).toISOString() });
+                setSubmissions([]);
+                setSubmissionsModal({ open: true, assignmentId: newAss.data.id });
+            }
+        } catch (err) { console.error(err); }
+    }
+
+    const handleGrade = async () => {
+        try {
+            await teacherContentService.gradeSubmission(gradingModal.submissionId, { nota: gradingModal.nota, statusi: 'GRADED' });
+            const res = await teacherContentService.getSubmissions(submissionsModal.assignmentId);
+            setSubmissions(res.data);
+            setGradingModal({ open: false, submissionId: null, nota: 0, feedback: '' });
+        } catch (err) { console.error(err); }
     }
 
     if (loading) {
@@ -173,6 +340,26 @@ export default function CourseDetail() {
                     </Card>
                 )}
 
+                {/* MODULES HEADER */}
+                <Box className="flex items-center justify-between mb-6">
+                    <Typography variant="h5" className="!font-bold !text-slate-900 dark:!text-white">
+                        Përmbajtja e Kursit
+                    </Typography>
+                    {isOwner && (
+                        <Button
+                            variant="contained"
+                            startIcon={<AddRounded />}
+                            onClick={() => {
+                                setModuleForm({ titulli: '', pershkrimi: '', rradhitja: modules.length + 1 })
+                                setModuleModal({ open: true, editing: null })
+                            }}
+                            className="!rounded-full !bg-sky-600 !normal-case"
+                        >
+                            Shto Modul
+                        </Button>
+                    )}
+                </Box>
+
                 {/* MODULES */}
                 {!isEnrolled ? (
                     <Box className="flex flex-col justify-center items-center py-20 px-4 text-center bg-white/60 dark:bg-slate-900/60 rounded-3xl border border-dashed border-slate-300 dark:border-slate-700">
@@ -216,10 +403,31 @@ export default function CourseDetail() {
                                             </Typography>
                                         </div>
                                     </div>
-                                    {expandedModule === module.id
-                                        ? <ExpandLessRounded className="text-sky-600" />
-                                        : <ExpandMoreRounded className="text-slate-400" />
-                                    }
+                                    {isOwner ? (
+                                        <div className="flex items-center gap-1">
+                                            <IconButton size="small" onClick={(e) => {
+                                                e.stopPropagation()
+                                                setModuleForm({ titulli: module.titulli, pershkrimi: module.pershkrimi, rradhitja: module.rradhitja })
+                                                setModuleModal({ open: true, editing: module.id })
+                                            }}>
+                                                <EditRounded fontSize="small" className="text-slate-400" />
+                                            </IconButton>
+                                            <IconButton size="small" onClick={(e) => {
+                                                e.stopPropagation()
+                                                deleteModule(module.id)
+                                            }}>
+                                                <DeleteRounded fontSize="small" className="text-red-400" />
+                                            </IconButton>
+                                            {expandedModule === module.id
+                                                ? <ExpandLessRounded className="text-sky-600" />
+                                                : <ExpandMoreRounded className="text-slate-400" />
+                                            }
+                                        </div>
+                                    ) : (
+                                        expandedModule === module.id
+                                            ? <ExpandLessRounded className="text-sky-600" />
+                                            : <ExpandMoreRounded className="text-slate-400" />
+                                    )}
                                 </Box>
 
                                 {expandedModule === module.id && (
@@ -233,31 +441,129 @@ export default function CourseDetail() {
                                                 <Typography variant="body2" className="!text-slate-500">
                                                     Nuk ka leksione në këtë modul
                                                 </Typography>
+                                                {isOwner && (
+                                                    <Button
+                                                        startIcon={<AddRounded />}
+                                                        size="small"
+                                                        onClick={() => {
+                                                            setLessonForm({ titulli: '', permbajtja: '', lloji: 'TEKST', videoUrl: '', resourceUrl: '', rradhitja: 1 })
+                                                            setLessonModal({ open: true, editing: null, moduleId: module.id })
+                                                        }}
+                                                        className="!mt-4 !normal-case !text-sky-600"
+                                                    >
+                                                        Shto Leksionin e Parë
+                                                    </Button>
+                                                )}
                                             </Box>
                                         ) : (
                                             <div className="flex flex-col">
                                                 {lessons[module.id].map((lesson, lIndex) => (
                                                     <Box
                                                         key={lesson.id}
-                                                        className="flex items-center justify-between px-5 py-4 hover:bg-sky-50/30 dark:hover:bg-slate-800/30 transition-colors border-b border-slate-100/50 dark:border-slate-800/50 last:border-0 cursor-pointer"
-                                                        onClick={() => navigate(`/lesson/${lesson.id}`)}
+                                                        className="flex flex-col border-b border-slate-100/50 dark:border-slate-800/50 last:border-0"
                                                     >
-                                                        <div className="flex items-center gap-3">
-                                                            <span className="text-sm font-bold text-slate-400 w-6">
-                                                                {lIndex + 1}
-                                                            </span>
-                                                            <div>
-                                                                <Typography variant="body2" className="!font-semibold !text-slate-800 dark:!text-white">
-                                                                    {lesson.titulli}
-                                                                </Typography>
-                                                                <Typography variant="caption" className="!text-slate-500 dark:!text-slate-400">
-                                                                    {lesson.lloji}
-                                                                </Typography>
+                                                        <Box
+                                                            className="flex items-center justify-between px-5 py-4 hover:bg-sky-50/30 dark:hover:bg-slate-800/30 transition-colors cursor-pointer"
+                                                            onClick={() => navigate(`/lesson/${lesson.id}`)}
+                                                        >
+                                                            <div className="flex items-center gap-3">
+                                                                <span className="text-sm font-bold text-slate-400 w-6">
+                                                                    {lIndex + 1}
+                                                                </span>
+                                                                <div>
+                                                                    <Typography variant="body2" className="!font-semibold !text-slate-800 dark:!text-white">
+                                                                        {lesson.titulli}
+                                                                    </Typography>
+                                                                    <Typography variant="caption" className="!text-slate-500 dark:!text-slate-400">
+                                                                        {lesson.lloji}
+                                                                    </Typography>
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                        <PlayCircleFilledRounded className="text-sky-500" fontSize="small" />
+                                                            <div className="flex items-center gap-2">
+                                                                {isOwner && (
+                                                                    <>
+                                                                        {lesson.lloji === 'QUIZ' && (
+                                                                            <Tooltip title="Menaxho Pyetjet">
+                                                                                <IconButton size="small" onClick={(e) => {
+                                                                                    e.stopPropagation();
+                                                                                    handleOpenQuizManager(lesson.id);
+                                                                                }} className="!text-amber-500">
+                                                                                    <QuizRounded fontSize="small" />
+                                                                                </IconButton>
+                                                                            </Tooltip>
+                                                                        )}
+                                                                        {lesson.lloji === 'ASSIGNMENT' && (
+                                                                            <Tooltip title="Shiko Dorëzimet">
+                                                                                <IconButton size="small" onClick={(e) => {
+                                                                                    e.stopPropagation();
+                                                                                    handleOpenSubmissions(lesson.id);
+                                                                                }} className="!text-emerald-500">
+                                                                                    <AssignmentTurnedInRounded fontSize="small" />
+                                                                                </IconButton>
+                                                                            </Tooltip>
+                                                                        )}
+                                                                        <IconButton size="small" onClick={(e) => {
+                                                                            e.stopPropagation()
+                                                                            setLessonForm({ 
+                                                                                titulli: lesson.titulli, 
+                                                                                permbajtja: lesson.permbajtja, 
+                                                                                lloji: lesson.lloji, 
+                                                                                videoUrl: lesson.videoUrl || '', 
+                                                                                resourceUrl: lesson.resourceUrl || '', 
+                                                                                rradhitja: lesson.rradhitja 
+                                                                            })
+                                                                            setLessonModal({ open: true, editing: lesson.id, moduleId: module.id })
+                                                                        }}>
+                                                                            <EditRounded fontSize="small" className="text-slate-400" />
+                                                                        </IconButton>
+                                                                        <IconButton size="small" onClick={(e) => {
+                                                                            e.stopPropagation()
+                                                                            deleteLesson(lesson.id, module.id)
+                                                                        }}>
+                                                                            <DeleteRounded fontSize="small" className="text-red-400" />
+                                                                        </IconButton>
+                                                                    </>
+                                                                )}
+                                                                <PlayCircleFilledRounded className="text-sky-500" fontSize="small" />
+                                                            </div>
+                                                        </Box>
+                                                        
+                                                        {/* Resources list */}
+                                                        {lesson.resources && lesson.resources.length > 0 && (
+                                                            <Box className="px-14 pb-4 flex flex-wrap gap-2">
+                                                                {lesson.resources.map(res => (
+                                                                    <Chip
+                                                                        key={res.id}
+                                                                        icon={<AttachFileRounded fontSize="small" />}
+                                                                        label={res.emriOrigjinal}
+                                                                        variant="outlined"
+                                                                        size="small"
+                                                                        clickable
+                                                                        onClick={() => window.open(`${axiosInstance.defaults.baseURL}${res.url}`, '_blank')}
+                                                                        onDelete={isOwner ? () => deleteFile(res.id, module.id) : undefined}
+                                                                        className="!rounded-lg !text-[10px] !bg-slate-50 dark:!bg-slate-800/50"
+                                                                    />
+                                                                ))}
+                                                            </Box>
+                                                        )}
                                                     </Box>
                                                 ))}
+                                                {isOwner && (
+                                                    <Box className="p-4 border-t border-slate-50 dark:border-slate-800/30">
+                                                        <Button
+                                                            startIcon={<AddRounded />}
+                                                            size="small"
+                                                            fullWidth
+                                                            onClick={() => {
+                                                                setLessonForm({ titulli: '', permbajtja: '', lloji: 'TEKST', videoUrl: '', resourceUrl: '', rradhitja: lessons[module.id].length + 1 })
+                                                                setLessonModal({ open: true, editing: null, moduleId: module.id })
+                                                            }}
+                                                            className="!normal-case !text-sky-600 !border !border-dashed !border-sky-100 !rounded-xl"
+                                                        >
+                                                            Shto Leksion
+                                                        </Button>
+                                                    </Box>
+                                                )}
                                             </div>
                                         )}
                                     </Box>
@@ -269,7 +575,7 @@ export default function CourseDetail() {
             </Container>
             <Footer />
 
-            {/* MODAL */}
+             {/* MODAL */}
             {showModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
                     <Card elevation={0} className="w-full max-w-md mx-4 rounded-3xl border border-slate-200/80 bg-white dark:!bg-slate-900/95 dark:!border-slate-700/80">
@@ -322,6 +628,244 @@ export default function CourseDetail() {
                     </Card>
                 </div>
             )}
+
+            {/* MODULE MANAGEMENT DIALOG */}
+            <Dialog 
+                open={moduleModal.open} 
+                onClose={() => setModuleModal({ open: false, editing: null })}
+                maxWidth="xs"
+                fullWidth
+                PaperProps={{ className: "!rounded-3xl !p-2" }}
+            >
+                <DialogTitle className="!font-bold">
+                    {moduleModal.editing ? "Ndrysho Modulin" : "Shto Modul të Ri"}
+                </DialogTitle>
+                <DialogContent className="flex flex-col gap-4 mt-2">
+                    <TextField 
+                        label="Titulli i Modulit" 
+                        fullWidth 
+                        value={moduleForm.titulli} 
+                        onChange={e => setModuleForm({ ...moduleForm, titulli: e.target.value })} 
+                    />
+                    <TextField 
+                        label="Përshkrimi" 
+                        fullWidth 
+                        multiline 
+                        rows={2} 
+                        value={moduleForm.pershkrimi} 
+                        onChange={e => setModuleForm({ ...moduleForm, pershkrimi: e.target.value })} 
+                    />
+                </DialogContent>
+                <DialogActions className="!px-6 !pb-6">
+                    <Button onClick={() => setModuleModal({ open: false, editing: null })} className="!normal-case">Anulo</Button>
+                    <Button variant="contained" onClick={handleModuleSubmit} className="!rounded-full !bg-sky-600 !normal-case">
+                        {moduleModal.editing ? "Përditëso" : "Krijo"}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* LESSON MANAGEMENT DIALOG */}
+            <Dialog 
+                open={lessonModal.open} 
+                onClose={() => setLessonModal({ open: false, editing: null, moduleId: null })}
+                maxWidth="sm"
+                fullWidth
+                PaperProps={{ className: "!rounded-3xl !p-2" }}
+            >
+                <DialogTitle className="!font-bold">
+                    {lessonModal.editing ? "Ndrysho Leksionin" : "Shto Leksion të Ri"}
+                </DialogTitle>
+                <DialogContent className="flex flex-col gap-4 mt-2">
+                    <TextField 
+                        label="Titulli i Leksionit" 
+                        fullWidth 
+                        value={lessonForm.titulli} 
+                        onChange={e => setLessonForm({ ...lessonForm, titulli: e.target.value })} 
+                    />
+                    
+                    <Box className="flex gap-4">
+                        <FormControl fullWidth>
+                            <InputLabel>Lloji</InputLabel>
+                            <Select
+                                value={lessonForm.lloji}
+                                label="Lloji"
+                                onChange={e => setLessonForm({ ...lessonForm, lloji: e.target.value })}
+                            >
+                                <MenuItem value="TEKST">Tekst</MenuItem>
+                                <MenuItem value="VIDEO">Video</MenuItem>
+                                <MenuItem value="QUIZ">Quiz</MenuItem>
+                                <MenuItem value="ASSIGNMENT">Detyrë</MenuItem>
+                            </Select>
+                        </FormControl>
+                        <TextField 
+                            label="Rradhitja" 
+                            type="number" 
+                            value={lessonForm.rradhitja} 
+                            onChange={e => setLessonForm({ ...lessonForm, rradhitja: Number(e.target.value) })} 
+                        />
+                    </Box>
+
+                    <TextField 
+                        label="Përmbajtja" 
+                        fullWidth 
+                        multiline 
+                        rows={4} 
+                        value={lessonForm.permbajtja} 
+                        onChange={e => setLessonForm({ ...lessonForm, permbajtja: e.target.value })} 
+                    />
+
+                    <TextField 
+                        label="Video URL (YouTube)" 
+                        fullWidth 
+                        value={lessonForm.videoUrl} 
+                        onChange={e => setLessonForm({ ...lessonForm, videoUrl: e.target.value })} 
+                    />
+
+                    {lessonModal.editing && (
+                        <>
+                            <Divider className="!my-2" />
+                            <Typography variant="subtitle2" className="!font-bold mb-2 flex items-center gap-2">
+                                <AttachFileRounded fontSize="small" /> Materiale Mësimore
+                            </Typography>
+                            <FileUpload 
+                                onUpload={handleFileUpload} 
+                                loading={uploading} 
+                                allowedTypes=".pdf,.docx,.doc,.pptx,.ppt,.zip,.jpg,.jpeg,.png,.mp4" 
+                            />
+                        </>
+                    )}
+                </DialogContent>
+                <DialogActions className="!px-6 !pb-6">
+                    <Button onClick={() => setLessonModal({ open: false, editing: null, moduleId: null })} className="!normal-case">Anulo</Button>
+                    <Button variant="contained" onClick={handleLessonSubmit} className="!rounded-full !bg-sky-600 !normal-case">
+                        {lessonModal.editing ? "Përditëso" : "Krijo"}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+            {/* QUIZ MANAGEMENT DIALOG */}
+            <Dialog 
+                open={quizModal.open} 
+                onClose={() => setQuizModal({ open: false, lessonId: null, quizId: null })}
+                maxWidth="md"
+                fullWidth
+                PaperProps={{ className: "!rounded-[2.5rem] !p-4" }}
+            >
+                <DialogTitle className="!font-black !text-2xl">Menaxho Kuizin</DialogTitle>
+                <DialogContent>
+                    <Box className="flex flex-col gap-8 mt-4">
+                        {/* New Question Form */}
+                        <Box className="p-6 rounded-3xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800">
+                            <Typography variant="subtitle1" className="!font-black mb-4">Shto Pyetje të Re</Typography>
+                            <Box className="flex flex-col gap-4">
+                                <TextField label="Teksti i Pyetjes" fullWidth value={questionForm.teksti} onChange={e => setQuestionForm({...questionForm, teksti: e.target.value})} />
+                                <Box className="flex gap-4">
+                                    <FormControl fullWidth>
+                                        <InputLabel>Lloji</InputLabel>
+                                        <Select value={questionForm.lloji} label="Lloji" onChange={e => setQuestionForm({...questionForm, lloji: e.target.value})}>
+                                            <MenuItem value="RADIO">Një zgjedhje</MenuItem>
+                                            <MenuItem value="CHECKBOX">Shumë zgjedhje</MenuItem>
+                                        </Select>
+                                    </FormControl>
+                                    <TextField label="Pikët" type="number" value={questionForm.piket} onChange={e => setQuestionForm({...questionForm, piket: Number(e.target.value)})} />
+                                </Box>
+                                <Button variant="contained" onClick={handleCreateQuestion} className="!rounded-xl !bg-amber-500 !normal-case !font-bold">Krijo Pyetjen</Button>
+                            </Box>
+                        </Box>
+
+                        {/* Questions List */}
+                        <Box className="flex flex-col gap-6">
+                            {questions.map((q, idx) => (
+                                <Box key={q.id} className="p-6 rounded-3xl border border-slate-100 dark:border-slate-800">
+                                    <Typography className="!font-bold mb-4">{idx + 1}. {q.teksti} ({q.piket} pikë)</Typography>
+                                    
+                                    <Box className="flex flex-col gap-2 ml-4">
+                                        {q.answers && q.answers.map(a => (
+                                            <Box key={a.id} className={`p-3 rounded-xl border ${a.eshteSakte ? 'border-emerald-200 bg-emerald-50 dark:bg-emerald-900/20' : 'border-slate-100'}`}>
+                                                <Typography variant="body2">{a.teksti} {a.eshteSakte && "✅"}</Typography>
+                                            </Box>
+                                        ))}
+                                        
+                                        <Box className="flex gap-2 mt-4">
+                                            <TextField size="small" placeholder="Shto opsion..." value={answerForm.teksti} onChange={e => setAnswerForm({...answerForm, teksti: e.target.value})} />
+                                            <FormControlLabel control={<Checkbox checked={answerForm.eshteSakte} onChange={e => setAnswerForm({...answerForm, eshteSakte: e.target.checked})} />} label="E saktë" />
+                                            <Button size="small" variant="outlined" onClick={() => handleAddAnswer(q.id)} className="!rounded-lg">Shto</Button>
+                                        </Box>
+                                    </Box>
+                                </Box>
+                            ))}
+                        </Box>
+                    </Box>
+                </DialogContent>
+                <DialogActions className="!p-8">
+                    <Button onClick={() => setQuizModal({ open: false })} className="!font-bold">Mbyll</Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* SUBMISSIONS DIALOG */}
+            <Dialog 
+                open={submissionsModal.open} 
+                onClose={() => setSubmissionsModal({ open: false })}
+                maxWidth="md"
+                fullWidth
+                PaperProps={{ className: "!rounded-[2.5rem] !p-4" }}
+            >
+                <DialogTitle className="!font-black !text-2xl">Dorëzimet e Detyrës</DialogTitle>
+                <DialogContent>
+                    <TableContainer className="mt-4">
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell className="!font-black">Studenti</TableCell>
+                                    <TableCell className="!font-black">Data</TableCell>
+                                    <TableCell className="!font-black">Statusi</TableCell>
+                                    <TableCell className="!font-black">Nota</TableCell>
+                                    <TableCell align="right" className="!font-black">Veprime</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {submissions.map(sub => (
+                                    <TableRow key={sub.id}>
+                                        <TableCell>{sub.studentName}</TableCell>
+                                        <TableCell>{new Date(sub.submittedAt).toLocaleDateString()}</TableCell>
+                                        <TableCell>
+                                            <Chip label={sub.statusi} size="small" color={sub.statusi === 'GRADED' ? 'success' : 'warning'} className="!font-bold !rounded-lg" />
+                                        </TableCell>
+                                        <TableCell className="!font-black">{sub.nota || '-'}/100</TableCell>
+                                        <TableCell align="right">
+                                            <Button variant="outlined" size="small" onClick={() => setGradingModal({ open: true, submissionId: sub.id, nota: sub.nota || 0, feedback: sub.feedback || '' })} className="!rounded-lg !normal-case">Vlerëso</Button>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                                {submissions.length === 0 && (
+                                    <TableRow>
+                                        <TableCell colSpan={5} align="center" className="!py-10 text-slate-400">Ende nuk ka dorëzime.</TableCell>
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </DialogContent>
+                <DialogActions className="!p-8">
+                    <Button onClick={() => setSubmissionsModal({ open: false })} className="!font-bold">Mbyll</Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* GRADING DIALOG */}
+            <Dialog 
+                open={gradingModal.open} 
+                onClose={() => setGradingModal({ open: false })}
+                PaperProps={{ className: "!rounded-3xl !p-2" }}
+            >
+                <DialogTitle className="!font-black">Vlerëso Dorëzimin</DialogTitle>
+                <DialogContent className="flex flex-col gap-4 mt-2">
+                    <TextField label="Nota (0-100)" type="number" fullWidth value={gradingModal.nota} onChange={e => setGradingModal({...gradingModal, nota: Number(e.target.value)})} />
+                    <TextField label="Feedback" fullWidth multiline rows={3} value={gradingModal.feedback} onChange={e => setGradingModal({...gradingModal, feedback: e.target.value})} />
+                </DialogContent>
+                <DialogActions className="!p-6">
+                    <Button onClick={() => setGradingModal({ open: false })}>Anulo</Button>
+                    <Button variant="contained" onClick={handleGrade} className="!rounded-xl !bg-emerald-600">Ruaj Vlerësimin</Button>
+                </DialogActions>
+            </Dialog>
         </section>
     )
 }

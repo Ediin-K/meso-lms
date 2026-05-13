@@ -314,7 +314,7 @@ export default function Home() {
                   <Button
                     variant="contained"
                     size="large"
-                    onClick={() => navigate(role === 'admin' ? '/admin' : '/student')}
+                    onClick={() => navigate(role === 'admin' ? '/admin' : role === 'teacher' ? '/teacher' : '/student')}
                     endIcon={<ArrowForwardRounded />}
                     className="!rounded-full !bg-sky-600 !px-10 !py-4 !font-black shadow-xl shadow-sky-200/50 hover:!bg-sky-700 hover:!shadow-2xl transition-all"
                   >
