@@ -117,6 +117,10 @@ public class UserService {
         user.setPhoneNumber(dto.getPhoneNumber());
         user.setStatusi(dto.getStatusi());
 
+        if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
+            user.setPasswordHash(passwordEncoder.encode(dto.getPassword()));
+        }
+
         if (dto.getRole() != null && !dto.getRole().isEmpty()) {
             String dbRole = normalizeRoleForDB(dto.getRole());
             Role role = roleRepository.findByEmertimi(dbRole)

@@ -23,8 +23,8 @@ public class Course{
     @Column(nullable = false)
     private String pershkrimi;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "teacher_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "teacher_id", nullable = false)
     private User teacher;
 
     @ManyToOne(fetch = FetchType.LAZY)

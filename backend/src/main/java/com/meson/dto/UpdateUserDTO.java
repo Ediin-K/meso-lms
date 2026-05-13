@@ -12,4 +12,5 @@ public class UpdateUserDTO {
     private String phoneNumber;
     private String statusi;
     private String role;
+    private String password;
 }
