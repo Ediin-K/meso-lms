@@ -173,11 +173,11 @@ export default function AdminCategories() {
 
   return (
     <section className="flex flex-col min-h-screen">
-      <Container maxWidth="lg" className="flex-grow py-8 mt-4 sm:mt-8">
+      <Container maxWidth="lg" className="grow py-8 mt-4 sm:mt-8">
         <Button
           startIcon={<ArrowBackRounded />}
           onClick={() => navigate("/admin")}
-          className="!mb-6 !normal-case !text-slate-600 dark:!text-slate-400"
+          className="mb-6! normal-case! text-slate-600! dark:text-slate-400!"
         >
           {t("home.admin.services.backToPanel", "Kthehu te Paneli")}
         </Button>
@@ -186,19 +186,19 @@ export default function AdminCategories() {
           <div>
             <Box className="flex items-center gap-3 mb-2">
               <div className="h-10 w-10 rounded-xl bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center">
-                <CategoryRounded className="text-amber-600 !text-xl" />
+                <CategoryRounded className="text-amber-600 text-xl!" />
               </div>
               <Typography
                 variant="h4"
                 component="h1"
-                className="!font-extrabold !text-slate-900 dark:!text-white"
+                className="font-extrabold! text-slate-900! dark:text-white!"
               >
                 {t("home.admin.services.categories.title", "Kategoritë")}
               </Typography>
             </Box>
             <Typography
               variant="body1"
-              className="!text-slate-600 dark:!text-slate-400"
+              className="text-slate-600! dark:text-slate-400!"
             >
               {t(
                 "home.admin.services.categories.desc",
@@ -221,7 +221,7 @@ export default function AdminCategories() {
                   </InputAdornment>
                 ),
                 className:
-                  "!rounded-[1.5rem] !bg-white dark:!bg-slate-900 !border-none shadow-sm shadow-slate-200/50 dark:shadow-none",
+                  "rounded-3xl! bg-white! dark:bg-slate-900! border-none! shadow-sm shadow-slate-200/50 dark:shadow-none",
               }}
               sx={{
                 "& .MuiOutlinedInput-notchedOutline": {
@@ -241,7 +241,7 @@ export default function AdminCategories() {
               variant="contained"
               startIcon={<AddRounded />}
               onClick={openAddDialog}
-              className="!rounded-xl !py-2.5 !px-6 !normal-case !font-bold !bg-amber-600 hover:!bg-amber-700 shadow-lg shadow-amber-500/20"
+              className="rounded-xl! py-2.5! px-6! normal-case! font-bold! bg-amber-600! hover:bg-amber-700! shadow-lg shadow-amber-500/20"
             >
               Shto Kategori
             </Button>
@@ -250,26 +250,26 @@ export default function AdminCategories() {
 
         <Card
           elevation={0}
-          className="rounded-3xl border border-slate-200/80 bg-white dark:!bg-slate-900/60 dark:!border-slate-700/80 overflow-hidden shadow-xl shadow-slate-200/20 dark:shadow-none"
+          className="rounded-3xl border border-slate-200/80 bg-white dark:bg-slate-900/60! dark:border-slate-700/80! overflow-hidden shadow-xl shadow-slate-200/20 dark:shadow-none"
         >
           {loading ? (
             <Box className="flex justify-center py-24">
-              <CircularProgress className="!text-amber-500" />
+              <CircularProgress className="text-amber-500!" />
             </Box>
           ) : (
             <TableContainer>
               <Table>
-                <TableHead className="bg-slate-50 dark:!bg-slate-800/80">
+                <TableHead className="bg-slate-50 dark:bg-slate-800/80!">
                   <TableRow>
-                    <TableCell className="!font-bold !text-slate-700 dark:!text-slate-200">
+                    <TableCell className="font-bold! text-slate-700! dark:text-slate-200!">
                       Emri
                     </TableCell>
-                    <TableCell className="!font-bold !text-slate-700 dark:!text-slate-200">
+                    <TableCell className="font-bold! text-slate-700! dark:text-slate-200!">
                       Përshkrimi
                     </TableCell>
                     <TableCell
                       align="right"
-                      className="!font-bold !text-slate-700 dark:!text-slate-200"
+                      className="font-bold! text-slate-700! dark:text-slate-200!"
                     >
                       Veprime
                     </TableCell>
@@ -281,16 +281,16 @@ export default function AdminCategories() {
                       <TableCell colSpan={3}>
                         <Box className="flex flex-col items-center justify-center py-20 gap-4">
                           <div className="h-16 w-16 rounded-2xl bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center">
-                            <CategoryOutlinedIcon className="!text-4xl text-amber-400" />
+                            <CategoryOutlinedIcon className="text-4xl! text-amber-400" />
                           </div>
-                          <Typography className="!font-semibold !text-slate-500">
+                          <Typography className="font-semibold! text-slate-500!">
                             Nuk ka kategori akoma.
                           </Typography>
                           <Button
                             variant="outlined"
                             startIcon={<AddRounded />}
                             onClick={openAddDialog}
-                            className="!rounded-xl !normal-case !border-amber-300 !text-amber-600"
+                            className="rounded-xl! normal-case! border-amber-300! text-amber-600!"
                           >
                             Shto Kategorinë e Parë
                           </Button>
@@ -300,17 +300,17 @@ export default function AdminCategories() {
                   ) : (
                     filteredCategories.map((category) => (
                       <TableRow key={category.id} hover>
-                        <TableCell className="!font-semibold !text-slate-800 dark:!text-slate-100">
+                        <TableCell className="font-semibold! text-slate-800! dark:text-slate-100!">
                           {category.emertimi}
                         </TableCell>
-                        <TableCell className="!text-slate-500 !text-sm">
+                        <TableCell className="text-slate-500! text-sm!">
                           {category.pershkrimi || "—"}
                         </TableCell>
                         <TableCell align="right">
                           <IconButton
                             size="small"
                             onClick={() => openEditDialog(category)}
-                            className="!text-slate-400 hover:!text-amber-600"
+                            className="text-slate-400! hover:text-amber-600!"
                           >
                             <EditRounded fontSize="small" />
                           </IconButton>
@@ -320,7 +320,7 @@ export default function AdminCategories() {
                               setDeleteTarget(category);
                               setOpenDeleteConfirm(true);
                             }}
-                            className="!text-slate-400 hover:!text-rose-600"
+                            className="text-slate-400! hover:text-rose-600!"
                           >
                             <DeleteRounded fontSize="small" />
                           </IconButton>
@@ -354,20 +354,20 @@ export default function AdminCategories() {
             },
           }}
         >
-          <DialogTitle className="!px-6 !pt-6 !pb-2">
+          <DialogTitle className="px-6! pt-6! pb-2!">
             <Typography
               variant="h5"
               className={
                 isDark
-                  ? "!font-black !text-white"
-                  : "!font-black !text-slate-900"
+                  ? "font-black! text-white!"
+                  : "font-black! text-slate-900!"
               }
             >
               {isEdit ? "Ndrysho Kategorinë" : "Shto Kategori të Re"}
             </Typography>
           </DialogTitle>
           <DialogContent
-            className={`!px-6 !py-4 ${isDark ? "!bg-slate-900/20" : ""}`}
+            className={`!px-6 py-4! ${isDark ? "bg-slate-900/20!" : ""}`}
           >
             <Box className="flex flex-col gap-4 mt-2">
               <TextField
@@ -416,10 +416,10 @@ export default function AdminCategories() {
               />
             </Box>
           </DialogContent>
-          <DialogActions className="!p-4 gap-2">
+          <DialogActions className="p-4! gap-2">
             <Button
               onClick={() => setOpenDialog(false)}
-              className="!rounded-xl !normal-case !text-slate-600"
+              className="rounded-xl! normal-case! text-slate-600!"
             >
               Anulo
             </Button>
@@ -427,7 +427,7 @@ export default function AdminCategories() {
               variant="contained"
               disabled={submitting || !formData.emertimi.trim()}
               onClick={handleSubmit}
-              className="!rounded-xl !normal-case !font-bold !bg-amber-600 hover:!bg-amber-700"
+              className="rounded-xl! normal-case! font-bold! bg-amber-600! hover:bg-amber-700!"
             >
               {submitting
                 ? "Duke ruajtur..."
@@ -455,30 +455,30 @@ export default function AdminCategories() {
             },
           }}
         >
-          <DialogTitle className="!px-6 !pt-6 !pb-2">
+          <DialogTitle className="px-6! pt-6! pb-2!">
             <Typography
               variant="h5"
               className={
                 isDark
-                  ? "!font-black !text-white"
-                  : "!font-black !text-slate-900"
+                  ? "font-black! text-white!"
+                  : "font-black! text-slate-900!"
               }
             >
               Fshi Kategorinë
             </Typography>
           </DialogTitle>
           <DialogContent
-            className={`!px-6 !py-4 ${isDark ? "!bg-slate-900/20" : ""}`}
+            className={`!px-6 py-4! ${isDark ? "bg-slate-900/20!" : ""}`}
           >
-            <Typography className="!text-slate-600 dark:!text-slate-300">
+            <Typography className="text-slate-600! dark:text-slate-300!">
               Je i sigurt që dëshiron të fshish kategorinë "
               {deleteTarget?.emertimi}"?
             </Typography>
           </DialogContent>
-          <DialogActions className="!p-4 gap-2">
+          <DialogActions className="p-4! gap-2">
             <Button
               onClick={() => setOpenDeleteConfirm(false)}
-              className="!rounded-xl !normal-case !text-slate-600"
+              className="rounded-xl! normal-case! text-slate-600!"
             >
               Anulo
             </Button>
@@ -487,7 +487,7 @@ export default function AdminCategories() {
               color="error"
               onClick={handleDelete}
               disabled={submitting}
-              className="!rounded-xl !normal-case !font-bold"
+              className="rounded-xl! normal-case! font-bold!"
             >
               {submitting ? "Po fshihet..." : "Fshi Kategorinë"}
             </Button>
@@ -496,14 +496,21 @@ export default function AdminCategories() {
 
         <Snackbar
           open={openSnackbar}
-          autoHideDuration={6000}
+          autoHideDuration={4000}
           onClose={() => setOpenSnackbar(false)}
           anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+          TransitionComponent={Zoom}
         >
           <Alert
             onClose={() => setOpenSnackbar(false)}
             severity={snackbarSeverity}
-            sx={{ width: "100%" }}
+            variant="filled"
+            sx={{ 
+              width: "100%", 
+              borderRadius: "1.25rem",
+              fontWeight: "bold",
+              boxShadow: "0 10px 30px rgba(0,0,0,0.1)"
+            }}
           >
             {snackbarMessage}
           </Alert>

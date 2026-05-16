@@ -84,7 +84,9 @@ public class TeacherFileService {
     private boolean isValidExtension(String filename) {
         String lower = filename.toLowerCase();
         return lower.endsWith(".pdf") || lower.endsWith(".docx") || lower.endsWith(".doc") ||
-               lower.endsWith(".pptx") || lower.endsWith(".ppt") || lower.endsWith(".zip") ||
+               lower.endsWith(".pptx") || lower.endsWith(".ppt") || lower.endsWith(".xlsx") ||
+               lower.endsWith(".xls") || lower.endsWith(".txt") || lower.endsWith(".csv") ||
+               lower.endsWith(".zip") || lower.endsWith(".rar") ||
                lower.endsWith(".jpg") || lower.endsWith(".jpeg") || lower.endsWith(".png") ||
                lower.endsWith(".mp4") || lower.endsWith(".mkv");
     }

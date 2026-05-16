@@ -17,6 +17,9 @@ import {
   TextField,
   Tooltip,
   Breadcrumbs,
+  Snackbar,
+  Alert,
+  Zoom,
 } from "@mui/material";
 import ArrowBackRounded from "@mui/icons-material/ArrowBackRounded";
 import LayersRounded from "@mui/icons-material/LayersRounded";
@@ -39,7 +42,8 @@ const EMPTY_MODULE = {
 export default function TeacherModules() {
   const { courseId } = useParams();
   const navigate = useNavigate();
-  const { t } = useAppPreferences();
+  const { t, mode } = useAppPreferences();
+  const isDark = mode === "dark";
 
   const [courses, setCourses] = useState([]);
   const [selectedCourse, setSelectedCourse] = useState(null);
@@ -53,6 +57,12 @@ export default function TeacherModules() {
   const [editingModule, setEditingModule] = useState(null);
   const [formData, setFormData] = useState(EMPTY_MODULE);
   const [saving, setSaving] = useState(false);
+
+  // Deletion & Toast States
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [openSnackbar, setOpenSnackbar] = useState(false);
 
   useEffect(() => {
     if (!courseId) {
@@ -124,6 +134,8 @@ export default function TeacherModules() {
       }
       const res = await teacherContentService.getModules(courseId);
       setModules(res.data);
+      setSnackbarMessage(isEdit ? "Moduli u përditësua me sukses." : "Moduli u krijua me sukses.");
+      setOpenSnackbar(true);
       setOpenDialog(false);
     } catch (err) {
       console.error(err);
@@ -132,11 +144,20 @@ export default function TeacherModules() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("A jeni i sigurt që dëshironi të fshini këtë modul? Bashkë me të do të fshihen edhe të gjitha leksionet.")) return;
+  const handleOpenDelete = (mod) => {
+    setDeleteTarget(mod);
+    setOpenDeleteConfirm(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
     try {
-      await teacherContentService.deleteModule(id);
-      setModules((prev) => prev.filter((m) => m.id !== id));
+      await teacherContentService.deleteModule(deleteTarget.id);
+      setModules((prev) => prev.filter((m) => m.id !== deleteTarget.id));
+      setSnackbarMessage("Moduli u fshi me sukses.");
+      setOpenSnackbar(true);
+      setDeleteTarget(null);
+      setOpenDeleteConfirm(false);
     } catch (err) {
       console.error(err);
     }
@@ -145,20 +166,20 @@ export default function TeacherModules() {
   if (loading) {
     return (
       <Box className="flex justify-center items-center py-32 bg-slate-50 dark:bg-slate-950 min-h-screen">
-        <CircularProgress className="!text-indigo-500" />
+        <CircularProgress className="text-indigo-500!" />
       </Box>
     );
   }
 
   return (
     <Box className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-950">
-      <Container maxWidth="xl" className="py-8 mt-4 sm:mt-8 flex-grow">
+      <Container maxWidth="xl" className="py-8 mt-4 sm:mt-8 grow">
         
         {/* BREADCRUMBS & NAVIGATION */}
         <Box className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <Breadcrumbs 
             separator={<Box className="w-1 h-1 rounded-full bg-slate-300 mx-2" />}
-            className="!text-slate-500 dark:!text-slate-400"
+            className="text-slate-500! dark:text-slate-400!"
           >
             <Link to="/teacher" className="hover:text-indigo-600 transition-colors font-bold uppercase tracking-wider text-xs">
               Paneli
@@ -167,7 +188,7 @@ export default function TeacherModules() {
               Modulet
             </Link>
             {selectedCourse && (
-              <Typography className="!font-bold !text-indigo-600 !uppercase !tracking-wider !text-xs">
+              <Typography className="font-bold! text-indigo-600! uppercase! tracking-wider! text-xs!">
                 {selectedCourse.titulli}
               </Typography>
             )}
@@ -176,7 +197,7 @@ export default function TeacherModules() {
           <Button
             startIcon={<ArrowBackRounded />}
             onClick={() => navigate(courseId ? "/teacher/modules" : "/teacher")}
-            className="!rounded-2xl !px-6 !py-2 !normal-case !font-bold !text-slate-600 dark:!text-slate-400 hover:!bg-slate-200/50 dark:hover:!bg-slate-800/50"
+            className="rounded-2xl! px-6! py-2! normal-case! font-bold! text-slate-600! dark:text-slate-400! hover:bg-slate-200/50! dark:hover:bg-slate-800/50!"
           >
             {courseId ? "Ndërro Kursin" : "Kthehu te Paneli"}
           </Button>
@@ -187,7 +208,7 @@ export default function TeacherModules() {
           /* STEP 1: COURSE SELECTION */
           <Box>
             <Box className="mb-12">
-              <Typography variant="h3" className="!font-black !text-slate-900 dark:!text-white mb-2">
+              <Typography variant="h3" className="font-black! text-slate-900! dark:text-white! mb-2">
                 Zgjidhni Kursin
               </Typography>
               <Typography variant="body1" className="text-slate-500 dark:text-slate-400 text-lg">
@@ -201,18 +222,17 @@ export default function TeacherModules() {
                   <Card 
                     elevation={0}
                     onClick={() => navigate(`/teacher/modules/${course.id}`)}
-                    className="group relative cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/10"
+                    className="group relative cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/10 bg-white dark:bg-slate-900"
                     sx={{
-                      height: "240px !important",
-                      minHeight: "240px !important",
-                      maxHeight: "240px !important",
-                      borderRadius: "2.5rem !important",
+                      height: "240px important!",
+                      minHeight: "240px important!",
+                      maxHeight: "240px important!",
+                      borderRadius: "2.5rem important!",
                       border: "1px solid",
-                      borderColor: "divider",
+                      borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.12)",
                       display: "flex",
                       flexDirection: "column",
-                      overflow: "hidden !important",
-                      backgroundColor: "background.paper",
+                      overflow: "hidden important!",
                       "&:hover": {
                         borderColor: "primary.main",
                       }
@@ -220,7 +240,7 @@ export default function TeacherModules() {
                   >
                     <CardContent 
                       sx={{ 
-                        p: "40px !important", 
+                        p: "40px important!", 
                         height: "100%", 
                         display: "flex", 
                         flexDirection: "column", 
@@ -256,7 +276,7 @@ export default function TeacherModules() {
                               {course.moduleCount || 0} MODULE
                            </Typography>
                          </Box>
-                         <ArrowForwardRounded className="!text-indigo-600 dark:!text-indigo-400 !text-2xl transition-all duration-300 group-hover:translate-x-3" />
+                         <ArrowForwardRounded className="text-indigo-600! dark:text-indigo-400! text-2xl! transition-all duration-300 group-hover:translate-x-3" />
                       </Box>
                     </CardContent>
                   </Card>
@@ -265,7 +285,7 @@ export default function TeacherModules() {
               {courses.length === 0 && (
                 <Grid item xs={12}>
                    <Box className="p-20 text-center rounded-[3rem] border-2 border-dashed border-slate-200 dark:border-slate-800">
-                      <SchoolRounded className="!text-6xl text-slate-200 mb-4" />
+                      <SchoolRounded className="text-6xl! text-slate-200 mb-4" />
                       <Typography variant="h6" className="text-slate-400">Nuk keni asnjë kurs të regjistruar akoma.</Typography>
                    </Box>
                 </Grid>
@@ -277,7 +297,7 @@ export default function TeacherModules() {
           <Box>
             <Box className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
               <div>
-                <Typography variant="h3" className="!font-black !text-slate-900 dark:!text-white mb-2">
+                <Typography variant="h3" className="font-black! text-slate-900! dark:text-white! mb-2">
                   Menaxhimi i Moduleve
                 </Typography>
                 <Typography variant="body1" className="text-slate-500 dark:text-slate-400 text-lg flex items-center gap-2">
@@ -288,7 +308,7 @@ export default function TeacherModules() {
                 variant="contained"
                 startIcon={<AddRounded />}
                 onClick={handleOpenAdd}
-                className="!rounded-2xl !bg-indigo-600 !px-8 !py-3 !normal-case !font-bold shadow-lg shadow-indigo-200 dark:shadow-none"
+                className="rounded-2xl! bg-indigo-600! px-8! py-3! normal-case! font-bold! shadow-lg shadow-indigo-200 dark:shadow-none"
               >
                 Shto Modul të Ri
               </Button>
@@ -299,14 +319,14 @@ export default function TeacherModules() {
                 <Grid item xs={12} key={mod.id}>
                   <Card 
                     elevation={0}
-                    className="!rounded-[2rem] border border-slate-200/80 bg-white/80 dark:!bg-slate-900/50 dark:!border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-900 transition-all shadow-sm"
+                    className="rounded-4xl! border border-slate-200/80 bg-white/80 dark:bg-slate-900/50! dark:border-slate-800! hover:border-indigo-300 dark:hover:border-indigo-900 transition-all shadow-sm"
                   >
-                    <CardContent className="!p-6 flex flex-col md:flex-row md:items-center gap-6">
+                    <CardContent className="p-6! flex flex-col md:flex-row md:items-center gap-6">
                       <Box className="h-12 w-12 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 flex items-center justify-center font-black text-xl flex-shrink-0">
                         {mod.rradhitja}
                       </Box>
-                      <Box className="flex-grow">
-                        <Typography variant="h6" className="!font-black dark:!text-white">
+                      <Box className="grow">
+                        <Typography variant="h6" className="font-black! dark:text-white!">
                           {mod.titulli}
                         </Typography>
                         <Typography variant="body2" className="text-slate-500 dark:text-slate-400 line-clamp-1">
@@ -316,8 +336,8 @@ export default function TeacherModules() {
                       
                       <Box className="flex items-center gap-6 md:px-6 md:border-x border-slate-100 dark:border-slate-800">
                          <div className="flex flex-col items-center">
-                            <Typography variant="caption" className="!font-bold !text-slate-400 uppercase">Leksione</Typography>
-                            <Typography variant="subtitle1" className="!font-black dark:!text-white flex items-center gap-1">
+                            <Typography variant="caption" className="font-bold! text-slate-400! uppercase">Leksione</Typography>
+                            <Typography variant="subtitle1" className="font-black! dark:text-white! flex items-center gap-1">
                                <AutoStoriesRounded fontSize="small" className="text-indigo-500" /> {mod.lessonCount || 0}
                             </Typography>
                          </div>
@@ -327,15 +347,15 @@ export default function TeacherModules() {
                         <Tooltip title="Ndrysho">
                           <IconButton 
                             onClick={() => handleOpenEdit(mod)}
-                            className="!bg-indigo-50 dark:!bg-indigo-900/20 !text-indigo-600 hover:!bg-indigo-100 transition-colors"
+                            className="bg-indigo-50! dark:bg-indigo-900/20! text-indigo-600! hover:bg-indigo-100! transition-colors"
                           >
                             <EditRounded />
                           </IconButton>
                         </Tooltip>
                         <Tooltip title="Fshij">
                           <IconButton 
-                            onClick={() => handleDelete(mod.id)}
-                            className="!bg-rose-50 dark:!bg-rose-900/20 !text-rose-600 hover:!bg-rose-100 transition-colors"
+                            onClick={() => handleOpenDelete(mod)}
+                            className="bg-rose-50! dark:bg-rose-900/20! text-rose-600! hover:bg-rose-100! transition-colors"
                           >
                             <DeleteRounded />
                           </IconButton>
@@ -348,11 +368,11 @@ export default function TeacherModules() {
               {modules.length === 0 && (
                 <Grid item xs={12}>
                    <Box className="p-20 text-center rounded-[3rem] border-2 border-dashed border-slate-200 dark:border-slate-800 bg-white/40 dark:bg-slate-900/20">
-                      <LayersRounded className="!text-6xl text-slate-200 mb-4" />
+                      <LayersRounded className="text-6xl! text-slate-200 mb-4" />
                       <Typography variant="h6" className="text-slate-400">Nuk ka asnjë modul për këtë kurs akoma.</Typography>
                       <Button 
                         variant="outlined" 
-                        className="!mt-4 !rounded-full !normal-case" 
+                        className="mt-4! rounded-full! normal-case!" 
                         onClick={handleOpenAdd}
                       >
                         Krijo Modulin e Parë
@@ -375,12 +395,12 @@ export default function TeacherModules() {
         onClose={() => setOpenDialog(false)}
         maxWidth="sm"
         fullWidth
-        PaperProps={{ className: "!rounded-[2.5rem] !p-2 shadow-2xl dark:!bg-slate-900" }}
+        PaperProps={{ className: "rounded-[2.5rem]! p-2! shadow-2xl dark:bg-slate-900!" }}
       >
-        <DialogTitle className="!font-black !text-2xl !pt-8 !px-8">
+        <DialogTitle className="font-black! text-2xl! pt-8! px-8!">
           {isEdit ? "Ndrysho Modulin" : "Shto Modul të Ri"}
         </DialogTitle>
-        <DialogContent className="!px-8 !pt-4">
+        <DialogContent className="px-8! pt-4!">
           <Box className="flex flex-col gap-6 py-4">
             <TextField
               label="Titulli i Modulit"
@@ -388,7 +408,7 @@ export default function TeacherModules() {
               variant="outlined"
               value={formData.titulli}
               onChange={(e) => setFormData({ ...formData, titulli: e.target.value })}
-              InputProps={{ className: "!rounded-2xl" }}
+              InputProps={{ className: "rounded-2xl!" }}
             />
             <TextField
               label="Përshkrimi"
@@ -398,7 +418,7 @@ export default function TeacherModules() {
               variant="outlined"
               value={formData.pershkrimi}
               onChange={(e) => setFormData({ ...formData, pershkrimi: e.target.value })}
-              InputProps={{ className: "!rounded-2xl" }}
+              InputProps={{ className: "rounded-2xl!" }}
             />
             <TextField
               label="Rradhitja"
@@ -407,24 +427,120 @@ export default function TeacherModules() {
               variant="outlined"
               value={formData.rradhitja}
               onChange={(e) => setFormData({ ...formData, rradhitja: Number(e.target.value) })}
-              InputProps={{ className: "!rounded-2xl" }}
+              InputProps={{ className: "rounded-2xl!" }}
             />
           </Box>
         </DialogContent>
-        <DialogActions className="!px-8 !pb-8 !pt-2">
-          <Button onClick={() => setOpenDialog(false)} className="!normal-case !font-bold !text-slate-500">
+        <DialogActions className="px-8! pb-8! pt-2!">
+          <Button onClick={() => setOpenDialog(false)} className="normal-case! font-bold! text-slate-500!">
             Anulo
           </Button>
           <Button
             variant="contained"
             onClick={handleSubmit}
             disabled={saving || !formData.titulli}
-            className="!rounded-2xl !bg-indigo-600 !px-10 !py-3 !normal-case !font-bold shadow-lg"
+            className="rounded-2xl! bg-indigo-600! px-10! py-3! normal-case! font-bold! shadow-lg"
           >
             {saving ? "Duke ruajtur..." : isEdit ? "Përditëso" : "Krijo"}
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* DELETE CONFIRMATION DIALOG */}
+      <Dialog
+        open={openDeleteConfirm}
+        onClose={() => {
+          setOpenDeleteConfirm(false);
+          setDeleteTarget(null);
+        }}
+        maxWidth="xs"
+        fullWidth
+        TransitionComponent={Zoom}
+        PaperProps={{
+          sx: {
+            borderRadius: "2.5rem",
+            p: 2,
+            backgroundColor: isDark ? "#0f172a" : "white",
+            border: isDark
+              ? "1px solid #1e293b"
+              : "1px solid rgba(148,163,184,0.15)",
+            boxShadow: isDark
+              ? "0 30px 60px rgba(15,23,42,0.65)"
+              : "0 30px 60px rgba(148,163,184,0.15)",
+          },
+        }}
+      >
+        <DialogTitle className="px-6! pt-6! pb-2!">
+          <Typography
+            variant="h5"
+            component="p"
+            className={isDark ? "font-black! text-white!" : "font-black! text-slate-900!"}
+          >
+            A jeni i sigurt?
+          </Typography>
+        </DialogTitle>
+        <DialogContent className="px-6! py-4!">
+          <Typography
+            variant="body2"
+            className={isDark ? "text-slate-300!" : "text-slate-600!"}
+          >
+            Do të fshihet përhershëm moduli:
+          </Typography>
+          <Typography
+            variant="body1"
+            className={isDark ? "font-bold! text-white! mt-3!" : "font-bold! text-slate-900! mt-3!"}
+          >
+            {deleteTarget ? deleteTarget.titulli : ""}
+          </Typography>
+          <Typography
+            variant="caption"
+            className={isDark ? "text-slate-400! block! mt-1!" : "text-slate-500! block! mt-1!"}
+          >
+            Kujdes: Ky veprim fshin edhe të gjitha leksionet brenda tij.
+          </Typography>
+        </DialogContent>
+        <DialogActions className="px-8! pb-8! pt-4! gap-2">
+          <Button
+            onClick={() => {
+              setOpenDeleteConfirm(false);
+              setDeleteTarget(null);
+            }}
+            className="rounded-2xl! px-6! py-3! normal-case! font-bold! text-slate-500! hover:bg-slate-100! dark:hover:bg-slate-800!"
+          >
+            Anulo
+          </Button>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={handleConfirmDelete}
+            className="rounded-2xl! px-10! py-3! normal-case! font-black! bg-rose-600! hover:bg-rose-700! shadow-lg shadow-rose-500/20"
+          >
+            Fshi
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* SUCCESS TOAST */}
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={4000}
+        onClose={() => setOpenSnackbar(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      >
+        <Alert
+          onClose={() => setOpenSnackbar(false)}
+          severity="success"
+          variant="filled"
+          sx={{ 
+            width: "100%", 
+            borderRadius: "1.25rem",
+            fontWeight: "bold",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.1)"
+          }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }

@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppPreferences } from "../context/appPreferencesContext";
 import {
@@ -450,14 +450,21 @@ export default function AdminCertificates() {
 
       <Snackbar
         open={openSnackbar}
-        autoHideDuration={6000}
+        autoHideDuration={4000}
         onClose={() => setOpenSnackbar(false)}
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        TransitionComponent={Zoom}
       >
         <Alert
           onClose={() => setOpenSnackbar(false)}
           severity={snackbarSeverity}
-          sx={{ width: "100%" }}
+          variant="filled"
+          sx={{ 
+            width: "100%", 
+            borderRadius: "1.25rem",
+            fontWeight: "bold",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.1)"
+          }}
         >
           {snackbarMessage}
         </Alert>

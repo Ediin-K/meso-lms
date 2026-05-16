@@ -269,19 +269,19 @@ export default function AdminUsers() {
 
   return (
     <Box className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-950">
-      <Container maxWidth="xl" className="py-8 mt-4 sm:mt-8 flex-grow">
+      <Container maxWidth="xl" className="py-8 mt-4 sm:mt-8 grow">
         {/* BACK BUTTON & TOP STRIP */}
         <Box className="flex items-center justify-between mb-8">
           <Button
             startIcon={<ArrowBackRounded />}
             onClick={() => navigate("/admin")}
-            className="!rounded-2xl !px-6 !py-2 !normal-case !font-bold !text-slate-600 dark:!text-slate-400 hover:!bg-slate-200/50 dark:hover:!bg-slate-800/50"
+            className="rounded-2xl! px-6! py-2! normal-case! font-bold! text-slate-600! dark:text-slate-400! hover:bg-slate-200/50! dark:hover:bg-slate-800/50!"
           >
             {t("home.admin.services.backToPanel", "Kthehu te Paneli")}
           </Button>
           <Box className="flex gap-2">
             <Tooltip title="Filtra të avancuar">
-              <IconButton className="!bg-white dark:!bg-slate-900 border border-slate-200 dark:border-slate-800 !rounded-xl">
+              <IconButton className="bg-white! dark:bg-slate-900! border border-slate-200 dark:border-slate-800 rounded-xl!">
                 <FilterListRounded className="text-slate-500" />
               </IconButton>
             </Tooltip>
@@ -293,20 +293,20 @@ export default function AdminUsers() {
           <div>
             <Typography
               variant="overline"
-              className="!font-bold !tracking-[0.3em] !text-indigo-600 dark:!text-indigo-400"
+              className="font-bold! tracking-[0.3em]! text-indigo-600! dark:text-indigo-400!"
             >
               {t("adminUsers.overline", "MENAXHIMI I SISTEMIT")}
             </Typography>
             <Typography
               variant="h3"
               component="h1"
-              className="!mt-2 !font-black !text-slate-900 dark:!text-white"
+              className="mt-2! font-black! text-slate-900! dark:text-white!"
             >
               {t("adminUsers.title", "Përdoruesit")}
             </Typography>
             <Typography
               variant="body1"
-              className="!mt-4 !max-w-2xl !text-slate-500 dark:!text-slate-400 text-lg !font-medium"
+              className="mt-4! max-w-2xl! text-slate-500! dark:text-slate-400! text-lg font-medium!"
             >
               {t(
                 "adminUsers.subtitle",
@@ -332,7 +332,7 @@ export default function AdminUsers() {
                   </InputAdornment>
                 ),
                 className:
-                  "!rounded-[1.5rem] !bg-white dark:!bg-slate-900 !border-none shadow-sm shadow-slate-200/50 dark:shadow-none",
+                  "rounded-3xl! bg-white! dark:bg-slate-900! border-none! shadow-sm shadow-slate-200/50 dark:shadow-none",
               }}
               sx={{ "& .MuiOutlinedInput-notchedOutline": { border: "none" } }}
             />
@@ -340,7 +340,7 @@ export default function AdminUsers() {
               variant="contained"
               startIcon={<PersonAddRounded />}
               onClick={handleOpenAdd}
-              className="!rounded-[1.5rem] !py-4 !px-8 !normal-case !font-black !bg-indigo-600 hover:!bg-indigo-700 shadow-xl shadow-indigo-500/30 transition-all hover:scale-105 active:scale-95"
+              className="rounded-3xl! py-4! px-8! normal-case! font-black! bg-indigo-600! hover:bg-indigo-700! shadow-xl shadow-indigo-500/30 transition-all hover:scale-105 active:scale-95"
             >
               {t("adminUsers.form.addTitle", "Shto Përdorues")}
             </Button>
@@ -376,7 +376,7 @@ export default function AdminUsers() {
             },
           ].map((s, i) => (
             <Grid item xs={6} md={3} key={i}>
-              <Box className="p-6 rounded-[2rem] bg-white dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800/50 shadow-sm flex items-center gap-4">
+              <Box className="p-6 rounded-4xl bg-white dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800/50 shadow-sm flex items-center gap-4">
                 <div
                   className={`h-12 w-12 rounded-2xl ${s.bg} ${s.color} flex items-center justify-center font-black text-xl`}
                 >
@@ -385,7 +385,7 @@ export default function AdminUsers() {
                 <div>
                   <Typography
                     variant="caption"
-                    className="!text-slate-500 !font-bold !tracking-widest !uppercase !block"
+                    className="text-slate-500! font-bold! tracking-widest! uppercase! block!"
                   >
                     {s.label}
                   </Typography>
@@ -398,12 +398,12 @@ export default function AdminUsers() {
         {/* TABLE CONTAINER */}
         <Card
           elevation={0}
-          className="!rounded-[2.5rem] border border-slate-200/60 bg-white/80 dark:!bg-slate-900/50 backdrop-blur-xl overflow-hidden shadow-2xl shadow-slate-200/20 dark:shadow-none"
+          className="rounded-[2.5rem]! border border-slate-200/60 bg-white/80 dark:bg-slate-900/50! backdrop-blur-xl overflow-hidden shadow-2xl shadow-slate-200/20 dark:shadow-none"
         >
           <Box className="p-8 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-4">
             <Typography
               variant="h6"
-              className="!font-black !text-slate-800 dark:!text-white"
+              className="font-black! text-slate-800! dark:text-white!"
             >
               Lista e Përdoruesve
             </Typography>
@@ -413,7 +413,7 @@ export default function AdminUsers() {
                   key={role}
                   size="small"
                   onClick={() => setRoleFilter(role)}
-                  className={`!rounded-full !px-4 !py-1 !normal-case !text-xs !font-bold ${roleFilter === role ? "!bg-slate-900 !text-white dark:!bg-white dark:!text-slate-900" : "!text-slate-500 hover:!bg-slate-100 dark:hover:!bg-slate-800"}`}
+                  className={`!rounded-full px-4! py-1! normal-case! text-xs! font-bold! ${roleFilter === role ? "bg-slate-900! text-white! dark:bg-white! dark:text-slate-900!" : "text-slate-500! hover:bg-slate-100! dark:hover:bg-slate-800!"}`}
                 >
                   {role === "all"
                     ? "Të gjithë"
@@ -425,28 +425,28 @@ export default function AdminUsers() {
 
           {loading ? (
             <Box className="flex justify-center py-32">
-              <CircularProgress className="!text-indigo-500" />
+              <CircularProgress className="text-indigo-500!" />
             </Box>
           ) : (
             <TableContainer>
               <Table sx={{ minWidth: 800 }}>
-                <TableHead className="bg-slate-50/50 dark:!bg-slate-800/30">
+                <TableHead className="bg-slate-50/50 dark:bg-slate-800/30!">
                   <TableRow>
-                    <TableCell className="!font-black !text-slate-400 !uppercase !text-[10px] !tracking-widest !py-6 !pl-8">
+                    <TableCell className="font-black! text-slate-400! uppercase! text-[10px]! tracking-widest! py-6! pl-8!">
                       {t("adminUsers.table.name", "Përdoruesi")}
                     </TableCell>
-                    <TableCell className="!font-black !text-slate-400 !uppercase !text-[10px] !tracking-widest !py-6">
+                    <TableCell className="font-black! text-slate-400! uppercase! text-[10px]! tracking-widest! py-6!">
                       {t("adminUsers.table.role", "Roli")}
                     </TableCell>
-                    <TableCell className="!font-black !text-slate-400 !uppercase !text-[10px] !tracking-widest !py-6">
+                    <TableCell className="font-black! text-slate-400! uppercase! text-[10px]! tracking-widest! py-6!">
                       {t("adminUsers.table.status", "Statusi")}
                     </TableCell>
-                    <TableCell className="!font-black !text-slate-400 !uppercase !text-[10px] !tracking-widest !py-6">
+                    <TableCell className="font-black! text-slate-400! uppercase! text-[10px]! tracking-widest! py-6!">
                       {t("adminUsers.table.joined", "Anëtarësuar")}
                     </TableCell>
                     <TableCell
                       align="right"
-                      className="!font-black !text-slate-400 !uppercase !text-[10px] !tracking-widest !py-6 !pr-8"
+                      className="font-black! text-slate-400! uppercase! text-[10px]! tracking-widest! py-6! pr-8!"
                     >
                       {t("adminUsers.table.actions", "Veprime")}
                     </TableCell>
@@ -457,19 +457,19 @@ export default function AdminUsers() {
                     <TableRow>
                       <TableCell colSpan={5}>
                         <Box className="flex flex-col items-center justify-center py-24 gap-6">
-                          <div className="h-24 w-24 rounded-[2rem] bg-slate-50 dark:bg-slate-800/50 flex items-center justify-center">
-                            <PeopleRounded className="!text-5xl text-slate-200 dark:text-slate-700" />
+                          <div className="h-24 w-24 rounded-4xl bg-slate-50 dark:bg-slate-800/50 flex items-center justify-center">
+                            <PeopleRounded className="text-5xl! text-slate-200 dark:text-slate-700" />
                           </div>
                           <div className="text-center">
                             <Typography
                               variant="h6"
-                              className="!font-black !text-slate-800 dark:!text-white mb-1"
+                              className="font-black! text-slate-800! dark:text-white! mb-1"
                             >
                               Nuk u gjet asnjë përdorues
                             </Typography>
                             <Typography
                               variant="body2"
-                              className="!text-slate-400"
+                              className="text-slate-400!"
                             >
                               Provo të ndryshosh filtrat ose kërkimin tend.
                             </Typography>
@@ -483,10 +483,10 @@ export default function AdminUsers() {
                         key={user.id}
                         className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors"
                       >
-                        <TableCell className="!pl-8 !py-6">
+                        <TableCell className="pl-8! py-6!">
                           <Box className="flex items-center gap-4">
                             <Avatar
-                              className={`!w-12 !h-12 !rounded-2xl !text-base !bg-gradient-to-br ${AVATAR_GRADIENT[user.role] || "from-slate-400 to-slate-500"} shadow-lg shadow-indigo-500/10`}
+                              className={`!w-12 h-12! rounded-2xl! text-base! bg-gradient-to-br! ${AVATAR_GRADIENT[user.role] || "from-slate-400 to-slate-500"} shadow-lg shadow-indigo-500/10`}
                             >
                               {user.emri?.charAt(0)}
                               {user.mbiemri?.charAt(0)}
@@ -494,16 +494,16 @@ export default function AdminUsers() {
                             <div>
                               <Typography
                                 variant="body1"
-                                className="!font-black !text-slate-900 dark:!text-white !flex items-center gap-1.5"
+                                className="font-black! text-slate-900! dark:text-white! flex! items-center gap-1.5"
                               >
                                 {user.emri} {user.mbiemri}
                                 {user.role === "admin" && (
-                                  <VerifiedUserRounded className="!text-sky-500 !text-sm" />
+                                  <VerifiedUserRounded className="text-sky-500! text-sm!" />
                                 )}
                               </Typography>
                               <Typography
                                 variant="caption"
-                                className="!text-slate-500 !font-medium"
+                                className="text-slate-500! font-medium!"
                               >
                                 {user.email}
                               </Typography>
@@ -524,7 +524,7 @@ export default function AdminUsers() {
                             />
                             <Typography
                               variant="caption"
-                              className={`!font-black !uppercase !tracking-widest ${user.statusi === "active" ? "text-emerald-600" : "text-slate-400"}`}
+                              className={`!font-black uppercase! tracking-widest! ${user.statusi === "active" ? "text-emerald-600" : "text-slate-400"}`}
                             >
                               {user.statusi === "active"
                                 ? t("adminUsers.status.active", "Aktiv")
@@ -532,24 +532,24 @@ export default function AdminUsers() {
                             </Typography>
                           </Box>
                         </TableCell>
-                        <TableCell className="!text-slate-500 !font-bold !text-xs">
+                        <TableCell className="text-slate-500! font-bold! text-xs!">
                           {user.joined
                             ? new Date(user.joined).toLocaleDateString()
                             : "N/A"}
                         </TableCell>
-                        <TableCell align="right" className="!pr-8">
+                        <TableCell align="right" className="pr-8!">
                           <Box className="flex justify-end gap-1">
                             <IconButton
                               size="small"
                               onClick={() => handleOpenEdit(user)}
-                              className="!bg-slate-100 dark:!bg-slate-800 !text-slate-400 hover:!text-indigo-600 !rounded-xl transition-all"
+                              className="bg-slate-100! dark:bg-slate-800! text-slate-400! hover:text-indigo-600! rounded-xl! transition-all"
                             >
                               <EditRounded fontSize="small" />
                             </IconButton>
                             <IconButton
                               size="small"
                               onClick={() => handleOpenDelete(user)}
-                              className="!bg-slate-100 dark:!bg-slate-800 !text-slate-400 hover:!text-rose-600 !rounded-xl transition-all"
+                              className="bg-slate-100! dark:bg-slate-800! text-slate-400! hover:text-rose-600! rounded-xl! transition-all"
                             >
                               <DeleteRounded fontSize="small" />
                             </IconButton>
@@ -585,14 +585,14 @@ export default function AdminUsers() {
             },
           }}
         >
-          <DialogTitle className="!px-6 !pt-6 !pb-2">
+          <DialogTitle className="px-6! pt-6! pb-2!">
             <Typography
               variant="h5"
               component="p"
               className={
                 isDark
-                  ? "!font-black !text-white"
-                  : "!font-black !text-slate-900"
+                  ? "font-black! text-white!"
+                  : "font-black! text-slate-900!"
               }
             >
               {isEdit ? "Përditëso Përdoruesin" : "Shto Përdorues të Ri"}
@@ -600,7 +600,7 @@ export default function AdminUsers() {
             <Typography
               variant="body2"
               className={
-                isDark ? "!text-slate-300 !mt-1" : "!text-slate-600 !mt-1"
+                isDark ? "text-slate-300! mt-1!" : "text-slate-600! mt-1!"
               }
             >
               {isEdit
@@ -609,7 +609,7 @@ export default function AdminUsers() {
             </Typography>
           </DialogTitle>
           <DialogContent
-            className={`!px-6 !py-4 ${isDark ? "!bg-slate-900/20" : ""}`}
+            className={`!px-6 py-4! ${isDark ? "bg-slate-900/20!" : ""}`}
           >
             <Box className="flex flex-col gap-5 mt-4">
               <Box className="flex gap-4">
@@ -618,7 +618,7 @@ export default function AdminUsers() {
                   fullWidth
                   value={formData.emri}
                   onChange={field("emri")}
-                  InputProps={{ className: "!rounded-2xl" }}
+                  InputProps={{ className: "rounded-2xl!" }}
                   sx={{
                     "& .MuiOutlinedInput-root": {
                       color: isDark ? "#f1f5f9" : "#1e293b",
@@ -643,7 +643,7 @@ export default function AdminUsers() {
                   fullWidth
                   value={formData.mbiemri}
                   onChange={field("mbiemri")}
-                  InputProps={{ className: "!rounded-2xl" }}
+                  InputProps={{ className: "rounded-2xl!" }}
                   sx={{
                     "& .MuiOutlinedInput-root": {
                       color: isDark ? "#f1f5f9" : "#1e293b",
@@ -670,7 +670,7 @@ export default function AdminUsers() {
                 fullWidth
                 value={formData.email}
                 onChange={field("email")}
-                InputProps={{ className: "!rounded-2xl" }}
+                InputProps={{ className: "rounded-2xl!" }}
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     color: isDark ? "#f1f5f9" : "#1e293b",
@@ -697,7 +697,7 @@ export default function AdminUsers() {
                   fullWidth
                   value={formData.passwordHash}
                   onChange={field("password")}
-                  InputProps={{ className: "!rounded-2xl" }}
+                  InputProps={{ className: "rounded-2xl!" }}
                   sx={{
                     "& .MuiOutlinedInput-root": {
                       color: isDark ? "#f1f5f9" : "#1e293b",
@@ -723,7 +723,7 @@ export default function AdminUsers() {
                   <InputLabel sx={{ color: isDark ? "#cbd5e1" : "#64748b" }}>
                     Roli i Përdoruesit
                   </InputLabel>
-                  <Select
+                  <Select variant="outlined"
                     value={formData.role}
                     label="Roli i Përdoruesit"
                     onChange={field("role")}
@@ -751,7 +751,7 @@ export default function AdminUsers() {
                   <InputLabel sx={{ color: isDark ? "#cbd5e1" : "#64748b" }}>
                     Statusi
                   </InputLabel>
-                  <Select
+                  <Select variant="outlined"
                     value={formData.statusi}
                     label="Statusi"
                     onChange={field("statusi")}
@@ -776,10 +776,10 @@ export default function AdminUsers() {
               </Box>
             </Box>
           </DialogContent>
-          <DialogActions className="!px-8 !pb-8 !pt-4 gap-2">
+          <DialogActions className="px-8! pb-8! pt-4! gap-2">
             <Button
               onClick={() => setOpenDialog(false)}
-              className="!rounded-2xl !px-6 !py-3 !normal-case !font-bold !text-slate-500 hover:!bg-slate-100 dark:hover:!bg-slate-800"
+              className="rounded-2xl! px-6! py-3! normal-case! font-bold! text-slate-500! hover:bg-slate-100! dark:hover:bg-slate-800!"
             >
               {t("adminUsers.form.cancel", "Anulo")}
             </Button>
@@ -787,7 +787,7 @@ export default function AdminUsers() {
               variant="contained"
               disabled={!formData.emri || !formData.email}
               onClick={handleSubmit}
-              className="!rounded-2xl !px-10 !py-3 !normal-case !font-black !bg-indigo-600 hover:!bg-indigo-700 shadow-lg shadow-indigo-500/20"
+              className="rounded-2xl! px-10! py-3! normal-case! font-black! bg-indigo-600! hover:bg-indigo-700! shadow-lg shadow-indigo-500/20"
             >
               {isEdit ? "Përditëso" : "Krijo Llogarinë"}
             </Button>
@@ -815,23 +815,23 @@ export default function AdminUsers() {
             },
           }}
         >
-          <DialogTitle className="!px-6 !pt-6 !pb-2">
+          <DialogTitle className="px-6! pt-6! pb-2!">
             <Typography
               variant="h5"
               component="p"
               className={
                 isDark
-                  ? "!font-black !text-white"
-                  : "!font-black !text-slate-900"
+                  ? "font-black! text-white!"
+                  : "font-black! text-slate-900!"
               }
             >
               A jeni i sigurt?
             </Typography>
           </DialogTitle>
-          <DialogContent className="!px-6 !py-4">
+          <DialogContent className="px-6! py-4!">
             <Typography
               variant="body2"
-              className={isDark ? "!text-slate-300" : "!text-slate-600"}
+              className={isDark ? "text-slate-300!" : "text-slate-600!"}
             >
               Do të fshihet përhershëm përdoruesi:
             </Typography>
@@ -839,8 +839,8 @@ export default function AdminUsers() {
               variant="body1"
               className={
                 isDark
-                  ? "!font-bold !text-white !mt-3"
-                  : "!font-bold !text-slate-900 !mt-3"
+                  ? "font-bold! text-white! mt-3!"
+                  : "font-bold! text-slate-900! mt-3!"
               }
             >
               {deleteTarget
@@ -849,18 +849,18 @@ export default function AdminUsers() {
             </Typography>
             <Typography
               variant="caption"
-              className={isDark ? "!text-slate-400" : "!text-slate-500"}
+              className={isDark ? "text-slate-400!" : "text-slate-500!"}
             >
               {deleteTarget ? deleteTarget.email : ""}
             </Typography>
           </DialogContent>
-          <DialogActions className="!px-8 !pb-8 !pt-4 gap-2">
+          <DialogActions className="px-8! pb-8! pt-4! gap-2">
             <Button
               onClick={() => {
                 setOpenDeleteConfirm(false);
                 setDeleteTarget(null);
               }}
-              className="!rounded-2xl !px-6 !py-3 !normal-case !font-bold !text-slate-500 hover:!bg-slate-100 dark:hover:!bg-slate-800"
+              className="rounded-2xl! px-6! py-3! normal-case! font-bold! text-slate-500! hover:bg-slate-100! dark:hover:bg-slate-800!"
             >
               Anulo
             </Button>
@@ -868,7 +868,7 @@ export default function AdminUsers() {
               variant="contained"
               color="error"
               onClick={handleConfirmDelete}
-              className="!rounded-2xl !px-10 !py-3 !normal-case !font-black"
+              className="rounded-2xl! px-10! py-3! normal-case! font-black!"
             >
               Fshi
             </Button>
@@ -878,14 +878,21 @@ export default function AdminUsers() {
       <Footer />
       <Snackbar
         open={openSnackbar}
-        autoHideDuration={4500}
+        autoHideDuration={4000}
         onClose={() => setOpenSnackbar(false)}
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        TransitionComponent={Zoom}
       >
         <Alert
           onClose={() => setOpenSnackbar(false)}
           severity="success"
-          sx={{ width: "100%" }}
+          variant="filled"
+          sx={{ 
+            width: "100%", 
+            borderRadius: "1.25rem",
+            fontWeight: "bold",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.1)"
+          }}
         >
           {snackbarMessage}
         </Alert>

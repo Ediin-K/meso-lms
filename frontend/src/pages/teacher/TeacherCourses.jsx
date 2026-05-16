@@ -121,19 +121,19 @@ export default function TeacherCourses() {
 
   return (
     <Box className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-950">
-      <Container maxWidth="xl" className="py-8 mt-4 sm:mt-8 flex-grow">
+      <Container maxWidth="xl" className="py-8 mt-4 sm:mt-8 grow">
         {/* BACK BUTTON & TOP STRIP */}
         <Box className="flex items-center justify-between mb-8">
           <Button
             startIcon={<ArrowBackRounded />}
             onClick={() => navigate("/teacher")}
-            className="!rounded-2xl !px-6 !py-2 !normal-case !font-bold !text-slate-600 dark:!text-slate-400 hover:!bg-slate-200/50 dark:hover:!bg-slate-800/50"
+            className="rounded-2xl! px-6! py-2! normal-case! font-bold! text-slate-600! dark:text-slate-400! hover:bg-slate-200/50! dark:hover:bg-slate-800/50!"
           >
             Kthehu te Paneli
           </Button>
           <Box className="flex gap-2">
             <Tooltip title="Filtra të avancuar">
-              <IconButton className="!bg-white dark:!bg-slate-900 border border-slate-200 dark:border-slate-800 !rounded-xl">
+              <IconButton className="bg-white! dark:bg-slate-900! border border-slate-200 dark:border-slate-800 rounded-xl!">
                 <FilterListRounded className="text-slate-500" />
               </IconButton>
             </Tooltip>
@@ -145,20 +145,20 @@ export default function TeacherCourses() {
           <div>
             <Typography
               variant="overline"
-              className="!font-bold !tracking-[0.3em] !text-indigo-600 dark:!text-indigo-400"
+              className="font-bold! tracking-[0.3em]! text-indigo-600! dark:text-indigo-400!"
             >
               MENAXHIMI I KURSEVE
             </Typography>
             <Typography
               variant="h3"
               component="h1"
-              className="!mt-2 !font-black !text-slate-900 dark:!text-white"
+              className="mt-2! font-black! text-slate-900! dark:text-white!"
             >
               Kurset e Mia
             </Typography>
             <Typography
               variant="body1"
-              className="!mt-4 !max-w-2xl !text-slate-500 dark:!text-slate-400 text-lg !font-medium"
+              className="mt-4! max-w-2xl! text-slate-500! dark:text-slate-400! text-lg font-medium!"
             >
               Mbikëqyrni kurset tuaja, përditësoni informacionin dhe menaxhoni përmbajtjen për studentët.
             </Typography>
@@ -178,14 +178,14 @@ export default function TeacherCourses() {
                   </InputAdornment>
                 ),
                 className:
-                  "!rounded-[1.5rem] !bg-white dark:!bg-slate-900 !border-none shadow-sm shadow-slate-200/50 dark:shadow-none",
+                  "rounded-3xl! bg-white! dark:bg-slate-900! border-none! shadow-sm shadow-slate-200/50 dark:shadow-none",
               }}
               sx={{ "& .MuiOutlinedInput-notchedOutline": { border: "none" } }}
             />
           </Box>
         </Box>
 
-        {error && <Alert severity="error" className="mb-6 !rounded-2xl">{error}</Alert>}
+        {error && <Alert severity="error" className="mb-6 rounded-2xl!">{error}</Alert>}
 
         {/* QUICK STATS STRIP */}
         <Grid container spacing={3} className="mb-10">
@@ -210,7 +210,7 @@ export default function TeacherCourses() {
             },
           ].map((s, i) => (
             <Grid item xs={12} sm={4} key={i}>
-              <Box className="p-6 rounded-[2rem] bg-white dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800/50 shadow-sm flex items-center gap-4">
+              <Box className="p-6 rounded-4xl bg-white dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800/50 shadow-sm flex items-center gap-4">
                 <div
                   className={`h-12 w-12 rounded-2xl ${s.bg} ${s.color} flex items-center justify-center font-black text-xl`}
                 >
@@ -219,7 +219,7 @@ export default function TeacherCourses() {
                 <div>
                   <Typography
                     variant="caption"
-                    className="!text-slate-500 !font-bold !tracking-widest !uppercase !block"
+                    className="text-slate-500! font-bold! tracking-widest! uppercase! block!"
                   >
                     {s.label}
                   </Typography>
@@ -232,12 +232,12 @@ export default function TeacherCourses() {
         {/* TABLE CONTAINER */}
         <Card
           elevation={0}
-          className="!rounded-[2.5rem] border border-slate-200/60 bg-white/80 dark:!bg-slate-900/50 backdrop-blur-xl overflow-hidden shadow-2xl shadow-slate-200/20 dark:shadow-none"
+          className="rounded-[2.5rem]! border border-slate-200/60 bg-white/80 dark:bg-slate-900/50! backdrop-blur-xl overflow-hidden shadow-2xl shadow-slate-200/20 dark:shadow-none"
         >
           <Box className="p-8 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-4">
             <Typography
               variant="h6"
-              className="!font-black !text-slate-800 dark:!text-white"
+              className="font-black! text-slate-800! dark:text-white!"
             >
               Lista e Kurseve
             </Typography>
@@ -247,7 +247,7 @@ export default function TeacherCourses() {
                   key={status}
                   size="small"
                   onClick={() => setStatusFilter(status)}
-                  className={`!rounded-full !px-4 !py-1 !normal-case !text-xs !font-bold ${statusFilter === status ? "!bg-slate-900 !text-white dark:!bg-white dark:!text-slate-900" : "!text-slate-500 hover:!bg-slate-100 dark:hover:!bg-slate-800"}`}
+                  className={`!rounded-full px-4! py-1! normal-case! text-xs! font-bold! ${statusFilter === status ? "bg-slate-900! text-white! dark:bg-white! dark:text-slate-900!" : "text-slate-500! hover:bg-slate-100! dark:hover:bg-slate-800!"}`}
                 >
                   {status === "all"
                     ? "Të gjithë"
@@ -259,28 +259,28 @@ export default function TeacherCourses() {
 
           {loading ? (
             <Box className="flex justify-center py-32">
-              <CircularProgress className="!text-indigo-500" />
+              <CircularProgress className="text-indigo-500!" />
             </Box>
           ) : (
             <TableContainer>
               <Table sx={{ minWidth: 800 }}>
-                <TableHead className="bg-slate-50/50 dark:!bg-slate-800/30">
+                <TableHead className="bg-slate-50/50 dark:bg-slate-800/30!">
                   <TableRow>
-                    <TableCell className="!font-black !text-slate-400 !uppercase !text-[10px] !tracking-widest !py-6 !pl-8 w-1/3">
+                    <TableCell className="font-black! text-slate-400! uppercase! text-[10px]! tracking-widest! py-6! pl-8! w-1/3">
                       Kursi & Përshkrimi
                     </TableCell>
-                    <TableCell className="!font-black !text-slate-400 !uppercase !text-[10px] !tracking-widest !py-6">
+                    <TableCell className="font-black! text-slate-400! uppercase! text-[10px]! tracking-widest! py-6!">
                       Kategoria / Semestri
                     </TableCell>
-                    <TableCell className="!font-black !text-slate-400 !uppercase !text-[10px] !tracking-widest !py-6">
+                    <TableCell className="font-black! text-slate-400! uppercase! text-[10px]! tracking-widest! py-6!">
                       Statusi
                     </TableCell>
-                    <TableCell className="!font-black !text-slate-400 !uppercase !text-[10px] !tracking-widest !py-6">
+                    <TableCell className="font-black! text-slate-400! uppercase! text-[10px]! tracking-widest! py-6!">
                       Krijuar Më
                     </TableCell>
                     <TableCell
                       align="right"
-                      className="!font-black !text-slate-400 !uppercase !text-[10px] !tracking-widest !py-6 !pr-8"
+                      className="font-black! text-slate-400! uppercase! text-[10px]! tracking-widest! py-6! pr-8!"
                     >
                       Veprime
                     </TableCell>
@@ -291,19 +291,19 @@ export default function TeacherCourses() {
                     <TableRow>
                       <TableCell colSpan={5}>
                         <Box className="flex flex-col items-center justify-center py-24 gap-6">
-                          <div className="h-24 w-24 rounded-[2rem] bg-slate-50 dark:bg-slate-800/50 flex items-center justify-center">
-                            <SchoolRounded className="!text-5xl text-slate-200 dark:text-slate-700" />
+                          <div className="h-24 w-24 rounded-4xl bg-slate-50 dark:bg-slate-800/50 flex items-center justify-center">
+                            <SchoolRounded className="text-5xl! text-slate-200 dark:text-slate-700" />
                           </div>
                           <div className="text-center">
                             <Typography
                               variant="h6"
-                              className="!font-black !text-slate-800 dark:!text-white mb-1"
+                              className="font-black! text-slate-800! dark:text-white! mb-1"
                             >
                               Nuk u gjet asnjë kurs
                             </Typography>
                             <Typography
                               variant="body2"
-                              className="!text-slate-400"
+                              className="text-slate-400!"
                             >
                               Provo të ndryshosh filtrat ose kërkimin tend.
                             </Typography>
@@ -317,17 +317,17 @@ export default function TeacherCourses() {
                         key={course.id}
                         className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors"
                       >
-                        <TableCell className="!pl-8 !py-6">
+                        <TableCell className="pl-8! py-6!">
                           <Box>
                             <Typography
                               variant="body1"
-                              className="!font-black !text-slate-900 dark:!text-white mb-1"
+                              className="font-black! text-slate-900! dark:text-white! mb-1"
                             >
                               {course.titulli}
                             </Typography>
                             <Typography
                               variant="caption"
-                              className="!text-slate-500 !font-medium !line-clamp-2"
+                              className="text-slate-500! font-medium! line-clamp-2!"
                               style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
                             >
                               {course.pershkrimi || "Pa përshkrim"}
@@ -337,7 +337,7 @@ export default function TeacherCourses() {
                         <TableCell>
                           <Box className="flex flex-col gap-1.5 items-start">
                             {course.categoryName && (
-                              <Typography variant="caption" className="!font-bold !text-slate-700 dark:!text-slate-300">
+                              <Typography variant="caption" className="font-bold! text-slate-700! dark:text-slate-300!">
                                 {course.categoryName}
                               </Typography>
                             )}
@@ -355,37 +355,29 @@ export default function TeacherCourses() {
                             />
                             <Typography
                               variant="caption"
-                              className={`!font-black !uppercase !tracking-widest ${course.statusi === "AKTIV" ? "text-emerald-600" : "text-amber-600"}`}
+                              className={`!font-black uppercase! tracking-widest! ${course.statusi === "AKTIV" ? "text-emerald-600" : "text-amber-600"}`}
                             >
                               {course.statusi}
                             </Typography>
                           </Box>
                         </TableCell>
-                        <TableCell className="!text-slate-500 !font-bold !text-xs">
+                        <TableCell className="text-slate-500! font-bold! text-xs!">
                           {course.createdAt
                             ? new Date(course.createdAt).toLocaleDateString()
                             : "N/A"}
                         </TableCell>
-                        <TableCell align="right" className="!pr-8">
+                        <TableCell align="right" className="pr-8!">
                           <Box className="flex justify-end gap-1">
                             <Tooltip title="Shiko Kursin">
                               <IconButton
                                 size="small"
                                 onClick={() => navigate(`/course/${course.id}`)}
-                                className="!bg-slate-100 dark:!bg-slate-800 !text-slate-400 hover:!text-sky-600 !rounded-xl transition-all"
+                                className="bg-slate-100! dark:bg-slate-800! text-slate-400! hover:text-sky-600! rounded-xl! transition-all"
                               >
                                 <VisibilityRounded fontSize="small" />
                               </IconButton>
                             </Tooltip>
-                            <Tooltip title="Ndrysho">
-                              <IconButton
-                                size="small"
-                                onClick={() => handleOpenEdit(course)}
-                                className="!bg-slate-100 dark:!bg-slate-800 !text-slate-400 hover:!text-indigo-600 !rounded-xl transition-all"
-                              >
-                                <EditRounded fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
+
                           </Box>
                         </TableCell>
                       </TableRow>
@@ -418,14 +410,14 @@ export default function TeacherCourses() {
             },
           }}
         >
-          <DialogTitle className="!px-6 !pt-6 !pb-2">
+          <DialogTitle className="px-6! pt-6! pb-2!">
             <Typography
               variant="h5"
               component="p"
               className={
                 isDark
-                  ? "!font-black !text-white"
-                  : "!font-black !text-slate-900"
+                  ? "font-black! text-white!"
+                  : "font-black! text-slate-900!"
               }
             >
               Ndrysho Kursin
@@ -433,22 +425,23 @@ export default function TeacherCourses() {
             <Typography
               variant="body2"
               className={
-                isDark ? "!text-slate-300 !mt-1" : "!text-slate-600 !mt-1"
+                isDark ? "text-slate-300! mt-1!" : "text-slate-600! mt-1!"
               }
             >
               Përditësoni të dhënat bazë të kursit.
             </Typography>
           </DialogTitle>
           <DialogContent
-            className={`!px-6 !py-4 ${isDark ? "!bg-slate-900/20" : ""}`}
+            className={`!px-6 py-4! ${isDark ? "bg-slate-900/20!" : ""}`}
           >
             <Box className="flex flex-col gap-5 mt-4">
               <TextField
                 label="Titulli"
                 fullWidth
+                disabled
                 value={formData.titulli || ''}
                 onChange={e => setFormData({...formData, titulli: e.target.value})}
-                InputProps={{ className: "!rounded-2xl" }}
+                InputProps={{ className: "rounded-2xl!" }}
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     color: isDark ? "#f1f5f9" : "#1e293b",
@@ -465,7 +458,7 @@ export default function TeacherCourses() {
                 rows={3}
                 value={formData.pershkrimi || ''}
                 onChange={e => setFormData({...formData, pershkrimi: e.target.value})}
-                InputProps={{ className: "!rounded-2xl" }}
+                InputProps={{ className: "rounded-2xl!" }}
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     color: isDark ? "#f1f5f9" : "#1e293b",
@@ -478,9 +471,10 @@ export default function TeacherCourses() {
               <Box className="flex gap-4">
                 <FormControl fullWidth>
                   <InputLabel sx={{ color: isDark ? "#cbd5e1" : "#64748b" }}>Semestri</InputLabel>
-                  <Select
+                  <Select variant="outlined"
                     value={formData.semester || 1}
                     label="Semestri"
+                    disabled
                     onChange={e => setFormData({...formData, semester: e.target.value})}
                     sx={{
                       borderRadius: "1rem",
@@ -495,7 +489,7 @@ export default function TeacherCourses() {
                 </FormControl>
                 <FormControl fullWidth>
                   <InputLabel sx={{ color: isDark ? "#cbd5e1" : "#64748b" }}>Statusi</InputLabel>
-                  <Select
+                  <Select variant="outlined"
                     value={formData.statusi || 'DRAFT'}
                     label="Statusi"
                     onChange={e => setFormData({...formData, statusi: e.target.value})}
@@ -514,10 +508,10 @@ export default function TeacherCourses() {
               </Box>
             </Box>
           </DialogContent>
-          <DialogActions className="!px-8 !pb-8 !pt-4 gap-2">
+          <DialogActions className="px-8! pb-8! pt-4! gap-2">
             <Button
               onClick={() => setOpenDialog(false)}
-              className="!rounded-2xl !px-6 !py-3 !normal-case !font-bold !text-slate-500 hover:!bg-slate-100 dark:hover:!bg-slate-800"
+              className="rounded-2xl! px-6! py-3! normal-case! font-bold! text-slate-500! hover:bg-slate-100! dark:hover:bg-slate-800!"
             >
               Anulo
             </Button>
@@ -525,7 +519,7 @@ export default function TeacherCourses() {
               variant="contained"
               onClick={handleSubmit}
               disabled={saving}
-              className="!rounded-2xl !px-10 !py-3 !normal-case !font-black !bg-indigo-600 hover:!bg-indigo-700 shadow-lg shadow-indigo-500/20"
+              className="rounded-2xl! px-10! py-3! normal-case! font-black! bg-indigo-600! hover:bg-indigo-700! shadow-lg shadow-indigo-500/20"
             >
               {saving ? "Po Ruhet..." : "Ruaj"}
             </Button>

@@ -199,13 +199,13 @@ export default function AdminTeachers() {
 
   return (
     <Box className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-950">
-      <Container maxWidth="xl" className="py-8 mt-4 sm:mt-8 flex-grow">
+      <Container maxWidth="xl" className="py-8 mt-4 sm:mt-8 grow">
         {/* BACK BUTTON */}
         <Box className="mb-8">
           <Button
             startIcon={<ArrowBackRounded />}
             onClick={() => navigate("/admin")}
-            className="!rounded-2xl !px-6 !py-2 !normal-case !font-bold !text-slate-600 dark:!text-slate-400 hover:!bg-slate-200/50 dark:hover:!bg-slate-800/50"
+            className="rounded-2xl! px-6! py-2! normal-case! font-bold! text-slate-600! dark:text-slate-400! hover:bg-slate-200/50! dark:hover:bg-slate-800/50!"
           >
             Kthehu te Paneli
           </Button>
@@ -216,20 +216,20 @@ export default function AdminTeachers() {
           <div>
             <Typography
               variant="overline"
-              className="!font-bold !tracking-[0.3em] !text-indigo-600 dark:!text-indigo-400"
+              className="font-bold! tracking-[0.3em]! text-indigo-600! dark:text-indigo-400!"
             >
               MENAXHIMI I MËSUESVE
             </Typography>
             <Typography
               variant="h3"
               component="h1"
-              className="!mt-2 !font-black !text-slate-900 dark:!text-white"
+              className="mt-2! font-black! text-slate-900! dark:text-white!"
             >
               Mësuesit
             </Typography>
             <Typography
               variant="body1"
-              className="!mt-4 !max-w-2xl !text-slate-500 dark:!text-slate-400 text-lg !font-medium"
+              className="mt-4! max-w-2xl! text-slate-500! dark:text-slate-400! text-lg font-medium!"
             >
               Menaxhoni mësuesit, caktoni kurset dhe monitoroni aktivitetin në
               sistem.
@@ -250,7 +250,7 @@ export default function AdminTeachers() {
                   </InputAdornment>
                 ),
                 className:
-                  "!rounded-[1.5rem] !bg-white dark:!bg-slate-900 !border-none shadow-sm shadow-slate-200/50 dark:shadow-none",
+                  "rounded-3xl! bg-white! dark:bg-slate-900! border-none! shadow-sm shadow-slate-200/50 dark:shadow-none",
               }}
               sx={{ "& .MuiOutlinedInput-notchedOutline": { border: "none" } }}
             />
@@ -258,7 +258,7 @@ export default function AdminTeachers() {
               variant="contained"
               startIcon={<AddRounded />}
               onClick={handleOpenAdd}
-              className="!rounded-[1.5rem] !py-4 !px-8 !normal-case !font-black !bg-indigo-600 hover:!bg-indigo-700 shadow-xl shadow-indigo-500/30 transition-all hover:scale-105 active:scale-95"
+              className="rounded-3xl! py-4! px-8! normal-case! font-black! bg-indigo-600! hover:bg-indigo-700! shadow-xl shadow-indigo-500/30 transition-all hover:scale-105 active:scale-95"
             >
               Shto Mësues
             </Button>
@@ -291,7 +291,7 @@ export default function AdminTeachers() {
             },
           ].map((s, i) => (
             <Grid item xs={6} sm={4} md={4} key={i}>
-              <Box className="p-6 rounded-[2rem] bg-white dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800/50 shadow-sm flex items-center gap-4">
+              <Box className="p-6 rounded-4xl bg-white dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800/50 shadow-sm flex items-center gap-4">
                 <div
                   className={`h-12 w-12 rounded-2xl ${s.bg} ${s.color} flex items-center justify-center font-black text-xl`}
                 >
@@ -300,13 +300,13 @@ export default function AdminTeachers() {
                 <div>
                   <Typography
                     variant="h5"
-                    className="!font-black dark:!text-white leading-none mb-1"
+                    className="font-black! dark:text-white! leading-none mb-1"
                   >
                     {s.value}
                   </Typography>
                   <Typography
                     variant="caption"
-                    className="!text-slate-500 !font-bold !tracking-widest !uppercase !block"
+                    className="text-slate-500! font-bold! tracking-widest! uppercase! block!"
                   >
                     {s.label}
                   </Typography>
@@ -319,13 +319,13 @@ export default function AdminTeachers() {
         {/* TABLE */}
         <Card
           elevation={0}
-          className="!rounded-[2.5rem] border border-slate-200/60 bg-white/80 dark:!bg-slate-900/50 backdrop-blur-xl overflow-hidden shadow-2xl shadow-slate-200/20 dark:shadow-none"
+          className="rounded-[2.5rem]! border border-slate-200/60 bg-white/80 dark:bg-slate-900/50! backdrop-blur-xl overflow-hidden shadow-2xl shadow-slate-200/20 dark:shadow-none"
         >
           <Box className="p-8 border-b border-slate-100 dark:border-slate-800">
             <Box className="flex justify-between items-center">
               <Typography
                 variant="h6"
-                className="!font-black !text-slate-800 dark:!text-white"
+                className="font-black! text-slate-800! dark:text-white!"
               >
                 Lista e Mësuesve
               </Typography>
@@ -333,7 +333,7 @@ export default function AdminTeachers() {
                 <InputLabel sx={{ color: isDark ? "#cbd5e1" : "#64748b" }}>
                   Statusi
                 </InputLabel>
-                <Select
+                <Select variant="outlined"
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
                   label="Statusi"
@@ -360,31 +360,31 @@ export default function AdminTeachers() {
 
           {loading ? (
             <Box className="flex justify-center py-32">
-              <CircularProgress className="!text-indigo-500" />
+              <CircularProgress className="text-indigo-500!" />
             </Box>
           ) : (
             <TableContainer>
               <Table sx={{ minWidth: 800 }}>
-                <TableHead className="bg-slate-50/50 dark:!bg-slate-800/30">
+                <TableHead className="bg-slate-50/50 dark:bg-slate-800/30!">
                   <TableRow>
-                    <TableCell className="!font-black !text-slate-400 !uppercase !text-[10px] !tracking-widest !py-6 !pl-8">
+                    <TableCell className="font-black! text-slate-400! uppercase! text-[10px]! tracking-widest! py-6! pl-8!">
                       Emri
                     </TableCell>
-                    <TableCell className="!font-black !text-slate-400 !uppercase !text-[10px] !tracking-widest !py-6">
+                    <TableCell className="font-black! text-slate-400! uppercase! text-[10px]! tracking-widest! py-6!">
                       Email
                     </TableCell>
-                    <TableCell className="!font-black !text-slate-400 !uppercase !text-[10px] !tracking-widest !py-6">
+                    <TableCell className="font-black! text-slate-400! uppercase! text-[10px]! tracking-widest! py-6!">
                       Telefon
                     </TableCell>
-                    <TableCell className="!font-black !text-slate-400 !uppercase !text-[10px] !tracking-widest !py-6">
+                    <TableCell className="font-black! text-slate-400! uppercase! text-[10px]! tracking-widest! py-6!">
                       Kurse
                     </TableCell>
-                    <TableCell className="!font-black !text-slate-400 !uppercase !text-[10px] !tracking-widest !py-6">
+                    <TableCell className="font-black! text-slate-400! uppercase! text-[10px]! tracking-widest! py-6!">
                       Statusi
                     </TableCell>
                     <TableCell
                       align="right"
-                      className="!font-black !text-slate-400 !uppercase !text-[10px] !tracking-widest !py-6 !pr-8"
+                      className="font-black! text-slate-400! uppercase! text-[10px]! tracking-widest! py-6! pr-8!"
                     >
                       Veprime
                     </TableCell>
@@ -395,19 +395,19 @@ export default function AdminTeachers() {
                     <TableRow>
                       <TableCell colSpan={6}>
                         <Box className="flex flex-col items-center justify-center py-24 gap-6">
-                          <div className="h-24 w-24 rounded-[2rem] bg-slate-50 dark:bg-slate-800/50 flex items-center justify-center">
-                            <SchoolRounded className="!text-5xl text-slate-200 dark:text-slate-700" />
+                          <div className="h-24 w-24 rounded-4xl bg-slate-50 dark:bg-slate-800/50 flex items-center justify-center">
+                            <SchoolRounded className="text-5xl! text-slate-200 dark:text-slate-700" />
                           </div>
                           <div className="text-center">
                             <Typography
                               variant="h6"
-                              className="!font-black !text-slate-800 dark:!text-white mb-1"
+                              className="font-black! text-slate-800! dark:text-white! mb-1"
                             >
                               Nuk u gjet asnjë mësues
                             </Typography>
                             <Typography
                               variant="body2"
-                              className="!text-slate-400"
+                              className="text-slate-400!"
                             >
                               Provo të ndryshosh kërkimin ose shto një mësues të
                               ri.
@@ -422,17 +422,17 @@ export default function AdminTeachers() {
                         key={teacher.id}
                         className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors"
                       >
-                        <TableCell className="!pl-8 !py-6">
+                        <TableCell className="pl-8! py-6!">
                           <Box className="flex items-center gap-3">
                             <Avatar
-                              className={`!bg-gradient-to-br ${AVATAR_GRADIENT.default} !font-black !text-white`}
+                              className={`!bg-gradient-to-br ${AVATAR_GRADIENT.default} font-black! text-white!`}
                             >
                               {getInitials(teacher)}
                             </Avatar>
                             <div>
                               <Typography
                                 variant="body1"
-                                className="!font-black !text-slate-900 dark:!text-white"
+                                className="font-black! text-slate-900! dark:text-white!"
                               >
                                 {teacher.emri} {teacher.mbiemri}
                               </Typography>
@@ -447,7 +447,7 @@ export default function AdminTeachers() {
                             />
                             <Typography
                               variant="body2"
-                              className="!text-slate-600 dark:!text-slate-400"
+                              className="text-slate-600! dark:text-slate-400!"
                             >
                               {teacher.email}
                             </Typography>
@@ -463,7 +463,7 @@ export default function AdminTeachers() {
                                 />
                                 <Typography
                                   variant="body2"
-                                  className="!text-slate-600 dark:!text-slate-400"
+                                  className="text-slate-600! dark:text-slate-400!"
                                 >
                                   {teacher.phoneNumber}
                                 </Typography>
@@ -471,7 +471,7 @@ export default function AdminTeachers() {
                             ) : (
                               <Typography
                                 variant="body2"
-                                className="!text-slate-400"
+                                className="text-slate-400!"
                               >
                                 —
                               </Typography>
@@ -481,7 +481,7 @@ export default function AdminTeachers() {
                         <TableCell>
                           <Typography
                             variant="body2"
-                            className="!font-bold !text-indigo-600 dark:!text-indigo-400"
+                            className="font-bold! text-indigo-600! dark:text-indigo-400!"
                           >
                             {teacher.courseCount || 0}
                           </Typography>
@@ -493,12 +493,12 @@ export default function AdminTeachers() {
                             {statusLabel(teacher.statusi)}
                           </Box>
                         </TableCell>
-                        <TableCell align="right" className="!pr-2">
+                        <TableCell align="right" className="pr-2!">
                           <Tooltip title="Redakto">
                             <IconButton
                               size="small"
                               onClick={() => handleOpenEdit(teacher)}
-                              className="!text-slate-500 hover:!text-sky-600 dark:hover:!text-sky-400"
+                              className="text-slate-500! hover:text-sky-600! dark:hover:text-sky-400!"
                             >
                               <EditRounded fontSize="small" />
                             </IconButton>
@@ -507,7 +507,7 @@ export default function AdminTeachers() {
                             <IconButton
                               size="small"
                               onClick={() => handleOpenDelete(teacher)}
-                              className="!text-slate-500 hover:!text-rose-600 dark:hover:!text-rose-400"
+                              className="text-slate-500! hover:text-rose-600! dark:hover:text-rose-400!"
                             >
                               <DeleteRounded fontSize="small" />
                             </IconButton>
@@ -544,12 +544,12 @@ export default function AdminTeachers() {
           },
         }}
       >
-        <DialogTitle className="!px-6 !pt-6 !pb-2">
+        <DialogTitle className="px-6! pt-6! pb-2!">
           <Typography
             variant="h5"
             component="p"
             className={
-              isDark ? "!font-black !text-white" : "!font-black !text-slate-900"
+              isDark ? "font-black! text-white!" : "font-black! text-slate-900!"
             }
           >
             {isEdit ? "Përditëso Mësuesin" : "Shto Mësues të Ri"}
@@ -557,7 +557,7 @@ export default function AdminTeachers() {
           <Typography
             variant="body2"
             className={
-              isDark ? "!text-slate-300 !mt-1" : "!text-slate-600 !mt-1"
+              isDark ? "text-slate-300! mt-1!" : "text-slate-600! mt-1!"
             }
           >
             {isEdit
@@ -566,7 +566,7 @@ export default function AdminTeachers() {
           </Typography>
         </DialogTitle>
         <DialogContent
-          className={`!px-6 !py-4 ${isDark ? "!bg-slate-900/20" : ""}`}
+          className={`!px-6 py-4! ${isDark ? "bg-slate-900/20!" : ""}`}
         >
           <Box className="flex flex-col gap-5 mt-4">
             <Box className="flex gap-4">
@@ -575,7 +575,7 @@ export default function AdminTeachers() {
                 fullWidth
                 value={formData.emri}
                 onChange={field("emri")}
-                InputProps={{ className: "!rounded-2xl" }}
+                InputProps={{ className: "rounded-2xl!" }}
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     color: isDark ? "#f1f5f9" : "#1e293b",
@@ -600,7 +600,7 @@ export default function AdminTeachers() {
                 fullWidth
                 value={formData.mbiemri}
                 onChange={field("mbiemri")}
-                InputProps={{ className: "!rounded-2xl" }}
+                InputProps={{ className: "rounded-2xl!" }}
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     color: isDark ? "#f1f5f9" : "#1e293b",
@@ -627,7 +627,7 @@ export default function AdminTeachers() {
               fullWidth
               value={formData.email}
               onChange={field("email")}
-              InputProps={{ className: "!rounded-2xl" }}
+              InputProps={{ className: "rounded-2xl!" }}
               sx={{
                 "& .MuiOutlinedInput-root": {
                   color: isDark ? "#f1f5f9" : "#1e293b",
@@ -652,7 +652,7 @@ export default function AdminTeachers() {
               fullWidth
               value={formData.phoneNumber}
               onChange={field("phoneNumber")}
-              InputProps={{ className: "!rounded-2xl" }}
+              InputProps={{ className: "rounded-2xl!" }}
               sx={{
                 "& .MuiOutlinedInput-root": {
                   color: isDark ? "#f1f5f9" : "#1e293b",
@@ -679,7 +679,7 @@ export default function AdminTeachers() {
                 fullWidth
                 value={formData.password}
                 onChange={field("password")}
-                InputProps={{ className: "!rounded-2xl" }}
+                InputProps={{ className: "rounded-2xl!" }}
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     color: isDark ? "#f1f5f9" : "#1e293b",
@@ -707,7 +707,7 @@ export default function AdminTeachers() {
                 fullWidth
                 value={formData.password}
                 onChange={field("password")}
-                InputProps={{ className: "!rounded-2xl" }}
+                InputProps={{ className: "rounded-2xl!" }}
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     color: isDark ? "#f1f5f9" : "#1e293b",
@@ -732,7 +732,7 @@ export default function AdminTeachers() {
               <InputLabel sx={{ color: isDark ? "#cbd5e1" : "#64748b" }}>
                 Statusi
               </InputLabel>
-              <Select
+              <Select variant="outlined"
                 value={formData.statusi}
                 label="Statusi"
                 onChange={field("statusi")}
@@ -756,10 +756,10 @@ export default function AdminTeachers() {
             </FormControl>
           </Box>
         </DialogContent>
-        <DialogActions className="!px-8 !pb-8 !pt-4 gap-2">
+        <DialogActions className="px-8! pb-8! pt-4! gap-2">
           <Button
             onClick={() => setOpenDialog(false)}
-            className="!rounded-2xl !px-6 !py-3 !normal-case !font-bold !text-slate-500 hover:!bg-slate-100 dark:hover:!bg-slate-800"
+            className="rounded-2xl! px-6! py-3! normal-case! font-bold! text-slate-500! hover:bg-slate-100! dark:hover:bg-slate-800!"
           >
             {t("adminUsers.form.cancel", "Anulo")}
           </Button>
@@ -767,7 +767,7 @@ export default function AdminTeachers() {
             variant="contained"
             disabled={!formData.emri || !formData.email}
             onClick={handleSubmit}
-            className="!rounded-2xl !px-10 !py-3 !normal-case !font-black !bg-indigo-600 hover:!bg-indigo-700 shadow-lg shadow-indigo-500/20"
+            className="rounded-2xl! px-10! py-3! normal-case! font-black! bg-indigo-600! hover:bg-indigo-700! shadow-lg shadow-indigo-500/20"
           >
             {isEdit ? "Përditëso" : "Krijo Llogarinë"}
           </Button>
@@ -797,21 +797,21 @@ export default function AdminTeachers() {
           },
         }}
       >
-        <DialogTitle className="!px-6 !pt-6 !pb-2">
+        <DialogTitle className="px-6! pt-6! pb-2!">
           <Typography
             variant="h5"
             component="p"
             className={
-              isDark ? "!font-black !text-white" : "!font-black !text-slate-900"
+              isDark ? "font-black! text-white!" : "font-black! text-slate-900!"
             }
           >
             A jeni i sigurt?
           </Typography>
         </DialogTitle>
-        <DialogContent className="!px-6 !py-4">
+        <DialogContent className="px-6! py-4!">
           <Typography
             variant="body2"
-            className={isDark ? "!text-slate-300" : "!text-slate-600"}
+            className={isDark ? "text-slate-300!" : "text-slate-600!"}
           >
             Do të fshihet përhershëm mësuesi:
           </Typography>
@@ -819,26 +819,26 @@ export default function AdminTeachers() {
             variant="body1"
             className={
               isDark
-                ? "!font-bold !text-white !mt-3"
-                : "!font-bold !text-slate-900 !mt-3"
+                ? "font-bold! text-white! mt-3!"
+                : "font-bold! text-slate-900! mt-3!"
             }
           >
             {deleteTarget ? `${deleteTarget.emri} ${deleteTarget.mbiemri}` : ""}
           </Typography>
           <Typography
             variant="caption"
-            className={isDark ? "!text-slate-400" : "!text-slate-500"}
+            className={isDark ? "text-slate-400!" : "text-slate-500!"}
           >
             {deleteTarget ? deleteTarget.email : ""}
           </Typography>
         </DialogContent>
-        <DialogActions className="!px-8 !pb-8 !pt-4 gap-2">
+        <DialogActions className="px-8! pb-8! pt-4! gap-2">
           <Button
             onClick={() => {
               setOpenDeleteConfirm(false);
               setDeleteTarget(null);
             }}
-            className="!rounded-2xl !px-6 !py-3 !normal-case !font-bold !text-slate-500 hover:!bg-slate-100 dark:hover:!bg-slate-800"
+            className="rounded-2xl! px-6! py-3! normal-case! font-bold! text-slate-500! hover:bg-slate-100! dark:hover:bg-slate-800!"
           >
             Anulo
           </Button>
@@ -846,7 +846,7 @@ export default function AdminTeachers() {
             variant="contained"
             color="error"
             onClick={handleConfirmDelete}
-            className="!rounded-2xl !px-10 !py-3 !normal-case !font-black"
+            className="rounded-2xl! px-10! py-3! normal-case! font-black!"
           >
             Fshi
           </Button>
@@ -859,10 +859,18 @@ export default function AdminTeachers() {
         autoHideDuration={4000}
         onClose={() => setOpenSnackbar(false)}
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        TransitionComponent={Zoom}
       >
         <Alert
           onClose={() => setOpenSnackbar(false)}
           severity={snackbarMessage.includes("Gabim") ? "error" : "success"}
+          variant="filled"
+          sx={{ 
+            width: "100%", 
+            borderRadius: "1.25rem",
+            fontWeight: "bold",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.1)"
+          }}
         >
           {snackbarMessage}
         </Alert>

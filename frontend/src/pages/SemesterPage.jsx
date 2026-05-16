@@ -11,7 +11,8 @@ import PlayCircleFilledRounded from "@mui/icons-material/PlayCircleFilledRounded
 export default function SemesterPage() {
     const { semesterId } = useParams()
     const navigate = useNavigate()
-    const { t } = useAppPreferences()
+    const { t, mode } = useAppPreferences()
+    const isDark = mode === "dark"
 
     const [courses, setCourses] = useState([])
     const [loading, setLoading] = useState(true)
@@ -32,7 +33,7 @@ export default function SemesterPage() {
     }, [semesterId])
 
     return (
-        <section className="flex flex-col min-h-screen">
+        <section className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-950">
             <Container maxWidth="lg" className="flex-grow py-8 px-4 sm:px-6 lg:px-8 mt-4 sm:mt-8">
 
                 {/* BACK BUTTON */}
@@ -83,16 +84,15 @@ export default function SemesterPage() {
                                 style={{ height: "240px", minHeight: "240px", maxHeight: "240px" }}
                             >
                                 <Box
-                                    className="relative flex flex-col h-full overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-sky-200/40"
+                                    className="relative flex flex-col h-full overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-sky-200/40 bg-white dark:bg-slate-900"
                                     sx={{
                                         height: "240px !important",
                                         minHeight: "240px !important",
                                         maxHeight: "240px !important",
                                         borderRadius: "2.5rem !important",
                                         border: "1px solid",
-                                        borderColor: "divider",
+                                        borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.12)",
                                         overflow: "hidden !important",
-                                        backgroundColor: "background.paper",
                                         "&:hover": {
                                             borderColor: "primary.main",
                                         }
