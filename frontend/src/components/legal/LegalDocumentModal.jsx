@@ -1,26 +1,50 @@
+import { useState } from 'react'
 import Dialog from '@mui/material/Dialog'
 import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
+import DialogActions from '@mui/material/DialogActions'
 import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded'
+import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded'
 import { useAppPreferences } from '../../context/appPreferencesContext.js'
 
 /**
- * Scrollable legal document modal.
+ * Scrollable legal document modal with an acknowledge ("I have read") button.
  *
- * @param {object} props
+ * @param {object}  props
  * @param {boolean} props.open
  * @param {() => void} props.onClose
  * @param {{ title: string, subtitle: string, sections: { id: string, heading: string, paragraphs: string[] }[] }} props.document
+ * @param {() => void} [props.onAcknowledge]           - Called when user clicks "I have read & understood"
+ * @param {boolean}    [props.requireScrollToAcknowledge] - If true, button is disabled until scrolled to bottom
  */
 export default function LegalDocumentModal({
   open,
   onClose,
   document: doc,
+  onAcknowledge,
+  requireScrollToAcknowledge = false,
 }) {
-  const { colorMode } = useAppPreferences()
+  const { colorMode, t } = useAppPreferences()
+  const [scrolledToEnd, setScrolledToEnd] = useState(false)
   if (!doc) return null
+
+  const handleScroll = (e) => {
+    if (requireScrollToAcknowledge && !scrolledToEnd) {
+      const { scrollTop, scrollHeight, clientHeight } = e.currentTarget
+      if (scrollHeight - scrollTop - clientHeight < 40) {
+        setScrolledToEnd(true)
+      }
+    }
+  }
+
+  const handleAcknowledge = () => {
+    if (onAcknowledge) onAcknowledge()
+    onClose()
+  }
+
+  const ackDisabled = requireScrollToAcknowledge && !scrolledToEnd
 
   return (
     <Dialog
@@ -75,6 +99,7 @@ export default function LegalDocumentModal({
         dividers
         className="max-h-[min(80vh,600px)] px-4 py-4 sm:px-6 !bg-sky-100/80 dark:!bg-slate-950/80"
         tabIndex={0}
+        onScroll={handleScroll}
       >
         <div className="space-y-5 pb-2">
           {doc.sections.map((section) => (
@@ -109,6 +134,27 @@ export default function LegalDocumentModal({
           ))}
         </div>
       </DialogContent>
+
+      {onAcknowledge && (
+        <DialogActions className="border-t border-slate-200/80 !bg-sky-100/95 px-4 py-3 dark:border-slate-600/80 dark:!bg-slate-950/95 sm:px-6">
+          <button
+            type="button"
+            onClick={handleAcknowledge}
+            disabled={ackDisabled}
+            className={[
+              'flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold text-white',
+              'bg-gradient-to-r from-indigo-600 to-indigo-500 shadow-md shadow-indigo-500/25',
+              'transition-all duration-200 hover:scale-[1.02] hover:shadow-lg hover:shadow-indigo-500/30',
+              'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500',
+              'active:scale-[0.99]',
+              ackDisabled ? 'cursor-not-allowed opacity-50 hover:scale-100' : '',
+            ].join(' ')}
+          >
+            <CheckCircleOutlineRoundedIcon fontSize="small" />
+            {t ? t('auth.iHaveRead') : 'I have read & understood'}
+          </button>
+        </DialogActions>
+      )}
     </Dialog>
   )
 }
