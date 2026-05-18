@@ -110,6 +110,7 @@ export const STRINGS = {
         "Duhet të pranoni Kushtet, Privatësinë dhe Cookies për të vazhduar.",
       cookiePolicy: "Rregullat e Cookies",
       registerError: "Regjistrimi dështoi",
+      iHaveRead: "Lexova dhe kuptova",
     },
     cookies: {
       title: "Privatësia & Cookies",
@@ -766,6 +767,7 @@ export const STRINGS = {
         "You must agree to the Terms, Privacy, and Cookie Policy to continue.",
       cookiePolicy: "Cookie Policy",
       registerError: "Registration failed",
+      iHaveRead: "I have read & understood",
     },
     cookies: {
       title: "Privacy & Cookies",

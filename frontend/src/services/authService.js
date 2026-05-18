@@ -17,8 +17,13 @@ export const login = async (email, password) => {
     localStorage.setItem('token', data.token)
     localStorage.setItem('refreshToken', data.refreshToken)
     localStorage.setItem('userId', data.userId)
+    localStorage.setItem('email', email)        // ✅ shto këtë
+    localStorage.setItem('meson-role', data.role ?? '') // ✅ shto këtë
 
-    return data;
+    return {
+        ...data,
+        email: email,  // ✅ shto këtë
+    };
 };
 export const register = async (emri, mbiemri, email, password, roli) => {
     const response = await fetch(`${API_URL}/register`, {
