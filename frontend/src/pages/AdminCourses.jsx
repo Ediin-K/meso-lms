@@ -88,6 +88,17 @@ export default function AdminCourses() {
   const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [groupDialog, setGroupDialog] = useState({ open: false, course: null });
+  const [courseGroups, setCourseGroups] = useState([]);
+  const [groupForm, setGroupForm] = useState({
+    name: "",
+    capacity: "",
+    teacherIds: "",
+  });
+  const [editingGroupId, setEditingGroupId] = useState(null);
+  const [subgroupForms, setSubgroupForms] = useState({});
+  const [editingSubgroupId, setEditingSubgroupId] = useState(null);
+  const [editingSubgroupGroupId, setEditingSubgroupGroupId] = useState(null);
 
   const fetchCourses = async () => {
     setLoading(true);
@@ -174,6 +185,105 @@ export default function AdminCourses() {
     }
   };
 
+  const fetchCourseGroups = async (courseId) => {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${BASE_URL}/courses/${courseId}/groups`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) throw new Error("Gabim gjate marrjes se grupeve");
+    return response.json();
+  };
+
+  const createGroup = async (courseId, payload) => {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${BASE_URL}/courses/${courseId}/groups`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) throw new Error(await response.text());
+    return response.json();
+  };
+
+  const updateGroup = async (groupId, payload) => {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${BASE_URL}/course-groups/${groupId}`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) throw new Error(await response.text());
+    return response.json();
+  };
+
+  const deleteGroup = async (groupId) => {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${BASE_URL}/course-groups/${groupId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) throw new Error(await response.text());
+  };
+
+  const createSubgroup = async (groupId, payload) => {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${BASE_URL}/course-groups/${groupId}/subgroups`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) throw new Error(await response.text());
+    return response.json();
+  };
+
+  const updateSubgroup = async (subgroupId, payload) => {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${BASE_URL}/course-subgroups/${subgroupId}`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) throw new Error(await response.text());
+    return response.json();
+  };
+
+  const deleteSubgroup = async (subgroupId) => {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${BASE_URL}/course-subgroups/${subgroupId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) throw new Error(await response.text());
+  };
+
   // ─── HANDLERS ─────────────────────────────────────────────────
 
   // Hap dialogun për shtim
@@ -254,6 +364,134 @@ export default function AdminCourses() {
       setError(err.message || "Gabim gjatë fshirjes");
       setOpenDeleteConfirm(false);
       setDeleteTarget(null);
+    }
+  };
+
+  const parseIds = (value) =>
+    String(value || "")
+      .split(",")
+      .map((id) => Number(id.trim()))
+      .filter(Boolean);
+
+  const handleOpenGroups = async (course) => {
+    try {
+      setGroupDialog({ open: true, course });
+      setGroupForm({ name: "", capacity: "", teacherIds: "" });
+      setEditingGroupId(null);
+      setSubgroupForms({});
+      setEditingSubgroupId(null);
+      setEditingSubgroupGroupId(null);
+      setCourseGroups(await fetchCourseGroups(course.id));
+    } catch (err) {
+      setError(err.message || "Gabim gjate hapjes se grupeve");
+    }
+  };
+
+  const handleCreateGroup = async () => {
+    if (!groupDialog.course || !groupForm.name.trim()) return;
+
+    try {
+      const payload = {
+        name: groupForm.name.trim(),
+        capacity: groupForm.capacity ? Number(groupForm.capacity) : null,
+        teacherIds: parseIds(groupForm.teacherIds),
+      };
+
+      if (editingGroupId) {
+        await updateGroup(editingGroupId, payload);
+      } else {
+        await createGroup(groupDialog.course.id, payload);
+      }
+
+      setGroupForm({ name: "", capacity: "", teacherIds: "" });
+      setEditingGroupId(null);
+      setCourseGroups(await fetchCourseGroups(groupDialog.course.id));
+      setSnackbarMessage(editingGroupId ? "Grupi u perditesua me sukses." : "Grupi u krijua me sukses.");
+      setOpenSnackbar(true);
+    } catch (err) {
+      setError(err.message || "Gabim gjate krijimit te grupit");
+    }
+  };
+
+  const handleCreateSubgroup = async (groupId) => {
+    const form = subgroupForms[groupId] || {};
+    if (!groupDialog.course || !form.name?.trim()) return;
+
+    try {
+      const payload = {
+        name: form.name.trim(),
+        capacity: form.capacity ? Number(form.capacity) : null,
+        assistantIds: parseIds(form.assistantIds),
+      };
+
+      if (editingSubgroupId && editingSubgroupGroupId === groupId) {
+        await updateSubgroup(editingSubgroupId, payload);
+      } else {
+        await createSubgroup(groupId, payload);
+      }
+
+      setSubgroupForms((prev) => ({ ...prev, [groupId]: {} }));
+      setEditingSubgroupId(null);
+      setEditingSubgroupGroupId(null);
+      setCourseGroups(await fetchCourseGroups(groupDialog.course.id));
+      setSnackbarMessage(
+        editingSubgroupId && editingSubgroupGroupId === groupId
+          ? "Nengrupi u perditesua me sukses."
+          : "Nengrupi u krijua me sukses.",
+      );
+      setOpenSnackbar(true);
+    } catch (err) {
+      setError(err.message || "Gabim gjate krijimit te nengrupit");
+    }
+  };
+
+  const handleEditGroup = (group) => {
+    setEditingGroupId(group.id);
+    setGroupForm({
+      name: group.name || "",
+      capacity: group.capacity || "",
+      teacherIds: group.teachers?.map((teacher) => teacher.id).join(", ") || "",
+    });
+  };
+
+  const handleDeleteGroup = async (group) => {
+    if (!window.confirm(`A je i sigurt qe deshiron ta fshish grupin ${group.name}?`)) return;
+
+    try {
+      await deleteGroup(group.id);
+      setCourseGroups(await fetchCourseGroups(groupDialog.course.id));
+      setSnackbarMessage("Grupi u fshi me sukses.");
+      setOpenSnackbar(true);
+    } catch (err) {
+      setError(err.message || "Gabim gjate fshirjes se grupit");
+    }
+  };
+
+  const handleEditSubgroup = (groupId, subgroup) => {
+    setEditingSubgroupId(subgroup.id);
+    setEditingSubgroupGroupId(groupId);
+    setSubgroupForms((prev) => ({
+      ...prev,
+      [groupId]: {
+        name: subgroup.name || "",
+        capacity: subgroup.capacity || "",
+        assistantIds: subgroup.assistants?.map((assistant) => assistant.id).join(", ") || "",
+      },
+    }));
+  };
+
+  const handleDeleteSubgroup = async (subgroup) => {
+    if (!window.confirm(`A je i sigurt qe deshiron ta fshish nengrupin ${subgroup.name}?`)) return;
+
+    try {
+      await deleteSubgroup(subgroup.id);
+      setEditingSubgroupId(null);
+      setEditingSubgroupGroupId(null);
+      setCourseGroups(await fetchCourseGroups(groupDialog.course.id));
+      setSnackbarMessage("Nengrupi u fshi me sukses.");
+      setOpenSnackbar(true);
+    } catch (err) {
+      setError(err.message || "Gabim gjate fshirjes se nengrupit");
     }
   };
 
@@ -552,6 +790,15 @@ export default function AdminCourses() {
                                 className="bg-slate-100! dark:bg-slate-800! text-slate-400! hover:text-sky-600! rounded-xl! transition-all"
                               >
                                 <EditRounded fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Grupet">
+                              <IconButton
+                                size="small"
+                                onClick={() => handleOpenGroups(course)}
+                                className="bg-slate-100! dark:bg-slate-800! text-slate-400! hover:text-indigo-600! rounded-xl! transition-all"
+                              >
+                                <LayersRounded fontSize="small" />
                               </IconButton>
                             </Tooltip>
                             <Tooltip title="Fshi">
@@ -872,6 +1119,220 @@ export default function AdminCourses() {
               ) : (
                 "Shto Lëndën"
               )}
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* GROUPS DIALOG */}
+        <Dialog
+          open={groupDialog.open}
+          onClose={() => setGroupDialog({ open: false, course: null })}
+          maxWidth="md"
+          fullWidth
+          TransitionComponent={Zoom}
+          PaperProps={{
+            sx: {
+              borderRadius: "2rem",
+              p: 2,
+              backgroundColor: isDark ? "#0f172a" : "white",
+            },
+          }}
+        >
+          <DialogTitle className="px-6! pt-6! pb-2!">
+            <Typography variant="h5" className="font-black! text-slate-900! dark:text-white!">
+              Grupet e lendes
+            </Typography>
+            <Typography variant="body2" className="text-slate-500! dark:text-slate-400!">
+              {groupDialog.course?.titulli}
+            </Typography>
+          </DialogTitle>
+          <DialogContent className="px-6! py-4!">
+            <Box className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
+              <TextField
+                label="Emri i grupit"
+                placeholder="G1"
+                value={groupForm.name}
+                onChange={(e) => setGroupForm((prev) => ({ ...prev, name: e.target.value }))}
+              />
+              <TextField
+                label="Kapaciteti"
+                type="number"
+                value={groupForm.capacity}
+                onChange={(e) => setGroupForm((prev) => ({ ...prev, capacity: e.target.value }))}
+              />
+              <TextField
+                label="Professor IDs"
+                placeholder="2, 5"
+                value={groupForm.teacherIds}
+                onChange={(e) => setGroupForm((prev) => ({ ...prev, teacherIds: e.target.value }))}
+              />
+            </Box>
+            <Button
+              variant="contained"
+              startIcon={<AddRounded />}
+              onClick={handleCreateGroup}
+              disabled={!groupForm.name.trim()}
+              className="rounded-xl! normal-case! font-bold! bg-indigo-600! mb-6!"
+            >
+              {editingGroupId ? "Ruaj Grupin" : "Shto Grup"}
+            </Button>
+            {editingGroupId && (
+              <Button
+                variant="text"
+                onClick={() => {
+                  setEditingGroupId(null);
+                  setGroupForm({ name: "", capacity: "", teacherIds: "" });
+                }}
+                className="rounded-xl! normal-case! font-bold! text-slate-500! dark:text-slate-300! mb-6! ml-2!"
+              >
+                Anulo editimin
+              </Button>
+            )}
+
+            <Box className="flex flex-col gap-4">
+              {courseGroups.map((group) => {
+                const form = subgroupForms[group.id] || {};
+                return (
+                  <Box key={group.id} className="rounded-2xl border border-slate-200 dark:border-slate-800 p-4">
+                    <Box className="flex flex-col md:flex-row md:items-start md:justify-between gap-2 mb-3">
+                      <div>
+                        <Typography className="font-black! text-slate-900! dark:text-white!">
+                          Grupi: {group.name}
+                        </Typography>
+                        <Typography variant="caption" className="text-slate-500!">
+                          Profesoret: {group.teachers?.map((t) => t.name).join(", ") || "-"}
+                        </Typography>
+                      </div>
+                      <Box className="flex gap-1">
+                        <Tooltip title="Ndrysho grupin">
+                          <IconButton
+                            size="small"
+                            onClick={() => handleEditGroup(group)}
+                            className="bg-indigo-50! text-indigo-700! hover:bg-indigo-100! dark:bg-indigo-900/30! dark:text-indigo-200! dark:hover:bg-indigo-900/50!"
+                          >
+                            <EditRounded fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Fshi grupin">
+                          <IconButton
+                            size="small"
+                            onClick={() => handleDeleteGroup(group)}
+                            className="bg-rose-50! text-rose-700! hover:bg-rose-100! dark:bg-rose-900/30! dark:text-rose-200! dark:hover:bg-rose-900/50!"
+                          >
+                            <DeleteRounded fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      </Box>
+                    </Box>
+
+                    <Box className="flex flex-wrap gap-2 mb-4">
+                      {group.subgroups?.map((subgroup) => (
+                        <Box
+                          key={subgroup.id}
+                          className="flex items-center gap-1 rounded-xl border border-slate-200 bg-slate-50 px-2 py-1 dark:border-slate-700 dark:bg-slate-800/70"
+                        >
+                          <span className="text-sm font-semibold text-slate-700 dark:text-slate-100">
+                            {subgroup.name}
+                            {subgroup.assistants?.length
+                              ? ` - ${subgroup.assistants.map((a) => a.name).join(", ")}`
+                              : ""}
+                          </span>
+                          <IconButton
+                            size="small"
+                            onClick={() => handleEditSubgroup(group.id, subgroup)}
+                            className="text-indigo-600! dark:text-indigo-200!"
+                          >
+                            <EditRounded fontSize="inherit" />
+                          </IconButton>
+                          <IconButton
+                            size="small"
+                            onClick={() => handleDeleteSubgroup(subgroup)}
+                            className="text-rose-600! dark:text-rose-200!"
+                          >
+                            <DeleteRounded fontSize="inherit" />
+                          </IconButton>
+                        </Box>
+                      ))}
+                    </Box>
+
+                    <Box className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      <TextField
+                        size="small"
+                        label="Nengrupi"
+                        placeholder="G1A"
+                        value={form.name || ""}
+                        onChange={(e) =>
+                          setSubgroupForms((prev) => ({
+                            ...prev,
+                            [group.id]: { ...form, name: e.target.value },
+                          }))
+                        }
+                      />
+                      <TextField
+                        size="small"
+                        label="Kapaciteti"
+                        type="number"
+                        value={form.capacity || ""}
+                        onChange={(e) =>
+                          setSubgroupForms((prev) => ({
+                            ...prev,
+                            [group.id]: { ...form, capacity: e.target.value },
+                          }))
+                        }
+                      />
+                      <TextField
+                        size="small"
+                        label="Assistant IDs"
+                        placeholder="7, 9"
+                        value={form.assistantIds || ""}
+                        onChange={(e) =>
+                          setSubgroupForms((prev) => ({
+                            ...prev,
+                            [group.id]: { ...form, assistantIds: e.target.value },
+                          }))
+                        }
+                      />
+                    </Box>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      onClick={() => handleCreateSubgroup(group.id)}
+                      disabled={!form.name?.trim()}
+                      className="rounded-xl! normal-case! font-bold! mt-3! border-indigo-300! text-indigo-700! hover:bg-indigo-50! dark:border-indigo-500! dark:text-indigo-200! dark:hover:bg-indigo-900/30!"
+                    >
+                      {editingSubgroupGroupId === group.id ? "Ruaj Nengrupin" : "Shto Nengrup"}
+                    </Button>
+                    {editingSubgroupGroupId === group.id && (
+                      <Button
+                        size="small"
+                        variant="text"
+                        onClick={() => {
+                          setEditingSubgroupId(null);
+                          setEditingSubgroupGroupId(null);
+                          setSubgroupForms((prev) => ({ ...prev, [group.id]: {} }));
+                        }}
+                        className="rounded-xl! normal-case! font-bold! mt-3! ml-2! text-slate-500! dark:text-slate-300!"
+                      >
+                        Anulo
+                      </Button>
+                    )}
+                  </Box>
+                );
+              })}
+
+              {courseGroups.length === 0 && (
+                <Typography className="text-slate-500! text-center! py-8!">
+                  Ende nuk ka grupe per kete lende.
+                </Typography>
+              )}
+            </Box>
+          </DialogContent>
+          <DialogActions className="px-8! pb-8!">
+            <Button
+              onClick={() => setGroupDialog({ open: false, course: null })}
+              className="rounded-xl! normal-case! font-bold!"
+            >
+              Mbyll
             </Button>
           </DialogActions>
         </Dialog>

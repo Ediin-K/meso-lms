@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@EqualsAndHashCode(exclude = {"teacher", "courseCategory", "enrollments"})
+@EqualsAndHashCode(exclude = {"teacher", "courseCategory", "enrollments", "groups"})
 public class Course{
 
     @Id
@@ -55,6 +55,11 @@ public class Course{
     @com.fasterxml.jackson.annotation.JsonIgnore
     @ToString.Exclude
     private java.util.Set<Enrollment> enrollments;
+
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    @ToString.Exclude
+    private java.util.Set<CourseGroup> groups;
 
     @PrePersist
     protected void onCreate() {

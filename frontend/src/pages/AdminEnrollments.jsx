@@ -43,6 +43,7 @@ import HourglassTopRounded from "@mui/icons-material/HourglassTopRounded";
 import BlockRounded from "@mui/icons-material/BlockRounded";
 import Footer from "../components/ui/Footer";
 import axiosInstance from "../services/axiosInstance";
+import { getCourseGroups } from "../services/courseGroupService";
 import {
   getAllEnrollments,
   createEnrollment,
@@ -77,6 +78,7 @@ export default function AdminEnrollments() {
   const [enrollments, setEnrollments] = useState([]);
   const [users, setUsers] = useState([]);
   const [courses, setCourses] = useState([]);
+  const [courseGroups, setCourseGroups] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
@@ -86,6 +88,8 @@ export default function AdminEnrollments() {
   const [formData, setFormData] = useState({
     userId: "",
     courseId: "",
+    courseGroupId: "",
+    courseSubgroupId: "",
     enrollmentKey: "",
     progresi: "0",
     statusi: "AKTIV",
@@ -182,9 +186,12 @@ export default function AdminEnrollments() {
   const openAddDialog = () => {
     setIsEdit(false);
     setSelectedEnrollment(null);
+    setCourseGroups([]);
     setFormData({
       userId: "",
       courseId: "",
+      courseGroupId: "",
+      courseSubgroupId: "",
       enrollmentKey: "",
       progresi: "0",
       statusi: "AKTIV",
@@ -198,6 +205,8 @@ export default function AdminEnrollments() {
     setFormData({
       userId: enrollment.userId,
       courseId: enrollment.courseId,
+      courseGroupId: enrollment.courseGroupId || "",
+      courseSubgroupId: enrollment.courseSubgroupId || "",
       enrollmentKey: "",
       progresi: enrollment.progresi != null ? String(enrollment.progresi) : "0",
       statusi: enrollment.statusi || "AKTIV",
@@ -205,8 +214,32 @@ export default function AdminEnrollments() {
     setOpenDialog(true);
   };
 
-  const handleFieldChange = (key) => (event) => {
-    setFormData((prev) => ({ ...prev, [key]: event.target.value }));
+  const loadGroupsForCourse = async (courseId) => {
+    if (!courseId) {
+      setCourseGroups([]);
+      return;
+    }
+
+    try {
+      const groups = await getCourseGroups(courseId);
+      setCourseGroups(groups);
+    } catch (error) {
+      showToast(getErrorMessage(error, "Gabim gjate marrjes se grupeve"), "error");
+    }
+  };
+
+  const handleFieldChange = (key) => async (event) => {
+    const value = event.target.value;
+    setFormData((prev) => ({
+      ...prev,
+      [key]: value,
+      ...(key === "courseId" ? { courseGroupId: "", courseSubgroupId: "" } : {}),
+      ...(key === "courseGroupId" ? { courseSubgroupId: "" } : {}),
+    }));
+
+    if (key === "courseId") {
+      await loadGroupsForCourse(value);
+    }
   };
 
   const handleSubmit = async () => {
@@ -244,6 +277,12 @@ export default function AdminEnrollments() {
         await createEnrollment({
           userId: Number(formData.userId),
           courseId: Number(formData.courseId),
+          courseGroupId: formData.courseGroupId
+            ? Number(formData.courseGroupId)
+            : undefined,
+          courseSubgroupId: formData.courseSubgroupId
+            ? Number(formData.courseSubgroupId)
+            : undefined,
           enrollmentKey: formData.enrollmentKey || undefined,
         });
         showToast("Regjistrimi u krijua me sukses", "success");
@@ -260,6 +299,11 @@ export default function AdminEnrollments() {
       setSubmitting(false);
     }
   };
+
+  const selectedGroup = courseGroups.find(
+    (group) => group.id === Number(formData.courseGroupId),
+  );
+  const availableSubgroups = selectedGroup?.subgroups || [];
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
@@ -381,6 +425,9 @@ export default function AdminEnrollments() {
                       Kursi
                     </TableCell>
                     <TableCell className="!font-bold !text-slate-700 dark:!text-slate-200">
+                      Grupi
+                    </TableCell>
+                    <TableCell className="!font-bold !text-slate-700 dark:!text-slate-200">
                       Progresi
                     </TableCell>
                     <TableCell className="!font-bold !text-slate-700 dark:!text-slate-200">
@@ -400,7 +447,7 @@ export default function AdminEnrollments() {
                 <TableBody>
                   {filtered.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6}>
+                      <TableCell colSpan={7}>
                         <Box className="flex flex-col items-center justify-center py-20 gap-4">
                           <div className="h-16 w-16 rounded-2xl bg-rose-50 dark:bg-rose-900/20 flex items-center justify-center">
                             <AssignmentOutlinedIcon className="!text-4xl text-rose-400" />
@@ -435,6 +482,16 @@ export default function AdminEnrollments() {
                           </TableCell>
                           <TableCell className="!text-slate-700 dark:!text-slate-300 !font-medium max-w-[200px]">
                             <p className="truncate">{enr.courseTitulli}</p>
+                          </TableCell>
+                          <TableCell className="!text-slate-600 dark:!text-slate-300 !text-sm">
+                            <p className="font-semibold">
+                              {enr.courseGroupName || "-"}
+                            </p>
+                            <p className="text-xs text-slate-500">
+                              {enr.courseSubgroupName
+                                ? `${enr.courseSubgroupName}${enr.assistantName ? ` - ${enr.assistantName}` : ""}`
+                                : enr.professorName || ""}
+                            </p>
                           </TableCell>
                           <TableCell className="!text-slate-700 dark:!text-slate-300">
                             {enr.progresi != null ? `${enr.progresi}%` : "—"}
@@ -540,6 +597,51 @@ export default function AdminEnrollments() {
                     ))}
                   </Select>
                 </FormControl>
+                {courseGroups.length > 0 && (
+                  <>
+                    <FormControl fullWidth>
+                      <InputLabel id="select-group-label">Grupi</InputLabel>
+                      <Select
+                        labelId="select-group-label"
+                        value={formData.courseGroupId}
+                        label="Grupi"
+                        onChange={handleFieldChange("courseGroupId")}
+                      >
+                        <MenuItem value="">Zgjidh</MenuItem>
+                        {courseGroups.map((group) => (
+                          <MenuItem key={group.id} value={group.id}>
+                            {group.name}
+                            {group.teachers?.length
+                              ? ` - ${group.teachers.map((t) => t.name).join(", ")}`
+                              : ""}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+
+                    <FormControl fullWidth disabled={!formData.courseGroupId}>
+                      <InputLabel id="select-subgroup-label">
+                        Nengrupi i ushtrimeve
+                      </InputLabel>
+                      <Select
+                        labelId="select-subgroup-label"
+                        value={formData.courseSubgroupId}
+                        label="Nengrupi i ushtrimeve"
+                        onChange={handleFieldChange("courseSubgroupId")}
+                      >
+                        <MenuItem value="">Pa nengrup</MenuItem>
+                        {availableSubgroups.map((subgroup) => (
+                          <MenuItem key={subgroup.id} value={subgroup.id}>
+                            {subgroup.name}
+                            {subgroup.assistants?.length
+                              ? ` - ${subgroup.assistants.map((a) => a.name).join(", ")}`
+                              : ""}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </>
+                )}
                 <TextField
                   label="Enrollment Key (opsionale)"
                   fullWidth
@@ -595,7 +697,12 @@ export default function AdminEnrollments() {
             variant="contained"
             disabled={
               submitting ||
-              (!isEdit ? !formData.userId || !formData.courseId : false)
+              (!isEdit
+                ? !formData.userId ||
+                  !formData.courseId ||
+                  (courseGroups.length > 0 && !formData.courseGroupId) ||
+                  (availableSubgroups.length > 0 && !formData.courseSubgroupId)
+                : false)
             }
             onClick={handleSubmit}
             className="!rounded-xl !normal-case !font-bold !bg-rose-600 hover:!bg-rose-700"

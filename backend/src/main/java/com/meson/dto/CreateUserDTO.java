@@ -12,4 +12,6 @@ public class CreateUserDTO {
     private String password;
     private String role;
     private String statusi;
+    private Long categoryId;
+    private Integer currentSemester;
 }

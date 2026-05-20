@@ -4,9 +4,13 @@ import com.meson.dto.UserDTO;
 import com.meson.dto.CreateUserDTO;
 import com.meson.dto.UpdateUserDTO;
 import com.meson.entity.Role;
+import com.meson.entity.CourseCategory;
+import com.meson.entity.StudentProfile;
 import com.meson.entity.User;
 import com.meson.entity.UserRole;
+import com.meson.repository.CourseCategoryRepository;
 import com.meson.repository.RoleRepository;
+import com.meson.repository.StudentProfileRepository;
 import com.meson.repository.UserRepository;
 import com.meson.repository.UserRoleRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +29,8 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
     private final UserRoleRepository userRoleRepository;
+    private final CourseCategoryRepository courseCategoryRepository;
+    private final StudentProfileRepository studentProfileRepository;
     private String normalizeRoleForDB(String role) {
         if ("parent".equals(role)) return "prind";
         return role;
@@ -49,18 +55,7 @@ public class UserService {
 
     public List<UserDTO> getAll() {
         return userRepository.findAllWithRoles().stream()
-                .map(user -> new UserDTO(
-                        user.getId(),
-                        user.getEmri(),
-                        user.getMbiemri(),
-                        user.getEmail(),
-                        user.getStatusi(),
-                        user.getUserRoles().stream()
-                                .findFirst()
-                                .map(userRole -> normalizeRoleForFrontend(userRole.getRole().getEmertimi()))
-                                .orElse("unknown"),
-                        user.getDataKrijimit()
-                ))
+                .map(this::toDto)
                 .toList();
     }
 
@@ -97,6 +92,8 @@ public class UserService {
                     .build();
             userRoleRepository.save(userRole);
         }
+
+        syncStudentProfile(savedUser, dto.getRole(), dto.getCategoryId(), dto.getCurrentSemester());
 
         return savedUser;
     }
@@ -144,10 +141,55 @@ public class UserService {
             }
         }
 
+        syncStudentProfile(user, dto.getRole(), dto.getCategoryId(), dto.getCurrentSemester());
+
         return userRepository.save(user);
     }
 
     public void delete(Long id) {
         userRepository.deleteById(id);
+    }
+
+    private UserDTO toDto(User user) {
+        String role = user.getUserRoles().stream()
+                .findFirst()
+                .map(userRole -> normalizeRoleForFrontend(userRole.getRole().getEmertimi()))
+                .orElse("unknown");
+
+        var profile = studentProfileRepository.findByUserId(user.getId()).orElse(null);
+
+        return new UserDTO(
+                user.getId(),
+                user.getEmri(),
+                user.getMbiemri(),
+                user.getEmail(),
+                user.getStatusi(),
+                role,
+                profile != null && profile.getCourseCategory() != null ? profile.getCourseCategory().getId() : null,
+                profile != null && profile.getCourseCategory() != null ? profile.getCourseCategory().getEmertimi() : null,
+                profile != null ? profile.getCurrentSemester() : null,
+                user.getDataKrijimit()
+        );
+    }
+
+    private void syncStudentProfile(User user, String role, Long categoryId, Integer currentSemester) {
+        if (!"student".equals(normalizeRoleForFrontend(normalizeRoleForDB(role)))) {
+            return;
+        }
+
+        StudentProfile profile = studentProfileRepository.findByUserId(user.getId())
+                .orElseGet(() -> StudentProfile.builder()
+                        .user(user)
+                        .currentSemester(1)
+                        .build());
+
+        if (categoryId != null) {
+            CourseCategory category = courseCategoryRepository.findById(categoryId)
+                    .orElseThrow(() -> new RuntimeException("Kategoria nuk u gjet"));
+            profile.setCourseCategory(category);
+        }
+
+        profile.setCurrentSemester(currentSemester != null ? currentSemester : profile.getCurrentSemester());
+        studentProfileRepository.save(profile);
     }
 }

@@ -276,7 +276,10 @@ export default function TeacherModules() {
                               {course.moduleCount || 0} MODULE
                            </Typography>
                          </Box>
-                         <ArrowForwardRounded className="text-indigo-600! dark:text-indigo-400! text-2xl! transition-all duration-300 group-hover:translate-x-3" />
+                         <ArrowForwardRounded
+                           className="text-2xl! transition-all duration-300 group-hover:translate-x-3"
+                           sx={{ color: "var(--teacher-action-icon)" }}
+                         />
                       </Box>
                     </CardContent>
                   </Card>
@@ -347,7 +350,7 @@ export default function TeacherModules() {
                         <Tooltip title="Ndrysho">
                           <IconButton 
                             onClick={() => handleOpenEdit(mod)}
-                            className="bg-indigo-50! dark:bg-indigo-900/20! text-indigo-600! hover:bg-indigo-100! transition-colors"
+                            className="bg-indigo-50! dark:bg-indigo-900/30! text-indigo-600! dark:text-indigo-200! hover:bg-indigo-100! dark:hover:bg-indigo-900/50! transition-colors"
                           >
                             <EditRounded />
                           </IconButton>
@@ -355,7 +358,7 @@ export default function TeacherModules() {
                         <Tooltip title="Fshij">
                           <IconButton 
                             onClick={() => handleOpenDelete(mod)}
-                            className="bg-rose-50! dark:bg-rose-900/20! text-rose-600! hover:bg-rose-100! transition-colors"
+                            className="bg-rose-50! dark:bg-rose-900/30! text-rose-600! dark:text-rose-200! hover:bg-rose-100! dark:hover:bg-rose-900/50! transition-colors"
                           >
                             <DeleteRounded />
                           </IconButton>

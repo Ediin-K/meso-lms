@@ -133,8 +133,8 @@ export default function TeacherCourses() {
           </Button>
           <Box className="flex gap-2">
             <Tooltip title="Filtra të avancuar">
-              <IconButton className="bg-white! dark:bg-slate-900! border border-slate-200 dark:border-slate-800 rounded-xl!">
-                <FilterListRounded className="text-slate-500" />
+              <IconButton className="bg-white! dark:bg-slate-900! border border-slate-200 dark:border-slate-800 rounded-xl! text-slate-500! dark:text-slate-200!">
+                <FilterListRounded />
               </IconButton>
             </Tooltip>
           </Box>
@@ -372,7 +372,7 @@ export default function TeacherCourses() {
                               <IconButton
                                 size="small"
                                 onClick={() => navigate(`/course/${course.id}`)}
-                                className="bg-slate-100! dark:bg-slate-800! text-slate-400! hover:text-sky-600! rounded-xl! transition-all"
+                                className="bg-slate-100! dark:bg-slate-800! text-slate-500! dark:text-sky-200! hover:text-sky-600! dark:hover:text-sky-300! rounded-xl! transition-all"
                               >
                                 <VisibilityRounded fontSize="small" />
                               </IconButton>

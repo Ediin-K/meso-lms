@@ -13,4 +13,6 @@ public class UpdateUserDTO {
     private String statusi;
     private String role;
     private String password;
+    private Long categoryId;
+    private Integer currentSemester;
 }
