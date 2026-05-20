@@ -141,7 +141,10 @@ export default function TeacherDashboard() {
                 </Typography>
                 <Box className="flex items-center text-indigo-600 dark:text-indigo-400 font-black text-xs uppercase tracking-[0.2em] mt-auto">
                   Hyr në Shërbim
-                  <ArrowForwardRounded className="ml-2 !text-lg transition-transform group-hover:translate-x-3" />
+                  <ArrowForwardRounded
+                    className="ml-2 !text-lg transition-transform group-hover:translate-x-3"
+                    sx={{ color: "var(--teacher-action-icon)" }}
+                  />
                 </Box>
               </CardContent>
               <Box className="absolute inset-0 bg-gradient-to-br from-indigo-500/0 via-transparent to-indigo-500/0 opacity-0 group-hover:opacity-10 transition-opacity duration-500 pointer-events-none" />

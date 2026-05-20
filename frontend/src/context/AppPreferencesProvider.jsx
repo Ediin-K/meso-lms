@@ -109,6 +109,7 @@ export function AppPreferencesProvider({ children }) {
     setLocale,
     role,
     setRole,
+    mode: colorMode,
     colorMode,
     setColorMode,
     toggleColorMode,

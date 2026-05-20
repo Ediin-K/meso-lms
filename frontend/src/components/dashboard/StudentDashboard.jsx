@@ -99,6 +99,14 @@ export default function StudentDashboard() {
                         >
                             {t('home.student.continueBtn')}
                         </Button>
+                        <Button
+                            variant="outlined"
+                            size="large"
+                            className="!mt-3 !w-full !rounded-full !py-2.5 !font-semibold !normal-case !border-sky-300 !text-sky-700 hover:!bg-sky-50 dark:!border-sky-500 dark:!text-sky-300 dark:hover:!bg-sky-950 sm:!w-auto"
+                            onClick={() => navigate('/student/schedules')}
+                        >
+                            Orari im
+                        </Button>
                     </Card>
                 </div>
 

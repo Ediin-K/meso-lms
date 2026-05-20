@@ -21,9 +21,10 @@ import FileDownloadRounded from '@mui/icons-material/FileDownloadRounded'
 import QuizRounded from '@mui/icons-material/QuizRounded'
 import AssignmentTurnedInRounded from '@mui/icons-material/AssignmentTurnedInRounded'
 import teacherContentService from '../services/teacherContentService'
+import { getCourseGroups } from '../services/courseGroupService'
 import FileUpload from '../components/common/FileUpload'
-import { 
-    Dialog, DialogTitle, DialogContent, DialogActions, TextField, 
+import {
+    Dialog, DialogTitle, DialogContent, DialogActions, TextField,
     IconButton, Menu, MenuItem, ListItemIcon, ListItemText,
     FormControl, InputLabel, Select, Tooltip, Divider, Table, TableBody, TableCell, TableHead, TableRow,
     Radio, Checkbox, FormControlLabel, TableContainer, Chip, Snackbar, Alert, Zoom
@@ -51,6 +52,9 @@ export default function CourseDetail() {
     const [enrolling, setEnrolling] = useState(false)
     const [showModal, setShowModal] = useState(false)
     const [enrollmentKey, setEnrollmentKey] = useState('')
+    const [courseGroups, setCourseGroups] = useState([])
+    const [selectedGroupId, setSelectedGroupId] = useState('')
+    const [selectedSubgroupId, setSelectedSubgroupId] = useState('')
     const [enrollError, setEnrollError] = useState('')
     const userId = localStorage.getItem('userId')
     const [isOwner, setIsOwner] = useState(false)
@@ -79,14 +83,16 @@ export default function CourseDetail() {
         const fetchData = async () => {
             try {
                 setLoading(true)
-                const [courseRes, modulesRes, enrollmentRes] = await Promise.all([
+                const [courseRes, modulesRes, enrollmentRes, groupsRes] = await Promise.all([
                     axiosInstance.get(`/courses/${courseId}`),
                     axiosInstance.get(`/courses/${courseId}/modules`),
-                    axiosInstance.get(`/enrollments/user/${userId}`)
+                    axiosInstance.get(`/enrollments/user/${userId}`),
+                    getCourseGroups(courseId)
                 ])
                 setCourse(courseRes.data)
                 setModules(modulesRes.data)
-                
+                setCourseGroups(groupsRes)
+
                 const owner = role === 'teacher' && courseRes.data.teacherId === Number(userId)
                 setIsOwner(owner)
 
@@ -108,6 +114,8 @@ export default function CourseDetail() {
             await axiosInstance.post('/enrollments', {
                 userId: Number(userId),
                 courseId: Number(courseId),
+                courseGroupId: selectedGroupId ? Number(selectedGroupId) : undefined,
+                courseSubgroupId: selectedSubgroupId ? Number(selectedSubgroupId) : undefined,
                 enrollmentKey: enrollmentKey
             })
             setIsEnrolled(true)
@@ -119,6 +127,9 @@ export default function CourseDetail() {
             setEnrolling(false)
         }
     }
+
+    const selectedGroup = courseGroups.find(group => group.id === Number(selectedGroupId))
+    const availableSubgroups = selectedGroup?.subgroups || []
 
     const toggleModule = async (moduleId) => {
         if (!isEnrolled) return
@@ -201,9 +212,9 @@ export default function CourseDetail() {
                 setSnackbarMessage("Moduli u fshi me sukses.")
             } else {
                 await teacherContentService.deleteLesson(deleteTarget.data.id)
-                setLessons(prev => ({ 
-                    ...prev, 
-                    [deleteTarget.moduleId]: prev[deleteTarget.moduleId].filter(l => l.id !== deleteTarget.data.id) 
+                setLessons(prev => ({
+                    ...prev,
+                    [deleteTarget.moduleId]: prev[deleteTarget.moduleId].filter(l => l.id !== deleteTarget.data.id)
                 }))
                 setSnackbarMessage("Leksioni u fshi me sukses.")
             }
@@ -232,7 +243,7 @@ export default function CourseDetail() {
             // Refresh lessons to show new file(s)
             const res = await axiosInstance.get(`/modules/${lessonModal.moduleId}/lessons`)
             setLessons(prev => ({ ...prev, [lessonModal.moduleId]: res.data }))
-            
+
             if (failCount === 0) {
                 setSnackbarMessage(`${successCount} skedar(ë) u ngarkuan me sukses.`)
             } else if (successCount > 0) {
@@ -574,13 +585,13 @@ export default function CourseDetail() {
                                                                         )}
                                                                         <IconButton size="small" onClick={(e) => {
                                                                             e.stopPropagation()
-                                                                            setLessonForm({ 
-                                                                                titulli: lesson.titulli, 
-                                                                                permbajtja: lesson.permbajtja, 
-                                                                                lloji: lesson.lloji, 
-                                                                                videoUrl: lesson.videoUrl || '', 
-                                                                                resourceUrl: lesson.resourceUrl || '', 
-                                                                                rradhitja: lesson.rradhitja 
+                                                                            setLessonForm({
+                                                                                titulli: lesson.titulli,
+                                                                                permbajtja: lesson.permbajtja,
+                                                                                lloji: lesson.lloji,
+                                                                                videoUrl: lesson.videoUrl || '',
+                                                                                resourceUrl: lesson.resourceUrl || '',
+                                                                                rradhitja: lesson.rradhitja
                                                                             })
                                                                             setLessonModal({ open: true, editing: lesson.id, moduleId: module.id })
                                                                         }}>
@@ -597,7 +608,7 @@ export default function CourseDetail() {
                                                                 <PlayCircleFilledRounded className="text-sky-500" fontSize="small" />
                                                             </div>
                                                         </Box>
-                                                        
+
                                                         {/* Resources list */}
                                                         {lesson.resources && lesson.resources.length > 0 && (
                                                             <Box className="px-14 pb-4 flex flex-wrap gap-2">
@@ -656,10 +667,9 @@ export default function CourseDetail() {
                             <Typography variant="body2" className="text-slate-500! dark:text-slate-400! mb-6!">
                                 Fut kodin e regjistrimit që të ka dhënë mësuesi
                             </Typography>
+                            {/* Group selection removed; auto-select first group in useEffect. */}
 
                             <input
-                                type="text"
-                                value={enrollmentKey}
                                 onChange={(e) => setEnrollmentKey(e.target.value)}
                                 placeholder="Kodi i regjistrimit..."
                                 className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 text-slate-800 dark:text-white outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100 dark:focus:ring-sky-900 transition mb-3"
@@ -679,6 +689,8 @@ export default function CourseDetail() {
                                         setShowModal(false)
                                         setEnrollError('')
                                         setEnrollmentKey('')
+                                        setSelectedGroupId('')
+                                        setSelectedSubgroupId('')
                                     }}
                                     className="normal-case! rounded-full! border-slate-300! text-slate-600!"
                                 >
@@ -688,7 +700,12 @@ export default function CourseDetail() {
                                     fullWidth
                                     variant="contained"
                                     onClick={handleEnroll}
-                                    disabled={!enrollmentKey.trim() || enrolling}
+                                    disabled={
+                                        !enrollmentKey.trim() ||
+                                        enrolling ||
+                                        (courseGroups.length > 0 && !selectedGroupId) ||
+                                        (availableSubgroups.length > 0 && !selectedSubgroupId)
+                                    }
                                     className="normal-case! rounded-full! bg-sky-600!"
                                 >
                                     {enrolling ? 'Duke u regjistruar...' : 'Regjistrohu'}
@@ -700,8 +717,8 @@ export default function CourseDetail() {
             )}
 
             {/* MODULE MANAGEMENT DIALOG */}
-            <Dialog 
-                open={moduleModal.open} 
+            <Dialog
+                open={moduleModal.open}
                 onClose={() => setModuleModal({ open: false, editing: null })}
                 maxWidth="xs"
                 fullWidth
@@ -711,19 +728,19 @@ export default function CourseDetail() {
                     {moduleModal.editing ? "Ndrysho Modulin" : "Shto Modul të Ri"}
                 </DialogTitle>
                 <DialogContent className="flex flex-col gap-4 mt-2">
-                    <TextField 
-                        label="Titulli i Modulit" 
-                        fullWidth 
-                        value={moduleForm.titulli} 
-                        onChange={e => setModuleForm({ ...moduleForm, titulli: e.target.value })} 
+                    <TextField
+                        label="Titulli i Modulit"
+                        fullWidth
+                        value={moduleForm.titulli}
+                        onChange={e => setModuleForm({ ...moduleForm, titulli: e.target.value })}
                     />
-                    <TextField 
-                        label="Përshkrimi" 
-                        fullWidth 
-                        multiline 
-                        rows={2} 
-                        value={moduleForm.pershkrimi} 
-                        onChange={e => setModuleForm({ ...moduleForm, pershkrimi: e.target.value })} 
+                    <TextField
+                        label="Përshkrimi"
+                        fullWidth
+                        multiline
+                        rows={2}
+                        value={moduleForm.pershkrimi}
+                        onChange={e => setModuleForm({ ...moduleForm, pershkrimi: e.target.value })}
                     />
                 </DialogContent>
                 <DialogActions className="px-6! pb-6!">
@@ -735,8 +752,8 @@ export default function CourseDetail() {
             </Dialog>
 
             {/* LESSON MANAGEMENT DIALOG */}
-            <Dialog 
-                open={lessonModal.open} 
+            <Dialog
+                open={lessonModal.open}
                 onClose={() => setLessonModal({ open: false, editing: null, moduleId: null })}
                 maxWidth="sm"
                 fullWidth
@@ -746,13 +763,13 @@ export default function CourseDetail() {
                     {lessonModal.editing ? "Ndrysho Leksionin" : "Shto Leksion të Ri"}
                 </DialogTitle>
                 <DialogContent className="flex flex-col gap-4 mt-2">
-                    <TextField 
-                        label="Titulli i Leksionit" 
-                        fullWidth 
-                        value={lessonForm.titulli} 
-                        onChange={e => setLessonForm({ ...lessonForm, titulli: e.target.value })} 
+                    <TextField
+                        label="Titulli i Leksionit"
+                        fullWidth
+                        value={lessonForm.titulli}
+                        onChange={e => setLessonForm({ ...lessonForm, titulli: e.target.value })}
                     />
-                    
+
                     <Box className="flex gap-4">
                         <FormControl fullWidth>
                             <InputLabel>Lloji</InputLabel>
@@ -767,28 +784,28 @@ export default function CourseDetail() {
                                 <MenuItem value="ASSIGNMENT">Detyrë</MenuItem>
                             </Select>
                         </FormControl>
-                        <TextField 
-                            label="Rradhitja" 
-                            type="number" 
-                            value={lessonForm.rradhitja} 
-                            onChange={e => setLessonForm({ ...lessonForm, rradhitja: Number(e.target.value) })} 
+                        <TextField
+                            label="Rradhitja"
+                            type="number"
+                            value={lessonForm.rradhitja}
+                            onChange={e => setLessonForm({ ...lessonForm, rradhitja: Number(e.target.value) })}
                         />
                     </Box>
 
-                    <TextField 
-                        label="Përmbajtja" 
-                        fullWidth 
-                        multiline 
-                        rows={4} 
-                        value={lessonForm.permbajtja} 
-                        onChange={e => setLessonForm({ ...lessonForm, permbajtja: e.target.value })} 
+                    <TextField
+                        label="Përmbajtja"
+                        fullWidth
+                        multiline
+                        rows={4}
+                        value={lessonForm.permbajtja}
+                        onChange={e => setLessonForm({ ...lessonForm, permbajtja: e.target.value })}
                     />
 
-                    <TextField 
-                        label="Video URL (YouTube)" 
-                        fullWidth 
-                        value={lessonForm.videoUrl} 
-                        onChange={e => setLessonForm({ ...lessonForm, videoUrl: e.target.value })} 
+                    <TextField
+                        label="Video URL (YouTube)"
+                        fullWidth
+                        value={lessonForm.videoUrl}
+                        onChange={e => setLessonForm({ ...lessonForm, videoUrl: e.target.value })}
                     />
 
                     <>
@@ -797,13 +814,13 @@ export default function CourseDetail() {
                             <AttachFileRounded fontSize="small" /> Materiale Mësimore
                         </Typography>
                         {lessonModal.editing ? (
-                            <FileUpload 
-                                onUpload={handleFileUpload} 
-                                loading={uploading} 
-                                allowedTypes=".pdf,.docx,.doc,.pptx,.ppt,.xlsx,.xls,.txt,.csv,.zip,.rar,.jpg,.jpeg,.png,.mp4" 
+                            <FileUpload
+                                onUpload={handleFileUpload}
+                                loading={uploading}
+                                allowedTypes=".pdf,.docx,.doc,.pptx,.ppt,.xlsx,.xls,.txt,.csv,.zip,.rar,.jpg,.jpeg,.png,.mp4"
                             />
                         ) : (
-                            <FileUpload 
+                            <FileUpload
                                 onUpload={(files) => setPendingFiles(files)}
                                 loading={uploading}
                                 allowedTypes=".pdf,.docx,.doc,.pptx,.ppt,.xlsx,.xls,.txt,.csv,.zip,.rar,.jpg,.jpeg,.png,.mp4"
@@ -824,8 +841,8 @@ export default function CourseDetail() {
                 </DialogActions>
             </Dialog>
             {/* QUIZ MANAGEMENT DIALOG */}
-            <Dialog 
-                open={quizModal.open} 
+            <Dialog
+                open={quizModal.open}
                 onClose={() => setQuizModal({ open: false, lessonId: null, quizId: null })}
                 maxWidth="md"
                 fullWidth
@@ -858,14 +875,14 @@ export default function CourseDetail() {
                             {questions.map((q, idx) => (
                                 <Box key={q.id} className="p-6 rounded-3xl border border-slate-100 dark:border-slate-800">
                                     <Typography className="font-bold! mb-4">{idx + 1}. {q.teksti} ({q.piket} pikë)</Typography>
-                                    
+
                                     <Box className="flex flex-col gap-2 ml-4">
                                         {q.answers && q.answers.map(a => (
                                             <Box key={a.id} className={`p-3 rounded-xl border ${a.eshteSakte ? 'border-emerald-200 bg-emerald-50 dark:bg-emerald-900/20' : 'border-slate-100'}`}>
                                                 <Typography variant="body2">{a.teksti} {a.eshteSakte && "✅"}</Typography>
                                             </Box>
                                         ))}
-                                        
+
                                         <Box className="flex gap-2 mt-4">
                                             <TextField size="small" placeholder="Shto opsion..." value={answerForm.teksti} onChange={e => setAnswerForm({...answerForm, teksti: e.target.value})} />
                                             <FormControlLabel control={<Checkbox checked={answerForm.eshteSakte} onChange={e => setAnswerForm({...answerForm, eshteSakte: e.target.checked})} />} label="E saktë" />
@@ -883,8 +900,8 @@ export default function CourseDetail() {
             </Dialog>
 
             {/* SUBMISSIONS DIALOG */}
-            <Dialog 
-                open={submissionsModal.open} 
+            <Dialog
+                open={submissionsModal.open}
                 onClose={() => setSubmissionsModal({ open: false })}
                 maxWidth="md"
                 fullWidth
@@ -932,8 +949,8 @@ export default function CourseDetail() {
             </Dialog>
 
             {/* GRADING DIALOG */}
-            <Dialog 
-                open={gradingModal.open} 
+            <Dialog
+                open={gradingModal.open}
                 onClose={() => setGradingModal({ open: false })}
                 PaperProps={{ className: "rounded-3xl! p-2!" }}
             >
@@ -985,8 +1002,8 @@ export default function CourseDetail() {
                         variant="body2"
                         className={isDark ? "text-slate-300!" : "text-slate-600!"}
                     >
-                        {deleteTarget?.type === 'module' 
-                            ? "Do të fshihet përhershëm moduli:" 
+                        {deleteTarget?.type === 'module'
+                            ? "Do të fshihet përhershëm moduli:"
                             : "Do të fshihet përhershëm leksioni:"}
                     </Typography>
                     <Typography
@@ -1036,8 +1053,8 @@ export default function CourseDetail() {
                     onClose={() => setOpenSnackbar(false)}
                     severity="success"
                     variant="filled"
-                    sx={{ 
-                        width: "100%", 
+                    sx={{
+                        width: "100%",
                         borderRadius: "1.25rem",
                         fontWeight: "bold",
                         boxShadow: "0 10px 30px rgba(0,0,0,0.1)"

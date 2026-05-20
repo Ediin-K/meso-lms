@@ -32,6 +32,7 @@ import AssignmentRounded from "@mui/icons-material/AssignmentRounded";
 import WorkspacePremiumRounded from "@mui/icons-material/WorkspacePremiumRounded";
 import CategoryRounded from "@mui/icons-material/CategoryRounded";
 import AnalyticsRounded from "@mui/icons-material/AnalyticsRounded";
+import CalendarMonthRounded from "@mui/icons-material/CalendarMonthRounded";
 import ArrowForwardRounded from "@mui/icons-material/ArrowForwardRounded";
 import Footer from "../ui/Footer";
 
@@ -177,6 +178,14 @@ export default function AdminDashboard() {
       path: "/admin/reports",
       color: "text-violet-600",
       bg: "bg-violet-100 dark:bg-violet-900/40",
+    },
+    {
+      title: "Oraret",
+      desc: "Krijoni oraret javore per ligjerata, ushtrime, grupe dhe profesore.",
+      icon: CalendarMonthRounded,
+      path: "/admin/schedules",
+      color: "text-cyan-600",
+      bg: "bg-cyan-100 dark:bg-cyan-900/40",
     },
   ];
 

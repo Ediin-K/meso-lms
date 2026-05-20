@@ -3,6 +3,14 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+:root {
+  --teacher-action-icon: #4f46e5;
+}
+
+.dark {
+  --teacher-action-icon: #c7d2fe;
+}
+
 /* Sfond bazë i njëjtë me fundin e faqes — nuk mbetet “strikë” e bardhë poshtë footer-it */
 html {
   min-height: 100dvh;
@@ -104,5 +112,128 @@ button:disabled,
   animation: marquee 60s linear infinite;
 }
 
+.dark .MuiDialog-paper,
+.dark .MuiPopover-paper,
+.dark .MuiMenu-paper {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  border: 1px solid #334155 !important;
+  box-shadow: 0 30px 70px rgba(2, 6, 23, 0.65) !important;
+}
+
+.dark .MuiDialogTitle-root,
+.dark .MuiDialogContent-root,
+.dark .MuiDialogActions-root {
+  background-color: transparent !important;
+  color: #f8fafc !important;
+}
+
+.dark .MuiDialogTitle-root .MuiTypography-root,
+.dark .MuiDialogTitle-root *,
+.dark .MuiDialog-paper [class*="text-slate-900"],
+.dark .MuiDialog-paper [class*="text-slate-800"],
+.dark .MuiDialog-paper [class*="text-gray-900"],
+.dark .MuiDialog-paper [class*="text-gray-800"],
+.dark .MuiDialog-paper [class*="text-black"],
+.dark .MuiDialog-paper h1,
+.dark .MuiDialog-paper h2,
+.dark .MuiDialog-paper h3,
+.dark .MuiDialog-paper h4,
+.dark .MuiDialog-paper h5,
+.dark .MuiDialog-paper h6,
+.dark .MuiPopover-paper h1,
+.dark .MuiPopover-paper h2,
+.dark .MuiPopover-paper h3,
+.dark .MuiPopover-paper h4,
+.dark .MuiPopover-paper h5,
+.dark .MuiPopover-paper h6 {
+  color: #f8fafc !important;
+}
+
+.dark .MuiDialogTitle-root + .MuiDialogContent-root .MuiTypography-root:first-child {
+  color: #cbd5e1 !important;
+}
+
+.dark .fixed.inset-0 [class*="text-slate-900"],
+.dark .fixed.inset-0 [class*="text-slate-800"],
+.dark .fixed.inset-0 [class*="text-gray-900"],
+.dark .fixed.inset-0 [class*="text-gray-800"],
+.dark .fixed.inset-0 [class*="text-black"] {
+  color: #f8fafc !important;
+}
+
+.dark .MuiTypography-root,
+.dark .MuiInputBase-input,
+.dark .MuiSelect-select,
+.dark .MuiMenuItem-root,
+.dark .MuiFormLabel-root {
+  color: #e2e8f0 !important;
+}
+
+.dark .MuiInputBase-root,
+.dark .MuiOutlinedInput-root {
+  background-color: #111827 !important;
+  color: #f8fafc !important;
+}
+
+.dark .MuiOutlinedInput-notchedOutline {
+  border-color: #475569 !important;
+}
+
+.dark .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: #64748b !important;
+}
+
+.dark .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #38bdf8 !important;
+}
+
+html.dark .MuiSvgIcon-root {
+  color: #cbd5e1 !important;
+  fill: currentColor !important;
+}
+
+html.dark .MuiSvgIcon-root[class*="text-indigo"],
+html.dark .text-indigo-600 .MuiSvgIcon-root,
+html.dark .text-indigo-500 .MuiSvgIcon-root {
+  color: #c7d2fe !important;
+}
+
+html.dark .MuiSvgIcon-root[class*="text-rose"],
+html.dark .text-rose-600 .MuiSvgIcon-root,
+html.dark .text-rose-500 .MuiSvgIcon-root {
+  color: #fecdd3 !important;
+}
+
+html.dark .MuiSelect-icon,
+html.dark .MuiNativeSelect-icon {
+  color: #cbd5e1 !important;
+  fill: #cbd5e1 !important;
+}
+
+html.dark .MuiInputBase-root .MuiSelect-icon,
+html.dark .MuiOutlinedInput-root .MuiSelect-icon {
+  color: #cbd5e1 !important;
+  fill: #cbd5e1 !important;
+}
+
+html.dark svg:not([class*="text-"]):not([class*="MuiSvgIcon-color"]) {
+  color: #cbd5e1 !important;
+  fill: currentColor !important;
+}
+
+.dark .MuiIconButton-root:not([class*="text-"]) {
+  color: #cbd5e1 !important;
+}
+
+.dark .MuiMenuItem-root:hover,
+.dark .MuiMenuItem-root.Mui-selected {
+  background-color: #1e293b !important;
+}
+
+.dark .MuiTableCell-root {
+  color: #e2e8f0 !important;
+  border-bottom-color: #1e293b !important;
+}
 
 

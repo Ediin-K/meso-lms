@@ -69,6 +69,8 @@ const EMPTY_FORM = {
   password: "",
   role: "student",
   statusi: "active",
+  categoryId: "",
+  currentSemester: 1,
 };
 export default function AdminUsers() {
   const navigate = useNavigate();
@@ -76,6 +78,7 @@ export default function AdminUsers() {
   const isDark = mode === "dark";
 
   const [users, setUsers] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
@@ -121,6 +124,16 @@ export default function AdminUsers() {
         console.error("API ERROR:", err.message);
       })
       .finally(() => setLoading(false));
+
+    fetch("http://localhost:8080/api/categories", {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => res.ok ? res.json() : [])
+      .then(setCategories)
+      .catch(() => setCategories([]));
   }, []);
 
   const handleOpenAdd = () => {
@@ -141,6 +154,8 @@ export default function AdminUsers() {
       role: user.role || "student",
       statusi: user.statusi || "active",
       passwordHash: "",
+      categoryId: user.categoryId || "",
+      currentSemester: user.currentSemester || 1,
     });
     setOpenDialog(true);
   };
@@ -163,6 +178,8 @@ export default function AdminUsers() {
           phoneNumber: formData.phoneNumber || "",
           statusi: formData.statusi,
           role: formData.role,
+          categoryId: formData.role === "student" && formData.categoryId ? Number(formData.categoryId) : null,
+          currentSemester: formData.role === "student" ? Number(formData.currentSemester || 1) : null,
         }
       : {
           emri: formData.emri,
@@ -171,6 +188,8 @@ export default function AdminUsers() {
           password: formData.password,
           statusi: formData.statusi,
           role: formData.role,
+          categoryId: formData.role === "student" && formData.categoryId ? Number(formData.categoryId) : null,
+          currentSemester: formData.role === "student" ? Number(formData.currentSemester || 1) : null,
         };
 
     try {
@@ -200,6 +219,8 @@ export default function AdminUsers() {
                   phoneNumber: formData.phoneNumber || "",
                   statusi: formData.statusi,
                   role: formData.role,
+                  categoryId: formData.categoryId,
+                  currentSemester: formData.currentSemester,
                 }
               : user,
           ),
@@ -774,6 +795,55 @@ export default function AdminUsers() {
                   </Select>
                 </FormControl>
               </Box>
+              {formData.role === "student" && (
+                <Box className="flex gap-4">
+                  <FormControl fullWidth>
+                    <InputLabel sx={{ color: isDark ? "#cbd5e1" : "#64748b" }}>
+                      Kategoria
+                    </InputLabel>
+                    <Select
+                      variant="outlined"
+                      value={formData.categoryId}
+                      label="Kategoria"
+                      onChange={field("categoryId")}
+                      sx={{
+                        borderRadius: "1rem",
+                        color: isDark ? "#f1f5f9" : "#1e293b",
+                        "& .MuiOutlinedInput-notchedOutline": {
+                          borderColor: isDark ? "#334155" : "#cbd5e1",
+                        },
+                      }}
+                    >
+                      <MenuItem value="">Zgjidh kategori</MenuItem>
+                      {categories.map((category) => (
+                        <MenuItem key={category.id} value={category.id}>
+                          {category.emertimi}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <TextField
+                    label="Semestri aktual"
+                    type="number"
+                    fullWidth
+                    value={formData.currentSemester}
+                    onChange={field("currentSemester")}
+                    inputProps={{ min: 1, max: 8 }}
+                    InputProps={{ className: "rounded-2xl!" }}
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        color: isDark ? "#f1f5f9" : "#1e293b",
+                        "& fieldset": {
+                          borderColor: isDark ? "#334155" : "#cbd5e1",
+                        },
+                      },
+                      "& .MuiInputLabel-root": {
+                        color: isDark ? "#cbd5e1" : "#64748b",
+                      },
+                    }}
+                  />
+                </Box>
+              )}
             </Box>
           </DialogContent>
           <DialogActions className="px-8! pb-8! pt-4! gap-2">

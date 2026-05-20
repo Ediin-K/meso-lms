@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@EqualsAndHashCode(exclude = {"user", "course"})
+@EqualsAndHashCode(exclude = {"user", "course", "courseGroup", "courseSubgroup"})
 public class Enrollment {
 
     @Id
@@ -24,6 +24,14 @@ public class Enrollment {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "course_group_id")
+    private CourseGroup courseGroup;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "course_subgroup_id")
+    private CourseSubgroup courseSubgroup;
 
     @Builder.Default
     private Double progresi = 0.0;

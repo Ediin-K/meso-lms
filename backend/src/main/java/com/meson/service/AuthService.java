@@ -6,9 +6,11 @@ import com.meson.dto.RegisterRequest;
 import com.meson.entity.Role;
 import com.meson.entity.User;
 import com.meson.entity.UserRole;
+import com.meson.entity.StudentProfile;
 import com.meson.repository.RoleRepository;
 import com.meson.repository.UserRepository;
 import com.meson.repository.UserRoleRepository;
+import com.meson.repository.StudentProfileRepository;
 import com.meson.entity.RefreshToken;
 import com.meson.service.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
+    private final StudentProfileRepository studentProfileRepository;
 
     public AuthResponse login(LoginRequest request) {
 
@@ -86,6 +89,14 @@ public class AuthService {
         userRole.setUser(user);
         userRole.setRole(role);
         userRoleRepository.save(userRole);
+
+        if ("student".equalsIgnoreCase(role.getEmertimi())) {
+            StudentProfile profile = StudentProfile.builder()
+                    .user(user)
+                    .currentSemester(1)
+                    .build();
+            studentProfileRepository.save(profile);
+        }
 
         String token = jwtService.generateToken(user.getEmail(), role.getNormalizedName().toUpperCase());
         return new AuthResponse(token, user.getEmail(), role.getEmertimi().toLowerCase(), null, user.getId());

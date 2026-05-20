@@ -26,6 +26,8 @@ import AdminTeachers from "./pages/AdminTeachers.jsx";
 import AdminEnrollments from "./pages/AdminEnrollments.jsx";
 import AdminCertificates from "./pages/AdminCertificates.jsx";
 import AdminReports from "./pages/AdminReports.jsx";
+import AdminSchedules from "./pages/AdminSchedules.jsx";
+import StudentSchedules from "./pages/StudentSchedules.jsx";
 import ConsentBanner from "./components/cookies/ConsentBanner.jsx";
 import TeacherLayout from "./layouts/TeacherLayout.jsx";
 import TeacherCourses from "./pages/teacher/TeacherCourses.jsx";
@@ -132,10 +134,26 @@ function App() {
                 }
               />
               <Route
+                path="/admin/schedules"
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <AdminSchedules />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/student"
                 element={
                   <ProtectedRoute requiredRole="student">
                     <StudentDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/student/schedules"
+                element={
+                  <ProtectedRoute requiredRole="student">
+                    <StudentSchedules />
                   </ProtectedRoute>
                 }
               />

@@ -15,6 +15,12 @@ public class EnrollmentResponse {
     private String userEmri;
     private Long courseId;
     private String courseTitulli;
+    private Long courseGroupId;
+    private String courseGroupName;
+    private Long courseSubgroupId;
+    private String courseSubgroupName;
+    private String professorName;
+    private String assistantName;
     private Double progresi;
     private EnrollmentStatus statusi;
     private LocalDateTime dataRegjistrimit;
