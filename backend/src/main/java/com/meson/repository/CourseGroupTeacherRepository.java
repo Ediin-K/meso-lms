@@ -8,5 +8,6 @@ import java.util.List;
 @Repository
 public interface CourseGroupTeacherRepository extends JpaRepository<CourseGroupTeacher, Long> {
     List<CourseGroupTeacher> findByCourseGroupId(Long courseGroupId);
+    boolean existsByCourseGroupIdAndTeacherId(Long courseGroupId, Long teacherId);
     void deleteByCourseGroupId(Long courseGroupId);
 }

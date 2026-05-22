@@ -13,6 +13,8 @@ public class CourseGroupResponse {
     private String name;
     private Integer capacity;
     private String schedule;
+    private Long directionGroupId;
+    private String directionGroupName;
     private List<AssignedTeacherResponse> teachers;
     private List<CourseSubgroupResponse> subgroups;
 }
