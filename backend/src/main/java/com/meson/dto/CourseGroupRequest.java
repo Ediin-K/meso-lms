@@ -13,5 +13,6 @@ public class CourseGroupRequest {
     private String name;
     private Integer capacity;
     private String schedule;
+    private Long directionGroupId;
     private List<Long> teacherIds;
 }

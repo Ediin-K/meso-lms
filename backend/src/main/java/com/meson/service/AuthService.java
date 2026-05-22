@@ -2,22 +2,17 @@ package com.meson.service;
 
 import com.meson.dto.AuthResponse;
 import com.meson.dto.LoginRequest;
-import com.meson.dto.RegisterRequest;
 import com.meson.entity.Role;
 import com.meson.entity.User;
 import com.meson.entity.UserRole;
-import com.meson.entity.StudentProfile;
 import com.meson.repository.RoleRepository;
 import com.meson.repository.UserRepository;
 import com.meson.repository.UserRoleRepository;
-import com.meson.repository.StudentProfileRepository;
 import com.meson.entity.RefreshToken;
 import com.meson.service.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +24,6 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
-    private final StudentProfileRepository studentProfileRepository;
 
     public AuthResponse login(LoginRequest request) {
 
@@ -63,42 +57,5 @@ public class AuthService {
 
         // 7. Kthen AuthResponse
         return new AuthResponse(token, user.getEmail(), role, refreshToken.getToken(), user.getId());
-    }
-
-    public AuthResponse register(RegisterRequest request) {
-
-        if (userRepository.existsByEmailIgnoreCase(request.getEmail())) {
-            throw new RuntimeException("Email ekziston tashmë!");
-        }
-
-        User user = new User();
-        user.setEmri(request.getEmri());
-        user.setMbiemri(request.getMbiemri());
-        user.setEmail(request.getEmail().toLowerCase());
-        user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
-        user.setDataKrijimit(LocalDateTime.now());
-        user.setStatusi("active");
-
-        userRepository.save(user);
-
-        Role role = roleRepository.findByNormalizedName(
-                request.getRoli().toUpperCase()
-        ).orElseThrow(() -> new RuntimeException("Roli nuk u gjet!"));
-
-        UserRole userRole = new UserRole();
-        userRole.setUser(user);
-        userRole.setRole(role);
-        userRoleRepository.save(userRole);
-
-        if ("student".equalsIgnoreCase(role.getEmertimi())) {
-            StudentProfile profile = StudentProfile.builder()
-                    .user(user)
-                    .currentSemester(1)
-                    .build();
-            studentProfileRepository.save(profile);
-        }
-
-        String token = jwtService.generateToken(user.getEmail(), role.getNormalizedName().toUpperCase());
-        return new AuthResponse(token, user.getEmail(), role.getEmertimi().toLowerCase(), null, user.getId());
     }
 }

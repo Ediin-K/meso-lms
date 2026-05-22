@@ -18,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.Set;
 import java.time.LocalDateTime;
 
 @Service
@@ -25,14 +26,28 @@ import java.time.LocalDateTime;
 @Transactional
 public class UserService {
 
+    private static final Set<String> ALLOWED_ASSIGNABLE_ROLES = Set.of(
+            "student", "teacher", "admin", "prind", "parent", "instructor"
+    );
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
     private final UserRoleRepository userRoleRepository;
     private final CourseCategoryRepository courseCategoryRepository;
     private final StudentProfileRepository studentProfileRepository;
+    private Role resolveAllowedRole(String requestedRole) {
+        String dbRole = normalizeRoleForDB(requestedRole.trim().toLowerCase());
+        if (!ALLOWED_ASSIGNABLE_ROLES.contains(dbRole)) {
+            throw new RuntimeException("Roli nuk lejohet: " + requestedRole);
+        }
+        return roleRepository.findByEmertimi(dbRole)
+                .orElseThrow(() -> new RuntimeException("Role nuk u gjet: " + dbRole));
+    }
+
     private String normalizeRoleForDB(String role) {
         if ("parent".equals(role)) return "prind";
+        if ("instructor".equals(role)) return "teacher";
         return role;
     }
 
@@ -83,9 +98,7 @@ public class UserService {
         User savedUser = userRepository.save(user);
 
         if (dto.getRole() != null && !dto.getRole().isEmpty()) {
-            String dbRole = normalizeRoleForDB(dto.getRole());
-            Role role = roleRepository.findByEmertimi(dbRole)
-                    .orElseThrow(() -> new RuntimeException("Role nuk u gjet: " + dbRole));
+            Role role = resolveAllowedRole(dto.getRole());
             UserRole userRole = UserRole.builder()
                     .user(savedUser)
                     .role(role)
@@ -119,9 +132,7 @@ public class UserService {
         }
 
         if (dto.getRole() != null && !dto.getRole().isEmpty()) {
-            String dbRole = normalizeRoleForDB(dto.getRole());
-            Role role = roleRepository.findByEmertimi(dbRole)
-                    .orElseThrow(() -> new RuntimeException("Role nuk u gjet: " + dbRole));
+            Role role = resolveAllowedRole(dto.getRole());
 
             var existingRoles = userRoleRepository.findByUser(user);
             if (existingRoles.isEmpty()) {

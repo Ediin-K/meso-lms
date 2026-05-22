@@ -9,7 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@EqualsAndHashCode(exclude = {"user", "courseCategory"})
+@EqualsAndHashCode(exclude = {"user", "courseCategory", "approvedDirectionGroup"})
 public class StudentProfile {
 
     @Id
@@ -26,4 +26,8 @@ public class StudentProfile {
 
     @Column(nullable = false)
     private Integer currentSemester;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "approved_direction_group_id")
+    private DirectionGroup approvedDirectionGroup;
 }

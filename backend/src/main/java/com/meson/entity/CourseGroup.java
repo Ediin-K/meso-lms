@@ -11,7 +11,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@EqualsAndHashCode(exclude = {"course", "teachers", "subgroups", "enrollments"})
+@EqualsAndHashCode(exclude = {"course", "directionGroup", "teachers", "subgroups", "enrollments"})
 public class CourseGroup {
 
     @Id
@@ -28,6 +28,10 @@ public class CourseGroup {
     private Integer capacity;
 
     private String schedule;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "direction_group_id")
+    private DirectionGroup directionGroup;
 
     @OneToMany(mappedBy = "courseGroup", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore

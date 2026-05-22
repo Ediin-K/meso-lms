@@ -18,6 +18,7 @@ public class CourseGroupService {
     private final CourseSubgroupRepository courseSubgroupRepository;
     private final CourseGroupTeacherRepository courseGroupTeacherRepository;
     private final CourseSubgroupTeacherRepository courseSubgroupTeacherRepository;
+    private final DirectionGroupRepository directionGroupRepository;
 
     public List<CourseGroupResponse> getByCourse(Long courseId) {
         return courseGroupRepository.findByCourseId(courseId)
@@ -40,6 +41,7 @@ public class CourseGroupService {
                 .name(request.getName())
                 .capacity(request.getCapacity())
                 .schedule(request.getSchedule())
+                .directionGroup(resolveDirectionGroup(course, request.getDirectionGroupId()))
                 .build();
 
         CourseGroup saved = courseGroupRepository.save(group);
@@ -55,6 +57,7 @@ public class CourseGroupService {
         group.setName(request.getName());
         group.setCapacity(request.getCapacity());
         group.setSchedule(request.getSchedule());
+        group.setDirectionGroup(resolveDirectionGroup(group.getCourse(), request.getDirectionGroupId()));
         CourseGroup saved = courseGroupRepository.save(group);
         syncGroupTeachers(saved, request.getTeacherIds());
         return toGroupResponse(saved);
@@ -140,6 +143,19 @@ public class CourseGroupService {
         }
     }
 
+    private DirectionGroup resolveDirectionGroup(Course course, Long directionGroupId) {
+        if (directionGroupId == null) {
+            return null;
+        }
+        DirectionGroup directionGroup = directionGroupRepository.findById(directionGroupId)
+                .orElseThrow(() -> new RuntimeException("Grupi i drejtimit nuk u gjet"));
+        if (course.getCourseCategory() == null
+                || !course.getCourseCategory().getId().equals(directionGroup.getCourseCategory().getId())) {
+            throw new RuntimeException("Grupi i drejtimit nuk i perket kategorise se kursit");
+        }
+        return directionGroup;
+    }
+
     private CourseGroupResponse toGroupResponse(CourseGroup group) {
         return CourseGroupResponse.builder()
                 .id(group.getId())
@@ -147,6 +163,8 @@ public class CourseGroupService {
                 .name(group.getName())
                 .capacity(group.getCapacity())
                 .schedule(group.getSchedule())
+                .directionGroupId(group.getDirectionGroup() != null ? group.getDirectionGroup().getId() : null)
+                .directionGroupName(group.getDirectionGroup() != null ? group.getDirectionGroup().getName() : null)
                 .teachers(courseGroupTeacherRepository.findByCourseGroupId(group.getId()).stream()
                         .map(this::toTeacherResponse)
                         .toList())
