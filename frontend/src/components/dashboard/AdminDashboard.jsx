@@ -33,6 +33,7 @@ import WorkspacePremiumRounded from "@mui/icons-material/WorkspacePremiumRounded
 import CategoryRounded from "@mui/icons-material/CategoryRounded";
 import AnalyticsRounded from "@mui/icons-material/AnalyticsRounded";
 import CalendarMonthRounded from "@mui/icons-material/CalendarMonthRounded";
+import GroupsRounded from "@mui/icons-material/GroupsRounded";
 import ArrowForwardRounded from "@mui/icons-material/ArrowForwardRounded";
 import Footer from "../ui/Footer";
 
@@ -181,11 +182,27 @@ export default function AdminDashboard() {
     },
     {
       title: "Oraret",
-      desc: "Krijoni oraret javore per ligjerata, ushtrime, grupe dhe profesore.",
+      desc: "Pamje e pergjithshme e orareve. Krijimi behet brenda wizard-it te grupit.",
       icon: CalendarMonthRounded,
       path: "/admin/schedules",
       color: "text-cyan-600",
       bg: "bg-cyan-100 dark:bg-cyan-900/40",
+    },
+    {
+      title: "Menaxhimi i grupeve",
+      desc: "Krijoni grupe sipas drejtimit dhe semestrit (G1, G2, G3), kapacitet dhe status.",
+      icon: GroupsRounded,
+      path: "/admin/groups",
+      color: "text-indigo-600",
+      bg: "bg-indigo-100 dark:bg-indigo-900/40",
+    },
+    {
+      title: "Aplikimet per grupe",
+      desc: "Aprovoni ose refuzoni kerkesat e studenteve per grupet e drejtimit.",
+      icon: PeopleRounded,
+      path: "/admin/group-applications",
+      color: "text-fuchsia-600",
+      bg: "bg-fuchsia-100 dark:bg-fuchsia-900/40",
     },
   ];
 

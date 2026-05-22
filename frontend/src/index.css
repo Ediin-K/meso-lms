@@ -18,6 +18,9 @@ html {
   overflow-x: hidden;
 }
 
+html.dark {
+  background-color: #020617;
+}
 
 body {
   margin: 0;
@@ -27,11 +30,19 @@ body {
   font-family: 'Inter', sans-serif;
 }
 
+html.dark body {
+  background-color: #020617;
+}
+
 #root {
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
   background-color: #d8e8f2;
+}
+
+html.dark #root {
+  background-color: transparent;
 }
 
 /* Dorë (pointer) për elemente të klikueshme — përputhet me hover në UI */

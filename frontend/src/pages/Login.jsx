@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'react'
-import { Link as RouterLink } from 'react-router-dom'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 import CssBaseline from '@mui/material/CssBaseline'
 import Typography from '@mui/material/Typography'
@@ -11,10 +10,10 @@ import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined'
 
 import { useNavigate } from 'react-router-dom'
 import { login } from '../services/authService.js'
-import InputField from '../components/register/InputField.jsx'
-import PasswordField from '../components/register/PasswordField.jsx'
+import InputField from '../components/auth/InputField.jsx'
+import PasswordField from '../components/auth/PasswordField.jsx'
 import LoginSubmitButton from '../components/login/LoginSubmitButton.jsx'
-import { isValidEmailFormat } from '../lib/registerValidation.js'
+import { isValidEmailFormat } from '../lib/authValidation.js'
 import { useAppPreferences } from '../context/appPreferencesContext.js'
 
 function MicrosoftIcon() {
@@ -146,9 +145,18 @@ export default function Login() {
         localStorage.setItem('meson-role', data.role)
       }
 
-      navigate('/')
+      const role = data.role?.toLowerCase()
+      const destination =
+        role === 'admin'
+          ? '/admin'
+          : role === 'teacher'
+            ? '/teacher'
+            : role === 'student'
+              ? '/student'
+              : '/'
+      navigate(destination, { replace: true })
     } catch (error) {
-      setGlobalError(error.response?.data?.message || 'Gabim në login')
+      setGlobalError(error?.message || 'Gabim në login')
     } finally {
       setLoading(false)
     }
@@ -300,14 +308,7 @@ export default function Login() {
                 </div>
 
                 <Typography variant="body2" className="text-center text-slate-600 dark:text-slate-400">
-                  {t('auth.noAccount')} {' '}
-                  <Link
-                    component={RouterLink}
-                    to="/register"
-                    className="font-semibold text-indigo-600 underline-offset-2 transition-colors hover:text-indigo-500 hover:underline dark:text-indigo-400 dark:hover:text-indigo-300"
-                  >
-                    {t('auth.createAccount')}
-                  </Link>
+                  {t('auth.adminOnlyAccount')}
                 </Typography>
 
               </form>

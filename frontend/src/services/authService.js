@@ -25,21 +25,6 @@ export const login = async (email, password) => {
         email: email,  // ✅ shto këtë
     };
 };
-export const register = async (emri, mbiemri, email, password, roli) => {
-    const response = await fetch(`${API_URL}/register`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ emri, mbiemri, email, password, roli }),
-    });
-
-    if (!response.ok) {
-        throw new Error('Regjistrim i dështuar!');
-    }
-
-    return response.json();
-};
 
 export const logout = () => {
     localStorage.removeItem('token')

@@ -215,7 +215,7 @@ function FinalCtaSection({ t, navigate }) {
              <Button
                 variant="contained"
                 size="large"
-                onClick={() => navigate('/register')}
+                onClick={() => navigate('/login')}
                 endIcon={<ArrowForwardRounded />}
                 className="!rounded-full !bg-white !px-12 !py-5 !font-black !text-sky-800 shadow-2xl hover:!scale-105 hover:!bg-sky-50 transition-all active:!scale-95"
              >
@@ -243,12 +243,12 @@ export default function Home() {
 
   const handleCtaClick = (ctaText) => {
     const text = ctaText?.toLowerCase() || ''
-    if (text.includes('regjistrohu') || text.includes('sign up') || text.includes('fillo')) {
-      navigate('/register')
-    } else if (text.includes('hyr') || text.includes('login') || text.includes('open')) {
+    if (text.includes('hyr') || text.includes('login') || text.includes('open')) {
       navigate('/login')
+    } else if (isAuthenticated) {
+      navigate(role === 'admin' ? '/admin' : role === 'teacher' ? '/teacher' : '/student')
     } else {
-      navigate('/register')
+      navigate('/login')
     }
   }
 

@@ -43,6 +43,7 @@ import MenuBookRounded from "@mui/icons-material/MenuBookRounded";
 import AutoStoriesRounded from "@mui/icons-material/AutoStoriesRounded";
 import LayersRounded from "@mui/icons-material/LayersRounded";
 import Footer from "../components/ui/Footer";
+import { getDirectionGroups } from "../services/directionGroupService";
 
 const BASE_URL = "http://localhost:8080/api";
 
@@ -94,7 +95,9 @@ export default function AdminCourses() {
     name: "",
     capacity: "",
     teacherIds: "",
+    directionGroupId: "",
   });
+  const [directionGroupsForCourse, setDirectionGroupsForCourse] = useState([]);
   const [editingGroupId, setEditingGroupId] = useState(null);
   const [subgroupForms, setSubgroupForms] = useState({});
   const [editingSubgroupId, setEditingSubgroupId] = useState(null);
@@ -376,7 +379,12 @@ export default function AdminCourses() {
   const handleOpenGroups = async (course) => {
     try {
       setGroupDialog({ open: true, course });
-      setGroupForm({ name: "", capacity: "", teacherIds: "" });
+      setGroupForm({ name: "", capacity: "", teacherIds: "", directionGroupId: "" });
+      if (course.categoryId) {
+        setDirectionGroupsForCourse(await getDirectionGroups(course.categoryId));
+      } else {
+        setDirectionGroupsForCourse([]);
+      }
       setEditingGroupId(null);
       setSubgroupForms({});
       setEditingSubgroupId(null);
@@ -395,6 +403,7 @@ export default function AdminCourses() {
         name: groupForm.name.trim(),
         capacity: groupForm.capacity ? Number(groupForm.capacity) : null,
         teacherIds: parseIds(groupForm.teacherIds),
+        directionGroupId: groupForm.directionGroupId ? Number(groupForm.directionGroupId) : null,
       };
 
       if (editingGroupId) {
@@ -403,7 +412,7 @@ export default function AdminCourses() {
         await createGroup(groupDialog.course.id, payload);
       }
 
-      setGroupForm({ name: "", capacity: "", teacherIds: "" });
+      setGroupForm({ name: "", capacity: "", teacherIds: "", directionGroupId: "" });
       setEditingGroupId(null);
       setCourseGroups(await fetchCourseGroups(groupDialog.course.id));
       setSnackbarMessage(editingGroupId ? "Grupi u perditesua me sukses." : "Grupi u krijua me sukses.");
@@ -451,6 +460,7 @@ export default function AdminCourses() {
       name: group.name || "",
       capacity: group.capacity || "",
       teacherIds: group.teachers?.map((teacher) => teacher.id).join(", ") || "",
+      directionGroupId: group.directionGroupId || "",
     });
   };
 
@@ -1147,15 +1157,30 @@ export default function AdminCourses() {
             </Typography>
           </DialogTitle>
           <DialogContent className="px-6! py-4!">
-            <Box className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
+            <Box className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
               <TextField
                 label="Emri i grupit"
                 placeholder="G1"
                 value={groupForm.name}
                 onChange={(e) => setGroupForm((prev) => ({ ...prev, name: e.target.value }))}
               />
+              <FormControl fullWidth>
+                <InputLabel>Grupi i drejtimit</InputLabel>
+                <Select
+                  value={groupForm.directionGroupId}
+                  label="Grupi i drejtimit"
+                  onChange={(e) => setGroupForm((prev) => ({ ...prev, directionGroupId: e.target.value }))}
+                >
+                  <MenuItem value="">Pa lidhje</MenuItem>
+                  {directionGroupsForCourse.map((dg) => (
+                    <MenuItem key={dg.id} value={dg.id}>
+                      {dg.name} ({dg.currentStudents}/{dg.maxCapacity})
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
               <TextField
-                label="Kapaciteti"
+                label="Kapaciteti (lende)"
                 type="number"
                 value={groupForm.capacity}
                 onChange={(e) => setGroupForm((prev) => ({ ...prev, capacity: e.target.value }))}
@@ -1181,7 +1206,7 @@ export default function AdminCourses() {
                 variant="text"
                 onClick={() => {
                   setEditingGroupId(null);
-                  setGroupForm({ name: "", capacity: "", teacherIds: "" });
+                  setGroupForm({ name: "", capacity: "", teacherIds: "", directionGroupId: "" });
                 }}
                 className="rounded-xl! normal-case! font-bold! text-slate-500! dark:text-slate-300! mb-6! ml-2!"
               >

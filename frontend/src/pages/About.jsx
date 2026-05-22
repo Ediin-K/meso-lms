@@ -101,7 +101,7 @@ export default function About() {
             </Typography>
             <Button
               component={Link}
-              to="/register"
+              to="/login"
               variant="contained"
               size="large"
               endIcon={<ArrowForwardRounded />}
@@ -364,13 +364,13 @@ export default function About() {
             </Typography>
             <Button
               component={Link}
-              to="/register"
+              to="/login"
               variant="contained"
               size="large"
               endIcon={<ArrowForwardRounded />}
               className="relative z-[1] !mt-8 !rounded-full !border-0 !bg-white !px-8 !font-semibold !normal-case !text-sky-900 !shadow-lg hover:!bg-sky-50"
             >
-              {t('about.ctaRegister')}
+              {t('about.ctaLogin')}
             </Button>
           </section>
         </Container>

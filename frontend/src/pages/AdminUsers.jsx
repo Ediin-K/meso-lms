@@ -43,6 +43,12 @@ import FilterListRounded from "@mui/icons-material/FilterListRounded";
 import MoreVertRounded from "@mui/icons-material/MoreVertRounded";
 import VerifiedUserRounded from "@mui/icons-material/VerifiedUserRounded";
 import Footer from "../components/ui/Footer";
+import { getDirectionGroups } from "../services/directionGroupService";
+import {
+  assignStudentToGroup,
+  getStudentGroupStatus,
+  removeStudentFromGroup,
+} from "../services/studentGroupService";
 
 const ROLE_STYLE = {
   admin:
@@ -83,6 +89,10 @@ export default function AdminUsers() {
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [openDialog, setOpenDialog] = useState(false);
+  const [studentGroups, setStudentGroups] = useState([]);
+  const [groupAssignId, setGroupAssignId] = useState("");
+  const [approvedGroupLabel, setApprovedGroupLabel] = useState("");
+  const [groupAssignLoading, setGroupAssignLoading] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [formData, setFormData] = useState(EMPTY_FORM);
@@ -143,6 +153,31 @@ export default function AdminUsers() {
     setOpenDialog(true);
   };
 
+  const loadStudentGroupContext = async (user) => {
+    if (user.role !== "student" || !user.categoryId) {
+      setStudentGroups([]);
+      setApprovedGroupLabel("");
+      setGroupAssignId("");
+      return;
+    }
+    try {
+      const [groups, status] = await Promise.all([
+        getDirectionGroups(user.categoryId, user.currentSemester || 1),
+        getStudentGroupStatus(user.id),
+      ]);
+      setStudentGroups(groups);
+      if (status?.approvedGroup) {
+        setApprovedGroupLabel(`${status.approvedGroup.name} (Sem. ${status.approvedGroup.semester})`);
+        setGroupAssignId("");
+      } else {
+        setApprovedGroupLabel("");
+      }
+    } catch {
+      setStudentGroups([]);
+      setApprovedGroupLabel("");
+    }
+  };
+
   const handleOpenEdit = (user) => {
     setIsEdit(true);
     setSelectedUser(user);
@@ -157,7 +192,43 @@ export default function AdminUsers() {
       categoryId: user.categoryId || "",
       currentSemester: user.currentSemester || 1,
     });
+    setGroupAssignId("");
+    loadStudentGroupContext(user);
     setOpenDialog(true);
+  };
+
+  const handleAssignGroup = async () => {
+    if (!selectedUser?.id || !groupAssignId) return;
+    setGroupAssignLoading(true);
+    try {
+      await assignStudentToGroup(selectedUser.id, Number(groupAssignId));
+      await loadStudentGroupContext({
+        ...selectedUser,
+        categoryId: formData.categoryId,
+        currentSemester: formData.currentSemester,
+      });
+      setGroupAssignId("");
+      alert("Studenti u caktua ne grup me sukses");
+    } catch (err) {
+      alert(err?.response?.data?.message || err?.message || "Gabim gjate caktimit");
+    } finally {
+      setGroupAssignLoading(false);
+    }
+  };
+
+  const handleRemoveGroup = async () => {
+    if (!selectedUser?.id) return;
+    if (!window.confirm("Hiq studentin nga grupi aktual?")) return;
+    setGroupAssignLoading(true);
+    try {
+      await removeStudentFromGroup(selectedUser.id);
+      await loadStudentGroupContext(selectedUser);
+      alert("Studenti u hoq nga grupi");
+    } catch (err) {
+      alert(err?.response?.data?.message || err?.message || "Gabim");
+    } finally {
+      setGroupAssignLoading(false);
+    }
   };
 
   const field = (k) => (e) =>
@@ -827,7 +898,16 @@ export default function AdminUsers() {
                     type="number"
                     fullWidth
                     value={formData.currentSemester}
-                    onChange={field("currentSemester")}
+                    onChange={(e) => {
+                      field("currentSemester")(e);
+                      if (isEdit && selectedUser?.role === "student" && formData.categoryId) {
+                        loadStudentGroupContext({
+                          ...selectedUser,
+                          categoryId: formData.categoryId,
+                          currentSemester: Number(e.target.value),
+                        });
+                      }
+                    }}
                     inputProps={{ min: 1, max: 8 }}
                     InputProps={{ className: "rounded-2xl!" }}
                     sx={{
@@ -842,6 +922,68 @@ export default function AdminUsers() {
                       },
                     }}
                   />
+                </Box>
+              )}
+              {isEdit && formData.role === "student" && formData.categoryId && (
+                <Box className="rounded-2xl border border-slate-200 dark:border-slate-700 p-4 flex flex-col gap-3">
+                  <Typography className="!font-black !text-slate-800 dark:!text-white">
+                    Caktimi i grupit (vetem admin)
+                  </Typography>
+                  {approvedGroupLabel ? (
+                    <Typography className="!text-emerald-700 dark:!text-emerald-400 !font-semibold">
+                      Grupi aktual: {approvedGroupLabel}
+                    </Typography>
+                  ) : (
+                    <Typography className="!text-slate-500 !text-sm">
+                      Studenti nuk eshte ne asnje grup. Cakto direkt ose prit aplikimin.
+                    </Typography>
+                  )}
+                  {!approvedGroupLabel && (
+                    <FormControl fullWidth size="small">
+                      <InputLabel>Grupi</InputLabel>
+                      <Select
+                        label="Grupi"
+                        value={groupAssignId}
+                        onChange={(e) => setGroupAssignId(e.target.value)}
+                      >
+                        <MenuItem value="">Zgjidh grupin</MenuItem>
+                        {studentGroups.map((g) => (
+                          <MenuItem
+                            key={g.id}
+                            value={g.id}
+                            disabled={g.isFull || g.status === "CLOSED"}
+                          >
+                            {g.name} ({g.currentStudents}/{g.maxCapacity}) — {g.status}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  )}
+                  <Box className="flex gap-2 flex-wrap">
+                    {!approvedGroupLabel && (
+                      <Button
+                        variant="contained"
+                        size="small"
+                        disabled={!groupAssignId || groupAssignLoading}
+                        onClick={handleAssignGroup}
+                        className="!rounded-xl !normal-case !font-bold"
+                      >
+                        Cakto ne grup
+                      </Button>
+                    )}
+                    {approvedGroupLabel && (
+                      <Button
+                        variant="outlined"
+                        color="error"
+                        size="small"
+                        disabled={groupAssignLoading}
+                        onClick={handleRemoveGroup}
+                        className="!rounded-xl !normal-case !font-bold"
+                      >
+                        Hiq nga grupi
+                      </Button>
+                    )}
+                  </Box>
                 </Box>
               )}
             </Box>

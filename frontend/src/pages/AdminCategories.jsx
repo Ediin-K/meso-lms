@@ -24,6 +24,11 @@ import {
   Alert,
   Snackbar,
   Zoom,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Chip,
 } from "@mui/material";
 import SearchRounded from "@mui/icons-material/SearchRounded";
 import AddRounded from "@mui/icons-material/AddRounded";
@@ -32,7 +37,9 @@ import EditRounded from "@mui/icons-material/EditRounded";
 import DeleteRounded from "@mui/icons-material/DeleteRounded";
 import CategoryRounded from "@mui/icons-material/CategoryRounded";
 import CategoryOutlinedIcon from "@mui/icons-material/CategoryOutlined";
+import GroupsRounded from "@mui/icons-material/GroupsRounded";
 import Footer from "../components/ui/Footer";
+import { getDirectionGroups } from "../services/directionGroupService";
 import {
   getAllCategories,
   createCategory,
@@ -60,6 +67,10 @@ export default function AdminCategories() {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [groupsDialog, setGroupsDialog] = useState({ open: false, category: null });
+  const [directionGroups, setDirectionGroups] = useState([]);
+  const [groupsLoading, setGroupsLoading] = useState(false);
+  const [groupsSemester, setGroupsSemester] = useState(1);
 
   const showToast = (message, severity = "success") => {
     setSnackbarSeverity(severity);
@@ -106,6 +117,23 @@ export default function AdminCategories() {
     setSelectedCategory(null);
     setFormData(EMPTY_FORM);
     setOpenDialog(true);
+  };
+
+  const openGroupsDialog = async (category) => {
+    setGroupsDialog({ open: true, category });
+    setGroupsLoading(true);
+    try {
+      setDirectionGroups(await getDirectionGroups(category.id, groupsSemester));
+    } catch (error) {
+      showToast(getErrorMessage(error, "Gabim gjate ngarkimit te grupeve"), "error");
+    } finally {
+      setGroupsLoading(false);
+    }
+  };
+
+  const reloadDirectionGroups = async () => {
+    if (!groupsDialog.category) return;
+    setDirectionGroups(await getDirectionGroups(groupsDialog.category.id, groupsSemester));
   };
 
   const openEditDialog = (category) => {
@@ -309,6 +337,14 @@ export default function AdminCategories() {
                         <TableCell align="right">
                           <IconButton
                             size="small"
+                            onClick={() => openGroupsDialog(category)}
+                            className="text-slate-400! hover:text-indigo-600!"
+                            title="Grupet e drejtimit"
+                          >
+                            <GroupsRounded fontSize="small" />
+                          </IconButton>
+                          <IconButton
+                            size="small"
                             onClick={() => openEditDialog(category)}
                             className="text-slate-400! hover:text-amber-600!"
                           >
@@ -434,6 +470,104 @@ export default function AdminCategories() {
                 : isEdit
                   ? "Ruaj Ndryshimet"
                   : "Shto Kategorinë"}
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        <Dialog
+          open={groupsDialog.open}
+          onClose={() => setGroupsDialog({ open: false, category: null })}
+          maxWidth="md"
+          fullWidth
+          TransitionComponent={Zoom}
+        >
+          <DialogTitle>
+            <Typography variant="h5" className="font-black! dark:text-white!">
+              Grupet e drejtimit
+            </Typography>
+            <Typography variant="body2" className="text-slate-500!">
+              {groupsDialog.category?.emertimi}
+            </Typography>
+          </DialogTitle>
+          <DialogContent>
+            <Box className="flex flex-wrap gap-3 mb-4 mt-2 items-center">
+              <FormControl size="small" sx={{ minWidth: 140 }}>
+                <InputLabel>Semestri</InputLabel>
+                <Select
+                  label="Semestri"
+                  value={groupsSemester}
+                  onChange={(e) => {
+                    setGroupsSemester(Number(e.target.value));
+                    if (groupsDialog.category) {
+                      setGroupsLoading(true);
+                      getDirectionGroups(groupsDialog.category.id, Number(e.target.value))
+                        .then(setDirectionGroups)
+                        .catch(() => showToast("Gabim", "error"))
+                        .finally(() => setGroupsLoading(false));
+                    }
+                  }}
+                >
+                  {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
+                    <MenuItem key={s} value={s}>
+                      Semestri {s}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <Button
+                size="small"
+                variant="contained"
+                onClick={() => navigate("/admin/groups")}
+                className="!rounded-xl !normal-case !font-bold !bg-sky-600"
+              >
+                Krijo / menaxho grupet (wizard)
+              </Button>
+            </Box>
+            <Alert severity="info" className="!mb-4 !rounded-2xl">
+              Grupet krijohen vetem nga wizard-i i integruar (staf + orar). Perdorni Menaxhimin e Grupeve.
+            </Alert>
+            {groupsLoading ? (
+              <Box className="flex justify-center py-8"><CircularProgress /></Box>
+            ) : (
+              <TableContainer>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell className="font-bold!">Grupi</TableCell>
+                      <TableCell className="font-bold!">Kapaciteti</TableCell>
+                      <TableCell className="font-bold!">Studente</TableCell>
+                      <TableCell align="right" className="font-bold!">Veprime</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {directionGroups.map((g) => (
+                      <TableRow key={g.id}>
+                        <TableCell className="font-semibold!">{g.name}</TableCell>
+                        <TableCell>{g.maxCapacity}</TableCell>
+                        <TableCell>
+                          {g.currentStudents}/{g.maxCapacity}
+                          {g.isFull && " (Full)"}
+                        </TableCell>
+                        <TableCell align="right">
+                          <Chip size="small" label={g.status || "ACTIVE"} />
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    {directionGroups.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={4} className="text-slate-400! text-center! py-6!">
+                          Nuk ka grupe. Krijoni nje grup te ri nga Menaxhimi i Grupeve (wizard).
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setGroupsDialog({ open: false, category: null })} className="rounded-xl! normal-case!">
+              Mbyll
             </Button>
           </DialogActions>
         </Dialog>

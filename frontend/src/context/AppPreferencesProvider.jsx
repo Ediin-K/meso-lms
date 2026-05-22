@@ -18,11 +18,15 @@ function readStoredLocale() {
 
 function readStoredRole() {
   try {
-    const v = localStorage.getItem(STORAGE_ROLE).toLowerCase()
+    const raw = localStorage.getItem(STORAGE_ROLE)
+    if (!raw) return 'guest'
+    const v = raw.toLowerCase()
     if (['guest', 'student', 'teacher', 'parent', 'admin'].includes(v)) {
       return v
     }
-  } catch {}
+  } catch {
+    /* ignore */
+  }
   return 'guest'
 }
 
