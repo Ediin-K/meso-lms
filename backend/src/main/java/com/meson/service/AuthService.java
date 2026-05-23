@@ -5,11 +5,9 @@ import com.meson.dto.LoginRequest;
 import com.meson.entity.Role;
 import com.meson.entity.User;
 import com.meson.entity.UserRole;
-import com.meson.repository.RoleRepository;
+import com.meson.entity.RefreshToken;
 import com.meson.repository.UserRepository;
 import com.meson.repository.UserRoleRepository;
-import com.meson.entity.RefreshToken;
-import com.meson.service.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,7 +17,6 @@ import org.springframework.stereotype.Service;
 public class AuthService {
 
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
     private final UserRoleRepository userRoleRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
@@ -27,35 +24,54 @@ public class AuthService {
 
     public AuthResponse login(LoginRequest request) {
 
-        // 1. Gjej userin nga email
-        User user = userRepository.findByEmail(request.getEmail().toLowerCase())
-                .orElseThrow(() -> new RuntimeException("Email nuk ekziston!"));
+        // 1. Normalizo email
+        String email = request.getEmail().trim().toLowerCase();
 
-        // 2. Kontrollo passwordin
-        if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
-            throw new RuntimeException("Password i gabuar!");
+        // 2. Gjej userin
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Email ose password gabim"));
+
+        // 3. Kontrollo password (BCrypt)
+        boolean isPasswordValid = passwordEncoder.matches(
+                request.getPassword(),
+                user.getPasswordHash()
+        );
+
+        if (!isPasswordValid) {
+            throw new RuntimeException("Email ose password gabim");
         }
 
-        // 3. Merr rolin e userit
-        Role userRole = userRoleRepository.findByUser(user)
+        // 4. Merr rolin
+        Role role = userRoleRepository.findByUser(user)
                 .stream()
                 .findFirst()
                 .map(UserRole::getRole)
                 .orElse(null);
-                
-        String role = userRole != null ? userRole.getEmertimi().toLowerCase() : "guest";
-        String normalizedRole = userRole != null ? userRole.getNormalizedName().toUpperCase() : "GUEST";
 
-        // 4. Gjenero access token
-        String token = jwtService.generateToken(user.getEmail(), normalizedRole);
+        String roleName = (role != null)
+                ? role.getNormalizedName().toUpperCase()
+                : "GUEST";
 
-        // 5. Invalido token-at e vjetra
+        String roleDisplay = (role != null)
+                ? role.getEmertimi().toLowerCase()
+                : "guest";
+
+        // 5. Generate JWT
+        String token = jwtService.generateToken(user.getEmail(), roleName);
+
+        // 6. Revoke old refresh tokens
         refreshTokenService.revokeAllUserTokens(user);
 
-        // 6. Gjenero refresh token te ri
+        // 7. Create new refresh token
         RefreshToken refreshToken = refreshTokenService.generateRefreshToken(user);
 
-        // 7. Kthen AuthResponse
-        return new AuthResponse(token, user.getEmail(), role, refreshToken.getToken(), user.getId());
+        // 8. Return response
+        return new AuthResponse(
+                token,
+                user.getEmail(),
+                roleDisplay,
+                refreshToken.getToken(),
+                user.getId()
+        );
     }
 }

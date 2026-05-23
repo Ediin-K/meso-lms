@@ -9,6 +9,7 @@ import com.meson.repository.CourseRepository;
 import com.meson.repository.UserRepository;
 import com.meson.repository.CourseCategoryRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import java.util.List;
 
@@ -53,6 +54,7 @@ public class CourseService {
         course.setTeacher(teacher);
         course.setCourseCategory(category);
         course.setSemester(request.getSemester());
+        course.setEnrollmentKey(normalizeEnrollmentKey(request.getEnrollmentKey()));
 
         return toResponse(courseRepository.save(course));
     }
@@ -75,6 +77,7 @@ public class CourseService {
         course.setTeacher(teacher);
         course.setCourseCategory(category);
         course.setSemester(request.getSemester());
+        course.setEnrollmentKey(normalizeEnrollmentKey(request.getEnrollmentKey()));
 
         return toResponse(courseRepository.save(course));
     }
@@ -97,6 +100,7 @@ public class CourseService {
                 .categoryId(course.getCourseCategory().getId())
                 .categoryName(course.getCourseCategory().getEmertimi())
                 .semester(course.getSemester())
+                .enrollmentKey(course.getEnrollmentKey())
                 .cmimi(course.getCmimi())
                 .niveli(course.getNiveli())
                 .statusi(course.getStatusi())
@@ -117,6 +121,13 @@ public class CourseService {
                 .stream()
                 .map(this::toResponse)
                 .toList();
+    }
+
+    private String normalizeEnrollmentKey(String enrollmentKey) {
+        if (!StringUtils.hasText(enrollmentKey)) {
+            return null;
+        }
+        return enrollmentKey.trim();
     }
 
 }

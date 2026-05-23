@@ -409,6 +409,8 @@ export default function AdminUsers() {
 
           <Box className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
             <TextField
+              name="admin-users-search"
+              autoComplete="off"
               placeholder={t(
                 "adminUsers.searchPlaceholder",
                 "Kërko përdorues...",
@@ -706,6 +708,8 @@ export default function AdminUsers() {
             <Box className="flex flex-col gap-5 mt-4">
               <Box className="flex gap-4">
                 <TextField
+                  name="new-user-firstname"
+                  autoComplete="off"
                   label="Emri"
                   fullWidth
                   value={formData.emri}
@@ -731,6 +735,8 @@ export default function AdminUsers() {
                   }}
                 />
                 <TextField
+                  name="new-user-lastname"
+                  autoComplete="off"
                   label="Mbiemri"
                   fullWidth
                   value={formData.mbiemri}
@@ -757,6 +763,8 @@ export default function AdminUsers() {
                 />
               </Box>
               <TextField
+                name="new-user-email"
+                autoComplete="off"
                 label="Email Adresa"
                 type="email"
                 fullWidth
@@ -784,10 +792,12 @@ export default function AdminUsers() {
               />
               {!isEdit && (
                 <TextField
+                  name="new-user-password"
+                  autoComplete="new-password"
                   label="Fjalëkalimi"
                   type="password"
                   fullWidth
-                  value={formData.passwordHash}
+                  value={formData.password}
                   onChange={field("password")}
                   InputProps={{ className: "rounded-2xl!" }}
                   sx={{
