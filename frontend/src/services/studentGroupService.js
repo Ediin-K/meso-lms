@@ -20,6 +20,11 @@ export const applyToGroup = async (userId, directionGroupId) => {
   return response.data;
 };
 
+export const selectGroup = async (userId, directionGroupId) => {
+  const response = await axiosInstance.post(`/student/${userId}/groups/select`, { directionGroupId });
+  return response.data;
+};
+
 export const getAdminGroupRequests = async (params = {}) => {
   const response = await axiosInstance.get("/admin/group-requests", { params });
   return response.data;

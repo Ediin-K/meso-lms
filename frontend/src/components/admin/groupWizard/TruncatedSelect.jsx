@@ -1,5 +1,5 @@
 import { FormControl, InputLabel, MenuItem, Select, Tooltip, Typography } from "@mui/material";
-import { truncateText, getMenuPaperSx, getWizardFieldSx, wizardFieldClass } from "./wizardUi";
+import { truncateText, getGroupsTheme, getMenuPaperSx, getWizardFieldSx, wizardFieldClass } from "./wizardUi";
 
 export default function TruncatedSelect({
   label,
@@ -15,6 +15,7 @@ export default function TruncatedSelect({
 }) {
   const selected = options.find((o) => String(o.value) === String(value));
   const display = selected?.label ?? (emptyOption && !value ? emptyOption : "");
+  const t = getGroupsTheme(isDark);
 
   return (
     <Tooltip title={display || label} placement="top" disableHoverListener={!display || display.length <= maxLabelLen}>
@@ -29,7 +30,8 @@ export default function TruncatedSelect({
           renderValue={() => (
             <Typography
               component="span"
-              className="block truncate text-sm font-medium text-slate-800 dark:text-slate-100"
+              className="block truncate text-sm font-medium"
+              sx={{ color: t.text }}
             >
               {truncateText(display, maxLabelLen) || "—"}
             </Typography>
@@ -38,7 +40,7 @@ export default function TruncatedSelect({
           {emptyOption != null && <MenuItem value="">{emptyOption}</MenuItem>}
           {options.map((opt) => (
             <MenuItem key={opt.value} value={String(opt.value)}>
-              <Typography className="text-sm text-slate-800 dark:text-slate-100" title={opt.label}>
+              <Typography className="text-sm" sx={{ color: t.text }} title={opt.label}>
                 {opt.label}
               </Typography>
             </MenuItem>

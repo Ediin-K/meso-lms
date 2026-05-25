@@ -43,4 +43,13 @@ public class StudentGroupController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(studentGroupRequestService.apply(userId, request));
     }
+
+    @PreAuthorize("hasRole('ADMIN') or @securityAccessService.canAccessStudent(#userId)")
+    @PostMapping("/{userId}/groups/select")
+    public ResponseEntity<DirectionGroupResponse> select(
+            @PathVariable Long userId,
+            @Valid @RequestBody ApplyGroupRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(studentGroupRequestService.selectGroup(userId, request));
+    }
 }

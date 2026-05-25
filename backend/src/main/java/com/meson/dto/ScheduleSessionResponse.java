@@ -27,6 +27,7 @@ public class ScheduleSessionResponse {
     private LocalTime startTime;
     private LocalTime endTime;
     private String room;
+    private String color;
     private Integer capacity;
     private String status;
 }

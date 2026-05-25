@@ -28,6 +28,9 @@ public class DirectionGroup {
     @Column(nullable = false)
     private String name;
 
+    @Column(length = 1000)
+    private String description;
+
     @Column(name = "max_capacity", nullable = false)
     private Integer maxCapacity;
 

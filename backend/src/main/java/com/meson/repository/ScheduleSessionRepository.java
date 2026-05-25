@@ -24,6 +24,7 @@ public interface ScheduleSessionRepository extends JpaRepository<ScheduleSession
             LEFT JOIN FETCH s.courseSubgroup
             WHERE cg.directionGroup.id = :directionGroupId
               AND c.semester = :semester
+              AND s.status = 'ACTIVE'
             """)
     List<ScheduleSession> findByDirectionGroupIdAndSemester(
             @Param("directionGroupId") Long directionGroupId,
@@ -38,6 +39,7 @@ public interface ScheduleSessionRepository extends JpaRepository<ScheduleSession
             WHERE c.courseCategory.id = :categoryId
               AND c.semester = :semester
               AND cg.directionGroup.id = :directionGroupId
+              AND s.status = 'ACTIVE'
             """)
     List<ScheduleSession> findApprovedSchedulesForStudent(
             @Param("categoryId") Long categoryId,
@@ -74,6 +76,7 @@ public interface ScheduleSessionRepository extends JpaRepository<ScheduleSession
               AND s.dayOfWeek = :day
               AND s.startTime < :endTime
               AND s.endTime > :startTime
+              AND s.status = 'ACTIVE'
             """)
     List<ScheduleSession> findOverlappingForTeacher(
             @Param("teacherId") Long teacherId,
@@ -87,6 +90,7 @@ public interface ScheduleSessionRepository extends JpaRepository<ScheduleSession
               AND s.dayOfWeek = :day
               AND s.startTime < :endTime
               AND s.endTime > :startTime
+              AND s.status = 'ACTIVE'
             """)
     List<ScheduleSession> findOverlappingForCourseGroup(
             @Param("courseGroupId") Long courseGroupId,

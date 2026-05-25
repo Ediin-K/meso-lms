@@ -15,6 +15,10 @@ public class LessonResourceResponse {
     private String emriOrigjinal;
     private String tipi;
     private Long madhesia;
+    private String resourceType;
+    private Boolean previewable;
     private String url;
+    private String viewUrl;
+    private String downloadUrl;
     private LocalDateTime createdAt;
 }

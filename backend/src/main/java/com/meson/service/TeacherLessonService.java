@@ -27,6 +27,7 @@ public class TeacherLessonService {
     private final ModuleRepository moduleRepository;
     private final UserRepository userRepository;
     private final LessonResourceRepository lessonResourceRepository;
+    private final LessonResourceMapper lessonResourceMapper;
 
     public List<LessonResponse> getLessonsByModule(Long moduleId) {
         User teacher = getCurrentUser();
@@ -105,14 +106,7 @@ public class TeacherLessonService {
                 .moduleTitulli(lesson.getModule().getTitulli())
                 .createdAt(lesson.getCreatedAt())
                 .resources(lessonResourceRepository.findByLessonId(lesson.getId()).stream()
-                        .map(r -> LessonResourceResponse.builder()
-                                .id(r.getId())
-                                .emriOrigjinal(r.getEmriOrigjinal())
-                                .tipi(r.getTipi())
-                                .madhesia(r.getMadhesia())
-                                .url("/files/download/" + r.getId())
-                                .createdAt(r.getCreatedAt())
-                                .build())
+                        .map(lessonResourceMapper::toResponse)
                         .collect(Collectors.toList()))
                 .build();
     }

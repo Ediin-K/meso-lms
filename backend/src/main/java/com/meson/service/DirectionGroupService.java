@@ -48,6 +48,7 @@ public class DirectionGroupService {
                 .courseCategory(category)
                 .semester(semester)
                 .name(request.getName().trim())
+                .description(trimToNull(request.getDescription()))
                 .maxCapacity(request.getMaxCapacity())
                 .status(resolveStoredStatus(request.getStatus()))
                 .build();
@@ -76,6 +77,7 @@ public class DirectionGroupService {
 
         group.setSemester(semester);
         group.setName(request.getName().trim());
+        group.setDescription(trimToNull(request.getDescription()));
         group.setMaxCapacity(request.getMaxCapacity());
         if (request.getStatus() != null) {
             group.setStatus(resolveStoredStatus(request.getStatus()));
@@ -135,6 +137,7 @@ public class DirectionGroupService {
                 .categoryName(category != null ? category.getEmertimi() : null)
                 .semester(group.getSemester())
                 .name(group.getName())
+                .description(group.getDescription())
                 .maxCapacity(max)
                 .currentStudents(current)
                 .remainingSeats(remaining)
@@ -168,6 +171,13 @@ public class DirectionGroupService {
 
     private DirectionGroupStatus resolveStoredStatus(DirectionGroupStatus status) {
         return status == DirectionGroupStatus.CLOSED ? DirectionGroupStatus.CLOSED : DirectionGroupStatus.ACTIVE;
+    }
+
+    private String trimToNull(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return null;
+        }
+        return value.trim();
     }
 
     private String computeDisplayStatus(DirectionGroupStatus stored, boolean isFull) {

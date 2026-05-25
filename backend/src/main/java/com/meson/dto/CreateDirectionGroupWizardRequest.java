@@ -21,6 +21,9 @@ public class CreateDirectionGroupWizardRequest {
     @NotBlank
     private String name;
 
+    @Size(max = 1000)
+    private String description;
+
     @NotNull
     @Min(1)
     private Integer maxCapacity;

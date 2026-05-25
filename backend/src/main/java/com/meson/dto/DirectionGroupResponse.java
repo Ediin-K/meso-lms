@@ -12,6 +12,7 @@ public class DirectionGroupResponse {
     private String categoryName;
     private Integer semester;
     private String name;
+    private String description;
     private Integer maxCapacity;
     private Integer currentStudents;
     private Integer remainingSeats;

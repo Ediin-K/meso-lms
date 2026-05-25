@@ -1,5 +1,5 @@
 package com.meson.entity;
 
 public enum LessonType {
-    VIDEO, TEKST, QUIZ
+    VIDEO, TEKST, QUIZ, ASSIGNMENT
 }

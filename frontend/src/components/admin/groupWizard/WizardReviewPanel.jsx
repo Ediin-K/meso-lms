@@ -34,6 +34,7 @@ export default function WizardReviewPanel({
   selectedCategory,
   semester,
   groupName,
+  groupDescription,
   maxCapacity,
   staffRows,
   scheduleRows,
@@ -67,6 +68,14 @@ export default function WizardReviewPanel({
           </Box>
         ))}
       </Box>
+
+      {groupDescription && (
+        <ReviewBlock label="Pershkrimi" isDark={isDark}>
+          <Typography variant="body2" sx={{ color: t.text }}>
+            {groupDescription}
+          </Typography>
+        </ReviewBlock>
+      )}
 
       <ReviewBlock label={`Stafi akademik (${validStaff.length})`} isDark={isDark}>
         {validStaff.length === 0 ? (

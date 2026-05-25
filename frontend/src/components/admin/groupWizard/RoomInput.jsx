@@ -1,10 +1,11 @@
 import { useRef } from "react";
 import { Box, Chip, TextField, Typography } from "@mui/material";
 import MeetingRoomOutlinedIcon from "@mui/icons-material/MeetingRoomOutlined";
-import { ROOM_PRESETS, getWizardFieldSx, wizardFieldClass } from "./wizardUi";
+import { ROOM_PRESETS, getGroupsTheme, getWizardFieldSx, wizardFieldClass } from "./wizardUi";
 
 export default function RoomInput({ value, onChange, isDark, presets = ROOM_PRESETS }) {
   const inputRef = useRef(null);
+  const t = getGroupsTheme(isDark);
 
   return (
     <Box className="flex flex-col gap-1.5 min-w-0">
@@ -24,14 +25,15 @@ export default function RoomInput({ value, onChange, isDark, presets = ROOM_PRES
             startAdornment: (
               <MeetingRoomOutlinedIcon
                 fontSize="small"
-                className="mr-1 text-slate-400 dark:text-slate-500"
+                className="mr-1"
+                sx={{ color: t.textMuted }}
               />
             ),
           },
         }}
       />
       <Box className="flex flex-wrap gap-1">
-        <Typography variant="caption" className="text-slate-500 dark:text-slate-400 mr-1 self-center">
+        <Typography variant="caption" className="mr-1 self-center" sx={{ color: t.textMuted }}>
           Shpejt:
         </Typography>
         {presets.map((room) => (
@@ -46,6 +48,14 @@ export default function RoomInput({ value, onChange, isDark, presets = ROOM_PRES
               inputRef.current?.focus();
             }}
             className="!font-semibold !cursor-pointer"
+            sx={{
+              color: value === room ? "var(--lms-schedule-card)" : t.text,
+              borderColor: t.border,
+              bgcolor: value === room ? t.accentStrong : "transparent",
+              "&:hover": {
+                bgcolor: value === room ? t.accentStrong : t.hover,
+              },
+            }}
           />
         ))}
       </Box>

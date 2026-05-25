@@ -25,6 +25,7 @@ public class TeacherFileService {
     private final LessonResourceRepository lessonResourceRepository;
     private final LessonRepository lessonRepository;
     private final UserRepository userRepository;
+    private final LessonResourceMapper lessonResourceMapper;
 
     public List<LessonResourceResponse> getResourcesByLesson(Long lessonId) {
         User teacher = getCurrentUser();
@@ -33,7 +34,7 @@ public class TeacherFileService {
                 .orElseThrow(() -> new AccessDeniedException("Ju nuk keni akses në këtë lëndë."));
 
         return lessonResourceRepository.findByLessonId(lessonId).stream()
-                .map(this::toResponse)
+                .map(lessonResourceMapper::toResponse)
                 .collect(Collectors.toList());
     }
 
@@ -98,13 +99,6 @@ public class TeacherFileService {
     }
 
     private LessonResourceResponse toResponse(LessonResource resource) {
-        return LessonResourceResponse.builder()
-                .id(resource.getId())
-                .emriOrigjinal(resource.getEmriOrigjinal())
-                .tipi(resource.getTipi())
-                .madhesia(resource.getMadhesia())
-                .url("/files/download/" + resource.getId())
-                .createdAt(resource.getCreatedAt())
-                .build();
+        return lessonResourceMapper.toResponse(resource);
     }
 }

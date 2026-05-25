@@ -118,6 +118,7 @@ public class ScheduleSessionService {
                 .startTime(session.getStartTime())
                 .endTime(session.getEndTime())
                 .room(session.getRoom())
+                .color(session.getColor() != null ? session.getColor() : "sky")
                 .capacity(session.getCapacity())
                 .status(session.getStatus())
                 .build();

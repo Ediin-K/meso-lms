@@ -4,6 +4,8 @@ export const DAY_LABELS = {
   WEDNESDAY: "E Merkure",
   THURSDAY: "E Enjte",
   FRIDAY: "E Premte",
+  SATURDAY: "E Shtune",
+  SUNDAY: "E Diele",
 };
 
 export const extractApiError = (err, fallback = "Gabim gjate ngarkimit") => {
@@ -32,6 +34,7 @@ export const normalizeStatus = (raw) => {
     categoryName: raw.categoryName ?? null,
     approvedGroup: raw.approvedGroup ?? null,
     pendingRequest: raw.pendingRequest ?? null,
+    currentSemester: raw.currentSemester ?? null,
   };
 };
 
@@ -49,6 +52,8 @@ export const normalizeSchedule = (raw) => {
     courseGroupName: raw.courseGroupName ?? null,
     courseSubgroupName: raw.courseSubgroupName ?? null,
     teacherName: raw.teacherName ?? "",
+    room: raw.room ?? "",
+    color: raw.color ?? "sky",
   };
 };
 
@@ -67,7 +72,9 @@ export const normalizeAvailableGroup = (raw) => {
     group: {
       id: groupId,
       name: groupSource?.name ?? "Grup",
+      description: groupSource?.description ?? "",
       categoryName: groupSource?.categoryName ?? "",
+      status: groupSource?.status ?? "ACTIVE",
       maxCapacity: Number(groupSource?.maxCapacity ?? 0),
       currentStudents: Number(groupSource?.currentStudents ?? 0),
       remainingSeats: Number(groupSource?.remainingSeats ?? 0),

@@ -24,4 +24,5 @@ public class GroupScheduleEntryRequest {
     private LocalTime startTime;
     private LocalTime endTime;
     private String room;
+    private String color;
 }

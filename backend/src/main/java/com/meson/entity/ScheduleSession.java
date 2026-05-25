@@ -50,6 +50,9 @@ public class ScheduleSession {
 
     private String room;
 
+    @Column(length = 40)
+    private String color;
+
     @Column(nullable = false)
     private Integer capacity;
 

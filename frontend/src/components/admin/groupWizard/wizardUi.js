@@ -1,11 +1,10 @@
 /** Shared admin groups / wizard theme tokens and MUI sx helpers. */
+import { scheduleCardSx, schedulePrimaryButtonSx, scheduleTheme } from "../../schedule/scheduleTheme";
 
 export const WIZARD_STEPS = [
-  { id: 0, label: "Konteksti", group: "Struktura akademike" },
-  { id: 1, label: "Grupi", group: "Konfigurimi i grupit" },
-  { id: 2, label: "Stafi", group: "Stafi akademik" },
-  { id: 3, label: "Orari", group: "Ndertuesi i orarit" },
-  { id: 4, label: "Permbledhje", group: "Verifikimi final" },
+  { id: 0, label: "Info", group: "Basic Group Info" },
+  { id: 1, label: "Orari", group: "Weekly Schedule Builder" },
+  { id: 2, label: "Review", group: "Review & Confirm" },
 ];
 
 export const ROOM_PRESETS = ["101", "132", "205", "301", "A1", "B2"];
@@ -13,15 +12,21 @@ export const DRAFT_STORAGE_KEY = "meson-group-wizard-draft";
 
 /** Theme tokens for admin groups module (light/dark). */
 export function getGroupsTheme(isDark) {
+  void isDark;
   return {
-    background: isDark ? "#020617" : "#f0f7fb",
-    surface: isDark ? "#0f172a" : "#f8fafc",
-    card: isDark ? "#1e293b" : "#ffffff",
-    text: isDark ? "#f1f5f9" : "#0f172a",
-    textMuted: isDark ? "#94a3b8" : "#64748b",
-    border: isDark ? "#334155" : "#e2e8f0",
-    hover: isDark ? "#334155" : "#f0f9ff",
-    inputBg: isDark ? "#0f172a" : "#f8fafc",
+    background: scheduleTheme.background,
+    surface: scheduleTheme.surface,
+    card: scheduleTheme.card,
+    text: scheduleTheme.text,
+    textMuted: scheduleTheme.muted,
+    border: scheduleTheme.border,
+    hover: scheduleTheme.hover,
+    inputBg: scheduleTheme.input,
+    accent: scheduleTheme.accent,
+    accentStrong: scheduleTheme.accentStrong,
+    danger: scheduleTheme.danger,
+    warning: scheduleTheme.warning,
+    focus: scheduleTheme.focus,
   };
 }
 
@@ -32,21 +37,13 @@ export function truncateText(text, max = 28) {
 }
 
 export function wizardSurfaceClass(isDark) {
-  const t = getGroupsTheme(isDark);
-  return isDark
-    ? "rounded-2xl border border-slate-700/70 bg-slate-900/95 shadow-md shadow-black/20"
-    : "rounded-2xl border border-slate-200/90 bg-slate-50/95 shadow-sm";
+  void isDark;
+  return "lms-schedule-surface rounded-2xl";
 }
 
 export function cardSx(isDark) {
-  const t = getGroupsTheme(isDark);
-  return {
-    bgcolor: `${t.card} !important`,
-    color: t.text,
-    border: `1px solid ${t.border}`,
-    boxShadow: isDark ? "none" : "0 1px 3px rgba(15, 23, 42, 0.06)",
-    backgroundImage: "none",
-  };
+  void isDark;
+  return scheduleCardSx();
 }
 
 export function tableContainerSx(isDark) {
@@ -90,6 +87,7 @@ export function wizardFieldClass() {
 }
 
 export function getWizardFieldSx(isDark) {
+  void isDark;
   const t = getGroupsTheme(isDark);
   return {
     "& .MuiOutlinedInput-root": {
@@ -98,13 +96,16 @@ export function getWizardFieldSx(isDark) {
       color: t.text,
       transition: "border-color 0.2s ease",
       "& fieldset": { borderColor: t.border },
-      "&:hover fieldset": { borderColor: isDark ? "#475569" : "#94a3b8" },
-      "&.Mui-focused fieldset": { borderColor: "#0ea5e9", borderWidth: 2 },
+      "&:hover fieldset": { borderColor: t.accent },
+      "&.Mui-focused fieldset": { borderColor: t.focus, borderWidth: 2 },
     },
     "& .MuiInputLabel-root": { color: t.textMuted },
-    "& .MuiInputLabel-root.Mui-focused": { color: "#0284c7" },
+    "& .MuiInputLabel-root.Mui-focused": { color: t.accent },
     "& .MuiSelect-select": { color: t.text },
     "& .MuiInputBase-input": { color: t.text },
+    "& .MuiInputBase-input::placeholder": { color: t.textMuted, opacity: 1 },
+    "& .MuiFormHelperText-root": { color: t.textMuted },
+    "& .MuiFormHelperText-root.Mui-error": { color: t.danger },
   };
 }
 
@@ -118,10 +119,15 @@ export function getMenuPaperSx(isDark) {
         bgcolor: t.card,
         border: `1px solid ${t.border}`,
         "& .MuiMenuItem-root": { color: t.text },
-        "& .MuiMenuItem-root:hover": { bgcolor: t.hover },
+        "& .MuiMenuItem-root:hover": { bgcolor: t.hover, color: t.text },
+        "& .MuiMenuItem-root.Mui-selected": { bgcolor: t.hover, color: t.text },
       },
     },
   };
+}
+
+export function primaryButtonSx() {
+  return schedulePrimaryButtonSx();
 }
 
 /** Build staff lookup by courseId from wizard staff rows. */
@@ -168,5 +174,6 @@ export function seedScheduleRowsFromStaff(staffRows, emptyScheduleRow) {
     startTime: "10:00",
     endTime: "",
     room: "",
+    color: "sky",
   }));
 }

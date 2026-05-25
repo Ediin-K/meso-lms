@@ -2,6 +2,7 @@ package com.meson.service;
 
 import com.meson.dto.*;
 import com.meson.entity.*;
+import com.meson.exception.BadRequestException;
 import com.meson.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ public class StudentGroupRequestService {
     private final UserRepository userRepository;
     private final ScheduleSessionRepository scheduleSessionRepository;
     private final ScheduleSessionService scheduleSessionService;
+    private final StudentGroupSelectionRepository studentGroupSelectionRepository;
 
     @Transactional(readOnly = true)
     public StudentScheduleOverviewResponse getScheduleOverview(Long userId) {
@@ -85,6 +87,35 @@ public class StudentGroupRequestService {
                 .build();
 
         return toResponse(studentGroupRequestRepository.save(application));
+    }
+
+    @Transactional
+    public DirectionGroupResponse selectGroup(Long userId, ApplyGroupRequest request) {
+        StudentProfile profile = requireStudentProfile(userId);
+        validateStudentCategory(profile);
+
+        if (profile.getApprovedDirectionGroup() != null || studentGroupSelectionRepository.existsByStudentId(userId)) {
+            throw new BadRequestException("Ke zgjedhur tashme nje grup");
+        }
+
+        DirectionGroup group = directionGroupService.getEntity(request.getDirectionGroupId());
+        validateGroupMatchesStudent(profile, group);
+        directionGroupService.assertGroupAcceptsStudents(group);
+
+        User student = userRepository.findById(userId)
+                .orElseThrow(() -> new BadRequestException("Studenti nuk u gjet"));
+
+        rejectPendingApplications(userId, null);
+        profile.setApprovedDirectionGroup(group);
+        studentProfileRepository.save(profile);
+
+        studentGroupSelectionRepository.save(StudentGroupSelection.builder()
+                .student(student)
+                .directionGroup(group)
+                .selectedAt(LocalDateTime.now())
+                .build());
+
+        return directionGroupService.toResponse(group);
     }
 
     @Transactional
@@ -187,7 +218,9 @@ public class StudentGroupRequestService {
                 .ifPresent(pending -> {
                     pending.setStatus(GroupRequestStatus.REJECTED);
                     pending.setApprovedAt(LocalDateTime.now());
-                    pending.setApprovedBy(admin);
+                    if (admin != null) {
+                        pending.setApprovedBy(admin);
+                    }
                     studentGroupRequestRepository.save(pending);
                 });
     }

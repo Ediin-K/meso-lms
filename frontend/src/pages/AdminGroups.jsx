@@ -48,6 +48,7 @@ import {
   getMenuPaperSx,
   getWizardFieldSx,
   pageShellSx,
+  primaryButtonSx,
   seedScheduleRowsFromStaff,
   tableContainerSx,
 } from "../components/admin/groupWizard/wizardUi";
@@ -95,6 +96,7 @@ const emptyScheduleRow = () => ({
   startTime: "10:00",
   endTime: "",
   room: "",
+  color: "sky",
 });
 
 const dayOptions = DAYS.map((d) => ({ value: d, label: DAY_LABELS[d] }));
@@ -124,6 +126,7 @@ export default function AdminGroups() {
   const [wizardStep, setWizardStep] = useState(0);
   const [context, setContext] = useState(null);
   const [groupName, setGroupName] = useState("");
+  const [groupDescription, setGroupDescription] = useState("");
   const [maxCapacity, setMaxCapacity] = useState(30);
   const [staffRows, setStaffRows] = useState([emptyStaffRow()]);
   const [scheduleRows, setScheduleRows] = useState([emptyScheduleRow()]);
@@ -240,6 +243,7 @@ export default function AdminGroups() {
       if (d.categoryId) setCategoryId(String(d.categoryId));
       if (d.semester) setSemester(Number(d.semester));
       if (d.groupName) setGroupName(d.groupName);
+      if (d.groupDescription) setGroupDescription(d.groupDescription);
       if (d.maxCapacity) setMaxCapacity(d.maxCapacity);
       if (d.staffRows?.length) setStaffRows(d.staffRows);
       if (d.scheduleRows?.length) setScheduleRows(d.scheduleRows);
@@ -254,6 +258,7 @@ export default function AdminGroups() {
     if (!categoryId) return;
     setWizardStep(0);
     setGroupName("");
+    setGroupDescription("");
     setMaxCapacity(30);
     setStaffRows([emptyStaffRow()]);
     setScheduleRows([emptyScheduleRow()]);
@@ -277,6 +282,7 @@ export default function AdminGroups() {
           categoryId,
           semester,
           groupName,
+          groupDescription,
           maxCapacity,
           staffRows,
           scheduleRows,
@@ -293,6 +299,8 @@ export default function AdminGroups() {
     const errors = {};
     if (wizardStep === 0) {
       if (!categoryId) errors.categoryId = "Zgjidh drejtimin";
+      if (!groupName.trim()) errors.groupName = "Emri i grupit eshte i detyrueshem";
+      if (Number(maxCapacity) < 1) errors.maxCapacity = "Kapaciteti duhet te jete te pakten 1";
       else {
         try {
           await loadWizardContext(categoryId, semester);
@@ -302,27 +310,21 @@ export default function AdminGroups() {
       }
     }
     if (wizardStep === 1) {
-      if (!groupName.trim()) errors.groupName = "Emri i grupit eshte i detyrueshem";
-      if (Number(maxCapacity) < 1) errors.maxCapacity = "Kapaciteti duhet te jete te pakten 1";
-    }
-    if (wizardStep === 2) {
-      const valid = staffRows.filter((r) => r.courseId && r.professorId);
-      if (valid.length === 0) errors.staff = "Shto te pakten nje rresht stafi (lende + profesor)";
-    }
-    if (wizardStep === 3) {
-      const valid = scheduleRows.filter((r) => r.courseId && r.professorId && r.startTime);
-      if (valid.length === 0) {
+      const validStaff = staffRows.filter((r) => r.courseId && r.professorId);
+      if (validStaff.length === 0) errors.staff = "Shto te pakten nje rresht stafi (lende + profesor)";
+      const validSchedules = scheduleRows.filter((r) => r.courseId && r.professorId && r.startTime);
+      if (validSchedules.length === 0) {
         errors.schedules = "Shto te pakten nje sesion orari";
       } else {
-        for (let i = 0; i < valid.length; i += 1) {
-          const conflict = getScheduleConflict(valid, valid[i], i);
+        for (let i = 0; i < validSchedules.length; i += 1) {
+          const conflict = getScheduleConflict(validSchedules, validSchedules[i], i);
           const msg = getScheduleConflictMessage(conflict);
           if (msg) {
             errors.schedules = msg;
             break;
           }
         }
-        const missingStaff = valid.some((r) => !staffByCourse[String(r.courseId)]?.professorId);
+        const missingStaff = validSchedules.some((r) => !staffByCourse[String(r.courseId)]?.professorId);
         if (missingStaff) {
           errors.schedules = "Disa lende nuk kane staf te caktuar ne hapin e stafit";
         }
@@ -338,7 +340,7 @@ export default function AdminGroups() {
     const ok = await validateStep();
     if (!ok) return;
 
-    if (wizardStep === 2) {
+    if (wizardStep === 1) {
       const hasValidSchedule = scheduleRows.some((r) => r.courseId && r.startTime);
       if (!hasValidSchedule) {
         setScheduleRows(seedScheduleRowsFromStaff(staffRows, emptyScheduleRow));
@@ -347,7 +349,7 @@ export default function AdminGroups() {
       }
     }
 
-    setWizardStep((s) => Math.min(s + 1, 4));
+    setWizardStep((s) => Math.min(s + 1, 2));
   };
 
   const goBack = () => {
@@ -360,6 +362,7 @@ export default function AdminGroups() {
     categoryId: Number(categoryId),
     semester: Number(semester),
     name: groupName.trim(),
+    description: groupDescription.trim() || null,
     maxCapacity: Number(maxCapacity),
     staff: staffRows
       .filter((r) => r.courseId && r.professorId)
@@ -383,6 +386,7 @@ export default function AdminGroups() {
             : r.endTime
           : null,
         room: r.room || null,
+        color: r.color || "sky",
       })),
   });
 
@@ -473,6 +477,8 @@ export default function AdminGroups() {
             teachers={teachers}
             groupName={groupName}
             setGroupName={setGroupName}
+            groupDescription={groupDescription}
+            setGroupDescription={setGroupDescription}
             maxCapacity={maxCapacity}
             setMaxCapacity={setMaxCapacity}
             staffRows={staffRows}
@@ -586,7 +592,8 @@ export default function AdminGroups() {
             startIcon={<AddRounded />}
             onClick={startWizard}
             disabled={!categoryId}
-            className="!rounded-xl !normal-case !font-bold !bg-sky-600 shrink-0"
+            className="!rounded-xl !normal-case !font-bold shrink-0"
+            sx={primaryButtonSx()}
           >
             Create Group
           </Button>
@@ -626,7 +633,7 @@ export default function AdminGroups() {
                       <TableRow key={group.id} hover>
                         <TableCell>
                           <Box className="flex items-center gap-1.5 min-w-0">
-                            <GroupsRounded sx={{ color: "#0284c7", fontSize: 18 }} />
+                            <GroupsRounded sx={{ color: theme.accent, fontSize: 18 }} />
                             <Typography fontWeight={700} noWrap title={group.name}>
                               {group.name}
                             </Typography>

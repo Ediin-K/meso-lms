@@ -5,6 +5,7 @@ import com.meson.dto.LessonResponse;
 import com.meson.entity.Lesson;
 import com.meson.entity.Module;
 import com.meson.repository.LessonRepository;
+import com.meson.repository.LessonResourceRepository;
 import com.meson.repository.ModuleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,8 @@ public class LessonService {
 
     private final LessonRepository lessonRepository;
     private final ModuleRepository moduleRepository;
+    private final LessonResourceRepository lessonResourceRepository;
+    private final LessonResourceMapper lessonResourceMapper;
 
     public List<LessonResponse> getByModuleId(Long moduleId) {
         return lessonRepository.findByModuleIdOrderByRradhitjaAsc(moduleId)
@@ -87,6 +90,9 @@ public class LessonService {
                 .moduleId(lesson.getModule().getId())
                 .moduleTitulli(lesson.getModule().getTitulli())
                 .createdAt(lesson.getCreatedAt())
+                .resources(lessonResourceRepository.findByLessonId(lesson.getId()).stream()
+                        .map(lessonResourceMapper::toResponse)
+                        .toList())
                 .build();
     }
 }

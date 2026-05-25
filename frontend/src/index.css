@@ -5,10 +5,76 @@
 
 :root {
   --teacher-action-icon: #4f46e5;
+  --lms-schedule-bg: #f0f7fb;
+  --lms-schedule-surface: #f8fafc;
+  --lms-schedule-card: #ffffff;
+  --lms-schedule-input: #f8fafc;
+  --lms-schedule-text: #0f172a;
+  --lms-schedule-muted: #64748b;
+  --lms-schedule-border: #e2e8f0;
+  --lms-schedule-hover: #f0f9ff;
+  --lms-schedule-accent: #0284c7;
+  --lms-schedule-accent-strong: #0369a1;
+  --lms-schedule-success: #059669;
+  --lms-schedule-danger: #e11d48;
+  --lms-schedule-warning: #b45309;
+  --lms-schedule-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+  --lms-schedule-focus-ring: #0ea5e9;
+  --lms-schedule-sky-bg: rgba(14, 165, 233, 0.1);
+  --lms-schedule-sky-border: rgba(14, 165, 233, 0.28);
+  --lms-schedule-sky-text: #0369a1;
+  --lms-schedule-emerald-bg: rgba(16, 185, 129, 0.1);
+  --lms-schedule-emerald-border: rgba(16, 185, 129, 0.26);
+  --lms-schedule-emerald-text: #047857;
+  --lms-schedule-violet-bg: rgba(124, 58, 237, 0.09);
+  --lms-schedule-violet-border: rgba(124, 58, 237, 0.23);
+  --lms-schedule-violet-text: #6d28d9;
+  --lms-schedule-amber-bg: rgba(245, 158, 11, 0.11);
+  --lms-schedule-amber-border: rgba(245, 158, 11, 0.28);
+  --lms-schedule-amber-text: #b45309;
+  --lms-schedule-rose-bg: rgba(244, 63, 94, 0.09);
+  --lms-schedule-rose-border: rgba(244, 63, 94, 0.25);
+  --lms-schedule-rose-text: #be123c;
+  --lms-schedule-slate-bg: rgba(100, 116, 139, 0.1);
+  --lms-schedule-slate-border: rgba(100, 116, 139, 0.24);
+  --lms-schedule-slate-text: #475569;
 }
 
 .dark {
   --teacher-action-icon: #c7d2fe;
+  --lms-schedule-bg: #020617;
+  --lms-schedule-surface: #0f172a;
+  --lms-schedule-card: #111827;
+  --lms-schedule-input: #111827;
+  --lms-schedule-text: #f8fafc;
+  --lms-schedule-muted: #cbd5e1;
+  --lms-schedule-border: #334155;
+  --lms-schedule-hover: #1e293b;
+  --lms-schedule-accent: #7dd3fc;
+  --lms-schedule-accent-strong: #38bdf8;
+  --lms-schedule-success: #86efac;
+  --lms-schedule-danger: #fda4af;
+  --lms-schedule-warning: #fcd34d;
+  --lms-schedule-shadow: 0 20px 55px rgba(2, 6, 23, 0.35);
+  --lms-schedule-focus-ring: #7dd3fc;
+  --lms-schedule-sky-bg: rgba(14, 165, 233, 0.16);
+  --lms-schedule-sky-border: rgba(125, 211, 252, 0.32);
+  --lms-schedule-sky-text: #bae6fd;
+  --lms-schedule-emerald-bg: rgba(16, 185, 129, 0.16);
+  --lms-schedule-emerald-border: rgba(110, 231, 183, 0.32);
+  --lms-schedule-emerald-text: #bbf7d0;
+  --lms-schedule-violet-bg: rgba(139, 92, 246, 0.17);
+  --lms-schedule-violet-border: rgba(196, 181, 253, 0.32);
+  --lms-schedule-violet-text: #ddd6fe;
+  --lms-schedule-amber-bg: rgba(245, 158, 11, 0.17);
+  --lms-schedule-amber-border: rgba(252, 211, 77, 0.34);
+  --lms-schedule-amber-text: #fde68a;
+  --lms-schedule-rose-bg: rgba(244, 63, 94, 0.17);
+  --lms-schedule-rose-border: rgba(251, 113, 133, 0.34);
+  --lms-schedule-rose-text: #fecdd3;
+  --lms-schedule-slate-bg: rgba(148, 163, 184, 0.14);
+  --lms-schedule-slate-border: rgba(203, 213, 225, 0.28);
+  --lms-schedule-slate-text: #e2e8f0;
 }
 
 /* Sfond bazë i njëjtë me fundin e faqes — nuk mbetet “strikë” e bardhë poshtë footer-it */
@@ -245,6 +311,21 @@ html.dark svg:not([class*="text-"]):not([class*="MuiSvgIcon-color"]) {
 .dark .MuiTableCell-root {
   color: #e2e8f0 !important;
   border-bottom-color: #1e293b !important;
+}
+
+.lms-schedule-surface {
+  border: 1px solid var(--lms-schedule-border);
+  background: var(--lms-schedule-card);
+  color: var(--lms-schedule-text);
+  box-shadow: var(--lms-schedule-shadow);
+}
+
+.lms-schedule-muted {
+  color: var(--lms-schedule-muted);
+}
+
+.lms-schedule-accent {
+  color: var(--lms-schedule-accent);
 }
 
 

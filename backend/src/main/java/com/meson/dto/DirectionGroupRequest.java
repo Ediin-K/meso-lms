@@ -17,6 +17,8 @@ public class DirectionGroupRequest {
     @NotBlank
     private String name;
 
+    private String description;
+
     @NotNull
     @Min(1)
     private Integer maxCapacity;

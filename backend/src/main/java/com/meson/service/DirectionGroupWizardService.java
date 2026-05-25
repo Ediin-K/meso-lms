@@ -63,6 +63,7 @@ public class DirectionGroupWizardService {
                 .courseCategory(category)
                 .semester(request.getSemester())
                 .name(request.getName().trim())
+                .description(trimToNull(request.getDescription()))
                 .maxCapacity(request.getMaxCapacity())
                 .status(DirectionGroupStatus.ACTIVE)
                 .build());
@@ -142,6 +143,7 @@ public class DirectionGroupWizardService {
                     .startTime(entry.getStartTime())
                     .endTime(endTime)
                     .room(entry.getRoom())
+                    .color(normalizeColorToken(entry.getColor()))
                     .capacity(request.getMaxCapacity())
                     .status("ACTIVE")
                     .build();
@@ -264,5 +266,22 @@ public class DirectionGroupWizardService {
                 .categoryId(course.getCourseCategory() != null ? course.getCourseCategory().getId() : null)
                 .categoryName(course.getCourseCategory() != null ? course.getCourseCategory().getEmertimi() : null)
                 .build();
+    }
+
+    private String trimToNull(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return null;
+        }
+        return value.trim();
+    }
+
+    private String normalizeColorToken(String color) {
+        if (color == null || color.isBlank()) {
+            return "sky";
+        }
+        String normalized = color.trim().toLowerCase(Locale.ROOT);
+        return Set.of("sky", "emerald", "violet", "amber", "rose", "slate").contains(normalized)
+                ? normalized
+                : "sky";
     }
 }
