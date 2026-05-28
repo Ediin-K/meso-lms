@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -38,20 +39,37 @@ public class QuizController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<QuizResponse> create(@Valid @RequestBody QuizRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(quizService.createQuiz(request));
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<QuizResponse> update(@PathVariable Long id,
                                                @Valid @RequestBody QuizRequest request) {
         return ResponseEntity.ok(quizService.updateQuiz(id, request));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         quizService.deleteQuiz(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/start")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<QuizStartResponse> start(@PathVariable Long id) {
+        return ResponseEntity.ok(quizService.startQuiz(id));
+    }
+
+    @PostMapping("/{id}/submit")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<QuizSubmitResponse> submit(
+            @PathVariable Long id,
+            @Valid @RequestBody QuizSubmitRequest request) {
+        return ResponseEntity.ok(quizService.submitQuiz(id, request));
     }
 
     // QUESTION
@@ -61,11 +79,13 @@ public class QuizController {
     }
 
     @PostMapping("/questions")
+    @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<QuizQuestionResponse> createQuestion(@Valid @RequestBody QuizQuestionRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(quizService.createQuestion(request));
     }
 
     @DeleteMapping("/questions/{id}")
+    @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<Void> deleteQuestion(@PathVariable Long id) {
         quizService.deleteQuestion(id);
         return ResponseEntity.noContent().build();
@@ -73,16 +93,19 @@ public class QuizController {
 
     // ANSWER
     @GetMapping("/questions/{questionId}/answers")
+    @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<List<QuizAnswerResponse>> getAnswers(@PathVariable Long questionId) {
         return ResponseEntity.ok(quizService.getAnswersByQuestionId(questionId));
     }
 
     @PostMapping("/answers")
+    @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<QuizAnswerResponse> createAnswer(@Valid @RequestBody QuizAnswerRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(quizService.createAnswer(request));
     }
 
     @DeleteMapping("/answers/{id}")
+    @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<Void> deleteAnswer(@PathVariable Long id) {
         quizService.deleteAnswer(id);
         return ResponseEntity.noContent().build();
@@ -90,16 +113,19 @@ public class QuizController {
 
     // ATTEMPT
     @GetMapping("/{quizId}/attempts")
+    @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<List<QuizAttemptResponse>> getAttemptsByQuiz(@PathVariable Long quizId) {
         return ResponseEntity.ok(quizService.getAttemptsByQuizId(quizId));
     }
 
     @GetMapping("/attempts/user/{userId}")
+    @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<List<QuizAttemptResponse>> getAttemptsByUser(@PathVariable Long userId) {
         return ResponseEntity.ok(quizService.getAttemptsByUserId(userId));
     }
 
     @PostMapping("/attempts")
+    @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<QuizAttemptResponse> createAttempt(@Valid @RequestBody QuizAttemptRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(quizService.createAttempt(request));
     }

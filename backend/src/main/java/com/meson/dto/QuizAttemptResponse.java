@@ -16,4 +16,8 @@ public class QuizAttemptResponse {
     private Double pikete;
     private Integer kohaSekondat;
     private LocalDateTime data;
+    private LocalDateTime startedAt;
+    private LocalDateTime expiresAt;
+    private LocalDateTime submittedAt;
+    private Boolean submitted;
 }

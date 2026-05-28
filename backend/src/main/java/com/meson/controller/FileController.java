@@ -1,11 +1,9 @@
 package com.meson.controller;
 
-import com.meson.entity.EnrollmentStatus;
 import com.meson.entity.LessonResource;
-import com.meson.entity.User;
-import com.meson.repository.EnrollmentRepository;
+import com.meson.exception.BadRequestException;
+import com.meson.exception.ResourceNotFoundException;
 import com.meson.repository.LessonResourceRepository;
-import com.meson.repository.UserRepository;
 import com.meson.service.FileStorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
@@ -14,10 +12,6 @@ import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.StandardCharsets;
@@ -31,8 +25,6 @@ public class FileController {
 
     private final FileStorageService fileStorageService;
     private final LessonResourceRepository lessonResourceRepository;
-    private final UserRepository userRepository;
-    private final EnrollmentRepository enrollmentRepository;
 
     @GetMapping("/{id}/view")
     public ResponseEntity<Resource> viewResource(@PathVariable Long id) {
@@ -50,11 +42,20 @@ public class FileController {
     }
 
     private ResponseEntity<Resource> serve(Long id, boolean attachment) {
-        LessonResource resource = lessonResourceRepository.findByIdWithLessonCourse(id)
-                .orElseThrow(() -> new RuntimeException("Skedari nuk u gjet."));
-        assertCanAccess(resource);
+        if (id == null || id <= 0) {
+            throw new BadRequestException("ID e materialit eshte e pavlefshme.");
+        }
 
-        Resource file = fileStorageService.loadAsResource(resource.getPath());
+        LessonResource resource = lessonResourceRepository.findByIdWithLessonCourse(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Skedari nuk u gjet."));
+
+        Resource file;
+        try {
+            file = fileStorageService.loadAsResource(resource.getPath());
+        } catch (RuntimeException ex) {
+            throw new ResourceNotFoundException("Skedari nuk u gjet ne disk.");
+        }
+
         MediaType mediaType = resolveMediaType(resource, file);
         ContentDisposition disposition = (attachment ? ContentDisposition.attachment() : ContentDisposition.inline())
                 .filename(resource.getEmriOrigjinal(), StandardCharsets.UTF_8)
@@ -91,42 +92,4 @@ public class FileController {
         }
     }
 
-    private void assertCanAccess(LessonResource resource) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || auth.getName() == null) {
-            throw new AccessDeniedException("Duhet te kycesh per te hapur materialin.");
-        }
-        if (hasRole(auth, "ADMIN")) {
-            return;
-        }
-
-        User current = userRepository.findByEmail(auth.getName())
-                .orElseThrow(() -> new AccessDeniedException("Perdoruesi nuk u gjet."));
-        Long courseId = resource.getLesson().getModule().getCourse().getId();
-        Long teacherId = resource.getLesson().getModule().getCourse().getTeacher() != null
-                ? resource.getLesson().getModule().getCourse().getTeacher().getId()
-                : null;
-
-        if (hasRole(auth, "TEACHER") && current.getId().equals(teacherId)) {
-            return;
-        }
-        if (hasRole(auth, "STUDENT")
-                && enrollmentRepository.findByUserIdAndCourseId(current.getId(), courseId)
-                .filter(e -> e.getStatusi() == EnrollmentStatus.AKTIV)
-                .isPresent()) {
-            return;
-        }
-
-        throw new AccessDeniedException("Nuk ke akses ne kete material.");
-    }
-
-    private boolean hasRole(Authentication auth, String role) {
-        String target = "ROLE_" + role;
-        for (GrantedAuthority authority : auth.getAuthorities()) {
-            if (target.equals(authority.getAuthority())) {
-                return true;
-            }
-        }
-        return false;
-    }
 }

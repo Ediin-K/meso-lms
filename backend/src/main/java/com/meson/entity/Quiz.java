@@ -22,8 +22,15 @@ public class Quiz {
     @Column(nullable = false)
     private String titulli;
 
+    @Column(columnDefinition = "TEXT")
+    private String pershkrimi;
+
     @Column(nullable = false)
     private Integer kohezgjatjaMinuta;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private Boolean publikuar = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lesson_id", nullable = false)

@@ -1,7 +1,9 @@
 import axios from 'axios'
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'
+
 const axiosInstance = axios.create({
-    baseURL: 'http://localhost:8080/api',
+    baseURL: API_BASE_URL,
 })
 
 // REQUEST Interceptor — shton token automatikisht
@@ -9,6 +11,7 @@ axiosInstance.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token')
         if (token) {
+            config.headers = config.headers || {}
             config.headers.Authorization = `Bearer ${token}`
         }
         return config
@@ -28,7 +31,7 @@ axiosInstance.interceptors.response.use(
 
             try {
                 const refreshToken = localStorage.getItem('refreshToken')
-                const response = await axios.post('http://localhost:8080/api/auth/refresh', {
+                const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
                     refreshToken,
                 })
 
@@ -37,6 +40,7 @@ axiosInstance.interceptors.response.use(
                 localStorage.setItem('refreshToken', response.data.refreshToken)
 
                 // Provo kërkesën origjinale përsëri
+                originalRequest.headers = originalRequest.headers || {}
                 originalRequest.headers.Authorization = `Bearer ${response.data.token}`
                 return axiosInstance(originalRequest)
             } catch {

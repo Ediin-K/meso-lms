@@ -19,6 +19,7 @@ public class TeacherQuizService {
     private final QuizRepository quizRepository;
     private final QuizQuestionRepository questionRepository;
     private final QuizAnswerRepository answerRepository;
+    private final QuizAttemptRepository attemptRepository;
     private final LessonRepository lessonRepository;
     private final UserRepository userRepository;
 
@@ -40,11 +41,15 @@ public class TeacherQuizService {
 
         Quiz quiz = Quiz.builder()
                 .titulli(request.getTitulli())
+                .pershkrimi(request.getPershkrimi())
                 .kohezgjatjaMinuta(request.getKohezgjatjaMinuta())
+                .publikuar(Boolean.TRUE.equals(request.getPublikuar()))
                 .lesson(lesson)
                 .build();
 
-        return toQuizResponse(quizRepository.save(quiz));
+        Quiz saved = quizRepository.save(quiz);
+        saveNestedQuestions(saved, request.getQuestions());
+        return toQuizResponse(saved);
     }
 
     public QuizResponse updateQuiz(Long id, QuizRequest request) {
@@ -53,9 +58,32 @@ public class TeacherQuizService {
                 .orElseThrow(() -> new AccessDeniedException("Ju nuk keni akses në këtë kuiz ose kuizi nuk ekziston."));
 
         quiz.setTitulli(request.getTitulli());
+        quiz.setPershkrimi(request.getPershkrimi());
         quiz.setKohezgjatjaMinuta(request.getKohezgjatjaMinuta());
+        if (request.getPublikuar() != null) {
+            quiz.setPublikuar(request.getPublikuar());
+        }
 
         return toQuizResponse(quizRepository.save(quiz));
+    }
+
+    public QuizResponse publishQuiz(Long id) {
+        User teacher = getCurrentUser();
+        Quiz quiz = quizRepository.findByIdAndLessonModuleCourseTeacherId(id, teacher.getId())
+                .orElseThrow(() -> new AccessDeniedException("Ju nuk keni akses ne kete kuiz ose kuizi nuk ekziston."));
+        quiz.setPublikuar(true);
+        return toQuizResponse(quizRepository.save(quiz));
+    }
+
+    public List<QuizAttemptResponse> getResults(Long quizId) {
+        User teacher = getCurrentUser();
+        quizRepository.findByIdAndLessonModuleCourseTeacherId(quizId, teacher.getId())
+                .orElseThrow(() -> new AccessDeniedException("Ju nuk keni akses ne kete kuiz ose kuizi nuk ekziston."));
+
+        return attemptRepository.findByQuizIdOrderBySubmittedAtDesc(quizId).stream()
+                .filter(attempt -> Boolean.TRUE.equals(attempt.getSubmitted()))
+                .map(this::toAttemptResponse)
+                .toList();
     }
 
     @Transactional
@@ -123,7 +151,9 @@ public class TeacherQuizService {
         return QuizResponse.builder()
                 .id(quiz.getId())
                 .titulli(quiz.getTitulli())
+                .pershkrimi(quiz.getPershkrimi())
                 .kohezgjatjaMinuta(quiz.getKohezgjatjaMinuta())
+                .publikuar(quiz.getPublikuar())
                 .lessonId(quiz.getLesson().getId())
                 .lessonTitulli(quiz.getLesson().getTitulli())
                 .createdAt(quiz.getCreatedAt())
@@ -146,6 +176,53 @@ public class TeacherQuizService {
                 .pergjigja(answer.getPergjigja())
                 .eshteSakte(answer.getEshteSakte())
                 .questionId(answer.getQuestion().getId())
+                .build();
+    }
+
+    private void saveNestedQuestions(Quiz quiz, List<QuizQuestionWithOptionsRequest> requests) {
+        if (requests == null || requests.isEmpty()) {
+            return;
+        }
+        int order = 1;
+        for (QuizQuestionWithOptionsRequest request : requests) {
+            if (request.getOptions() == null || request.getOptions().size() != 4) {
+                throw new RuntimeException("Cdo pyetje duhet te kete saktesisht 4 alternativa.");
+            }
+            boolean hasCorrect = request.getOptions().stream().anyMatch(o -> Boolean.TRUE.equals(o.getEshteSakte()));
+            if (!hasCorrect) {
+                throw new RuntimeException("Cdo pyetje duhet te kete te pakten nje pergjigje te sakte.");
+            }
+            QuizQuestion question = QuizQuestion.builder()
+                    .pyetja(request.getPyetja())
+                    .lloji(QuizType.SHUMEFISHTE)
+                    .rradhitja(order++)
+                    .quiz(quiz)
+                    .build();
+            QuizQuestion savedQuestion = questionRepository.save(question);
+            for (QuizOptionRequest option : request.getOptions()) {
+                answerRepository.save(QuizAnswer.builder()
+                        .pergjigja(option.getPergjigja())
+                        .eshteSakte(Boolean.TRUE.equals(option.getEshteSakte()))
+                        .question(savedQuestion)
+                        .build());
+            }
+        }
+    }
+
+    private QuizAttemptResponse toAttemptResponse(QuizAttempt attempt) {
+        return QuizAttemptResponse.builder()
+                .id(attempt.getId())
+                .quizId(attempt.getQuiz().getId())
+                .quizTitulli(attempt.getQuiz().getTitulli())
+                .userId(attempt.getUser().getId())
+                .userEmri(attempt.getUser().getEmri() + " " + attempt.getUser().getMbiemri())
+                .pikete(attempt.getPikete())
+                .kohaSekondat(attempt.getKohaSekondat())
+                .data(attempt.getData())
+                .startedAt(attempt.getStartedAt())
+                .expiresAt(attempt.getExpiresAt())
+                .submittedAt(attempt.getSubmittedAt())
+                .submitted(attempt.getSubmitted())
                 .build();
     }
 }

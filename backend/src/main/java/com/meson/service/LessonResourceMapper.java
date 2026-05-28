@@ -15,7 +15,7 @@ public class LessonResourceMapper {
         }
         String type = classify(resource.getEmriOrigjinal(), resource.getTipi());
         boolean previewable = isPreviewable(type, resource.getTipi());
-        String base = "/resources/" + resource.getId();
+        String base = "/api/resources/" + resource.getId();
 
         return LessonResourceResponse.builder()
                 .id(resource.getId())

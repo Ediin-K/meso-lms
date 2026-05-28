@@ -42,6 +42,16 @@ public class TeacherQuizController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/quizzes/{id}/publish")
+    public ResponseEntity<QuizResponse> publishQuiz(@PathVariable Long id) {
+        return ResponseEntity.ok(teacherQuizService.publishQuiz(id));
+    }
+
+    @GetMapping("/quizzes/{id}/results")
+    public ResponseEntity<List<QuizAttemptResponse>> getResults(@PathVariable Long id) {
+        return ResponseEntity.ok(teacherQuizService.getResults(id));
+    }
+
     @GetMapping("/quizzes/{quizId}/questions")
     public ResponseEntity<List<QuizQuestionResponse>> getQuestionsByQuiz(@PathVariable Long quizId) {
         return ResponseEntity.ok(teacherQuizService.getQuestionsByQuiz(quizId));

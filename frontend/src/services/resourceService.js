@@ -8,11 +8,24 @@ function absoluteApiUrl(path) {
   return `${API_ORIGIN}${path.startsWith("/api") ? path : `/api${path.startsWith("/") ? path : `/${path}`}`}`;
 }
 
+function normalizeApiPath(path) {
+  if (/^https?:\/\//i.test(path)) return path;
+  const normalized = path.startsWith("/api") ? path.slice(4) : path;
+  return normalized.startsWith("/") ? normalized : `/${normalized}`;
+}
+
+function requireResourceId(resource) {
+  const id = Number(resource?.id);
+  if (!Number.isInteger(id) || id <= 0) {
+    throw new Error("Cannot download resource: missing or invalid resource id.");
+  }
+  return id;
+}
+
 function getResourcePath(resource, mode) {
-  const fallback = `/resources/${resource.id}/${mode}`;
-  const raw = mode === "view" ? resource.viewUrl : resource.downloadUrl || resource.url;
-  if (!raw) return fallback;
-  return raw.startsWith("/api") ? raw.slice(4) : raw;
+  const raw = mode === "view" ? resource?.viewUrl : resource?.downloadUrl || resource?.url;
+  if (raw) return normalizeApiPath(raw);
+  return `/resources/${requireResourceId(resource)}/${mode}`;
 }
 
 export async function openResourcePreview(resource) {
@@ -43,5 +56,5 @@ export async function downloadResource(resource) {
 }
 
 export function getExternalResourceUrl(resource, mode = "view") {
-  return absoluteApiUrl(`/api${getResourcePath(resource, mode)}`);
+  return absoluteApiUrl(getResourcePath(resource, mode));
 }

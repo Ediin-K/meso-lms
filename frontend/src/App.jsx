@@ -1,44 +1,46 @@
-import React from "react";
-import Home from "./pages/Home.jsx";
+import React, { lazy, Suspense } from "react";
 import Header from "./components/ui/Header.jsx";
-import Login from "./pages/Login.jsx";
-import About from "./pages/About.jsx";
-import CourseDetail from "./pages/CourseDetail.jsx";
-import LessonDetail from "./pages/LessonDetail.jsx";
-import Contact from "./pages/ContactUs.jsx";
-import SemesterPage from "./pages/SemesterPage.jsx";
-import QuizPage from "./pages/QuizPage.jsx";
-import CoursesPage from "./pages/CoursesPage.jsx";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useAppPreferences } from "./context/appPreferencesContext.js";
 import "swiper/css";
-import Notifications from "./pages/Notifications.jsx";
-import StudentDashboard from "./components/dashboard/StudentDashboard.jsx";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
-import TeacherDashboard from "./pages/teacher/TeacherDashboard.jsx";
-import AssignmentPage from "./pages/AssignmentPage.jsx";
-import ProfilePage from "./pages/ProfilePage.jsx";
-import AdminDashboard from "./components/dashboard/AdminDashboard.jsx";
-import AdminUsers from "./pages/AdminUsers.jsx";
-import AdminCourses from "./pages/AdminCourses.jsx";
-import AdminCategories from "./pages/AdminCategories.jsx";
-import AdminTeachers from "./pages/AdminTeachers.jsx";
-import AdminEnrollments from "./pages/AdminEnrollments.jsx";
-import AdminCertificates from "./pages/AdminCertificates.jsx";
-import AdminReports from "./pages/AdminReports.jsx";
-import AdminSchedules from "./pages/AdminSchedules.jsx";
-import StudentSchedules from "./pages/StudentSchedules.jsx";
-import StudentGroups from "./pages/StudentGroups.jsx";
-import AdminGroupApplications from "./pages/AdminGroupApplications.jsx";
-import AdminGroups from "./pages/AdminGroups.jsx";
 import ConsentBanner from "./components/cookies/ConsentBanner.jsx";
-import TeacherLayout from "./layouts/TeacherLayout.jsx";
-import TeacherCourses from "./pages/teacher/TeacherCourses.jsx";
-import TeacherModules from "./pages/teacher/TeacherModules.jsx";
-import TeacherLessons from "./pages/teacher/TeacherLessons.jsx";
-import TeacherQuizzes from "./pages/teacher/TeacherQuizzes.jsx";
-import TeacherAssignments from "./pages/teacher/TeacherAssignments.jsx";
-import TeacherStudents from "./pages/teacher/TeacherStudents.jsx";
+
+const Home = lazy(() => import("./pages/Home.jsx"));
+const Login = lazy(() => import("./pages/Login.jsx"));
+const About = lazy(() => import("./pages/About.jsx"));
+const CourseDetail = lazy(() => import("./pages/CourseDetail.jsx"));
+const LessonDetail = lazy(() => import("./pages/LessonDetail.jsx"));
+const Contact = lazy(() => import("./pages/ContactUs.jsx"));
+const SemesterPage = lazy(() => import("./pages/SemesterPage.jsx"));
+const QuizPage = lazy(() => import("./pages/QuizPage.jsx"));
+const QuizListPage = lazy(() => import("./pages/QuizListPage.jsx"));
+const CoursesPage = lazy(() => import("./pages/CoursesPage.jsx"));
+const Notifications = lazy(() => import("./pages/Notifications.jsx"));
+const StudentDashboard = lazy(() => import("./components/dashboard/StudentDashboard.jsx"));
+const TeacherDashboard = lazy(() => import("./pages/teacher/TeacherDashboard.jsx"));
+const AssignmentPage = lazy(() => import("./pages/AssignmentPage.jsx"));
+const ProfilePage = lazy(() => import("./pages/ProfilePage.jsx"));
+const AdminDashboard = lazy(() => import("./components/dashboard/AdminDashboard.jsx"));
+const AdminUsers = lazy(() => import("./pages/AdminUsers.jsx"));
+const AdminCourses = lazy(() => import("./pages/AdminCourses.jsx"));
+const AdminCategories = lazy(() => import("./pages/AdminCategories.jsx"));
+const AdminTeachers = lazy(() => import("./pages/AdminTeachers.jsx"));
+const AdminEnrollments = lazy(() => import("./pages/AdminEnrollments.jsx"));
+const AdminCertificates = lazy(() => import("./pages/AdminCertificates.jsx"));
+const AdminReports = lazy(() => import("./pages/AdminReports.jsx"));
+const AdminSchedules = lazy(() => import("./pages/AdminSchedules.jsx"));
+const StudentSchedules = lazy(() => import("./pages/StudentSchedules.jsx"));
+const StudentGroups = lazy(() => import("./pages/StudentGroups.jsx"));
+const AdminGroupApplications = lazy(() => import("./pages/AdminGroupApplications.jsx"));
+const AdminGroups = lazy(() => import("./pages/AdminGroups.jsx"));
+const TeacherLayout = lazy(() => import("./layouts/TeacherLayout.jsx"));
+const TeacherCourses = lazy(() => import("./pages/teacher/TeacherCourses.jsx"));
+const TeacherModules = lazy(() => import("./pages/teacher/TeacherModules.jsx"));
+const TeacherLessons = lazy(() => import("./pages/teacher/TeacherLessons.jsx"));
+const TeacherQuizzes = lazy(() => import("./pages/teacher/TeacherQuizzes.jsx"));
+const TeacherAssignments = lazy(() => import("./pages/teacher/TeacherAssignments.jsx"));
+const TeacherStudents = lazy(() => import("./pages/teacher/TeacherStudents.jsx"));
 
 function RootRedirect() {
   const { isAuthenticated, role } = useAppPreferences();
@@ -59,6 +61,14 @@ function CatchAllRedirect() {
   return <Navigate to={isAuthenticated ? "/" : "/login"} replace />;
 }
 
+function PageFallback() {
+  return (
+    <div className="flex min-h-[50vh] items-center justify-center text-sm font-semibold text-slate-500 dark:text-slate-400">
+      Duke ngarkuar...
+    </div>
+  );
+}
+
 function AppLayout() {
   const location = useLocation();
   const isLoginPage = location.pathname === "/login";
@@ -72,6 +82,7 @@ function AppLayout() {
             className={`flex flex-col flex-grow ${isLoginPage ? "" : "pt-[73px] sm:pt-[81px]"}`}
             tabIndex={-1}
           >
+            <Suspense fallback={<PageFallback />}>
             <Routes>
               <Route path="/" element={<RootRedirect />} />
               <Route path="/login" element={<Login />} />
@@ -86,7 +97,14 @@ function AppLayout() {
               <Route path="/course/:courseId" element={<CourseDetail />} />
               <Route path="/courses/:courseId" element={<CourseDetail />} />
               <Route path="/lesson/:lessonId" element={<LessonDetail />} />
-              <Route path="/quiz/:quizId" element={<QuizPage />} />
+              <Route
+                path="/quiz/:quizId"
+                element={
+                  <ProtectedRoute requiredRole="student">
+                    <QuizPage />
+                  </ProtectedRoute>
+                }
+              />
               <Route
                 path="/assignment/:assignmentId"
                 element={<AssignmentPage />}
@@ -206,6 +224,14 @@ function AppLayout() {
                 }
               />
               <Route
+                path="/student/quizzes"
+                element={
+                  <ProtectedRoute requiredRole="student">
+                    <QuizListPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/teacher"
                 element={
                   <ProtectedRoute requiredRole="teacher">
@@ -215,6 +241,10 @@ function AppLayout() {
               >
                 <Route index element={<TeacherDashboard />} />
                 <Route path="courses" element={<TeacherCourses />} />
+                <Route path="modules" element={<TeacherModules />} />
+                <Route path="lessons" element={<TeacherLessons />} />
+                <Route path="quizzes" element={<TeacherQuizzes />} />
+                <Route path="assignments" element={<TeacherAssignments />} />
                 <Route path="students" element={<TeacherStudents />} />
               </Route>
               <Route
@@ -230,6 +260,7 @@ function AppLayout() {
               <Route path="/unauthorized" element={<div>Nuk ke qasje!</div>} />
               <Route path="*" element={<CatchAllRedirect />} />
             </Routes>
+            </Suspense>
           </div>
         </main>
         {!isLoginPage && <ConsentBanner />}

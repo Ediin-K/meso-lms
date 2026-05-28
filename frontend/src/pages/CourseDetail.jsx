@@ -153,8 +153,7 @@ export default function CourseDetail() {
     // Quiz Management State
     const [quizModal, setQuizModal] = useState({ open: false, lessonId: null, quizId: null })
     const [questions, setQuestions] = useState([])
-    const [questionForm, setQuestionForm] = useState({ teksti: '', lloji: 'RADIO', piket: 1 })
-    const [answerForm, setAnswerForm] = useState({ teksti: '', eshteSakte: false })
+
 
     // Assignment Management State
     const [submissionsModal, setSubmissionsModal] = useState({ open: false, assignmentId: null })
@@ -380,7 +379,7 @@ export default function CourseDetail() {
                 setQuestions(questionsRes.data);
             } else {
                 // Auto-create quiz if doesn't exist
-                const newQuiz = await teacherContentService.createQuiz({ lessonId, titulli: "Quiz", pershkrimi: "", kohaLimit: 30 });
+                const newQuiz = await teacherContentService.createQuiz({ lessonId, titulli: "Quiz", pershkrimi: "", kohezgjatjaMinuta: 30, publikuar: false });
                 quizId = newQuiz.data.id;
                 setQuestions([]);
             }
@@ -390,9 +389,14 @@ export default function CourseDetail() {
 
     const handleCreateQuestion = async () => {
         try {
-            const res = await teacherContentService.createQuestion({ ...questionForm, quizId: quizModal.quizId });
+            const res = await teacherContentService.createQuestion({
+                quizId: quizModal.quizId,
+                pyetja: questionForm.pyetja || questionForm.teksti,
+                lloji: 'SHUMEFISHTE',
+                rradhitja: questionForm.rradhitja || questions.length + 1,
+            });
             setQuestions(prev => [...prev, res.data]);
-            setQuestionForm({ teksti: '', lloji: 'RADIO', piket: 1 });
+            setQuestionForm({ pyetja: '', lloji: 'SHUMEFISHTE', rradhitja: questions.length + 2 });
             setSnackbarMessage("Pyetja u krijua me sukses.");
             setOpenSnackbar(true);
         } catch (err) { console.error(err); }
@@ -400,10 +404,14 @@ export default function CourseDetail() {
 
     const handleAddAnswer = async (questionId) => {
         try {
-            await teacherContentService.addAnswer(questionId, answerForm);
+            await teacherContentService.addAnswer(questionId, {
+                questionId,
+                pergjigja: answerForm.pergjigja || answerForm.teksti,
+                eshteSakte: answerForm.eshteSakte,
+            });
             const questionsRes = await teacherContentService.getQuestions(quizModal.quizId);
             setQuestions(questionsRes.data);
-            setAnswerForm({ teksti: '', eshteSakte: false });
+            setAnswerForm({ pergjigja: '', eshteSakte: false });
             setSnackbarMessage("Opsioni u shtua me sukses.");
             setOpenSnackbar(true);
         } catch (err) { console.error(err); }
@@ -955,7 +963,7 @@ export default function CourseDetail() {
                         <Box className="p-6 rounded-3xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800">
                             <Typography variant="subtitle1" className="font-black! mb-4">Shto Pyetje të Re</Typography>
                             <Box className="flex flex-col gap-4">
-                                <TextField label="Teksti i Pyetjes" fullWidth value={questionForm.teksti} onChange={e => setQuestionForm({...questionForm, teksti: e.target.value})} />
+                                <TextField label="Teksti i Pyetjes" fullWidth value={questionForm.pyetja} onChange={e => setQuestionForm({...questionForm, pyetja: e.target.value})} />
                                 <Box className="flex gap-4">
                                     <FormControl fullWidth>
                                         <InputLabel>Lloji</InputLabel>
