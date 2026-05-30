@@ -145,6 +145,14 @@ public class QuizService {
                 .stream().map(this::toAttemptResponse).toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<QuizAttemptStudentResponse> getAttemptsByUserIdForStudent(Long userId) {
+        return attemptRepository.findByUserId(userId)
+                .stream()
+                .map(this::toAttemptResponseForStudent)
+                .toList();
+    }
+
     public QuizAttemptResponse createAttempt(QuizAttemptRequest request) {
         Quiz quiz = quizRepository.findById(request.getQuizId())
                 .orElseThrow(() -> new ResourceNotFoundException("Kuizi nuk u gjet"));
@@ -383,6 +391,10 @@ public class QuizService {
                 .build();
     }
 
+    public Long getCurrentStudentId() {
+        return getCurrentUser().getId();
+    }
+
     private User getCurrentUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return userRepository.findByEmail(email)
@@ -441,6 +453,20 @@ public class QuizService {
                 .abandoned(at.getAbandoned())
                 .abandonedAt(at.getAbandonedAt())
                 .attemptStatus(at.getAttemptStatus())
+                .build();
+    }
+
+    private QuizAttemptStudentResponse toAttemptResponseForStudent(QuizAttempt at) {
+        boolean submitted = Boolean.TRUE.equals(at.getSubmitted());
+        return QuizAttemptStudentResponse.builder()
+                .id(at.getId())
+                .quizId(at.getQuiz().getId())
+                .quizTitulli(at.getQuiz().getTitulli())
+                .startedAt(at.getStartedAt())
+                .expiresAt(at.getExpiresAt())
+                .submittedAt(at.getSubmittedAt())
+                .submitted(submitted)
+                .pikete(submitted ? null : at.getPikete())
                 .build();
     }
 }

@@ -41,6 +41,7 @@ export default function Header() {
 
   const langMenuId = useId()
   const profileMenuId = useId()
+  const profileHref = role === 'student' ? '/student/profile' : '/profile'
 
   useEffect(() => {
     const handleScroll = () => {
@@ -306,7 +307,7 @@ export default function Header() {
                   role="menu"
                 >
                   {[
-                    { label: t('header.profile'), href: '/profile' },
+                    { label: t('header.profile'), href: profileHref },
                     { label: t('header.accountSettings'), href: null },
                     { label: t('header.grades'), href: null },
                     { label: t('header.messages'), href: null },
@@ -438,6 +439,10 @@ export default function Header() {
               <button
                 type="button"
                 className="w-full rounded-xl px-3 py-3 text-left text-sm font-medium text-slate-800 outline-none hover:bg-slate-900/[0.06] focus-visible:ring-2 focus-visible:ring-sky-500"
+                onClick={() => {
+                  setMobileOpen(false)
+                  navigate(profileHref)
+                }}
               >
                 {t('header.profile')}
               </button>

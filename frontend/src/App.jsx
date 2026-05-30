@@ -32,6 +32,7 @@ const AdminReports = lazy(() => import("./pages/AdminReports.jsx"));
 const AdminSchedules = lazy(() => import("./pages/AdminSchedules.jsx"));
 const StudentSchedules = lazy(() => import("./pages/StudentSchedules.jsx"));
 const StudentGroups = lazy(() => import("./pages/StudentGroups.jsx"));
+const StudentProfilePage = lazy(() => import("./pages/student/StudentProfilePage.jsx"));
 const AdminGroupApplications = lazy(() => import("./pages/AdminGroupApplications.jsx"));
 const AdminGroups = lazy(() => import("./pages/AdminGroups.jsx"));
 const TeacherLayout = lazy(() => import("./layouts/TeacherLayout.jsx"));
@@ -220,6 +221,14 @@ function AppLayout() {
                 element={
                   <ProtectedRoute requiredRole="student">
                     <StudentGroups />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/student/profile"
+                element={
+                  <ProtectedRoute requiredRole="student">
+                    <StudentProfilePage />
                   </ProtectedRoute>
                 }
               />
