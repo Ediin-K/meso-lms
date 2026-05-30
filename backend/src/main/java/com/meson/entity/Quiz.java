@@ -29,8 +29,9 @@ public class Quiz {
     private Integer kohezgjatjaMinuta;
 
     @Builder.Default
-    @Column(nullable = false)
-    private Boolean publikuar = false;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private QuizStatus status = QuizStatus.DRAFT;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lesson_id", nullable = false)
@@ -47,8 +48,20 @@ public class Quiz {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    private LocalDateTime activatedAt;
+
+    private LocalDateTime closedAt;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
+    }
+
+    public boolean isActive() {
+        return QuizStatus.ACTIVE.equals(this.status);
+    }
+
+    public boolean isDraft() {
+        return QuizStatus.DRAFT.equals(this.status);
     }
 }

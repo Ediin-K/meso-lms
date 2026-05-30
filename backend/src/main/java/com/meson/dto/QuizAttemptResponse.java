@@ -20,4 +20,7 @@ public class QuizAttemptResponse {
     private LocalDateTime expiresAt;
     private LocalDateTime submittedAt;
     private Boolean submitted;
+    private Boolean abandoned;
+    private LocalDateTime abandonedAt;
+    private String attemptStatus;
 }

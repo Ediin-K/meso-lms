@@ -9,4 +9,5 @@ import java.util.List;
 public interface QuizQuestionRepository extends JpaRepository<QuizQuestion, Long> {
     List<QuizQuestion> findByQuizIdOrderByRradhitjaAsc(Long quizId);
     void deleteAllByQuizId(Long quizId);
+    long countByQuizId(Long quizId);
 }
