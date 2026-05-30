@@ -42,6 +42,8 @@ const TeacherLessons = lazy(() => import("./pages/teacher/TeacherLessons.jsx"));
 const TeacherQuizzes = lazy(() => import("./pages/teacher/TeacherQuizzes.jsx"));
 const TeacherAssignments = lazy(() => import("./pages/teacher/TeacherAssignments.jsx"));
 const TeacherStudents = lazy(() => import("./pages/teacher/TeacherStudents.jsx"));
+const ProfessorGradesPage = lazy(() => import("./pages/teacher/ProfessorGradesPage.jsx"));
+const StudentGradesPage = lazy(() => import("./pages/student/StudentGradesPage.jsx"));
 
 function RootRedirect() {
   const { isAuthenticated, role } = useAppPreferences();
@@ -241,6 +243,14 @@ function AppLayout() {
                 }
               />
               <Route
+                path="/student/grades"
+                element={
+                  <ProtectedRoute requiredRole="student">
+                    <StudentGradesPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/teacher"
                 element={
                   <ProtectedRoute requiredRole="teacher">
@@ -255,6 +265,7 @@ function AppLayout() {
                 <Route path="quizzes" element={<TeacherQuizzes />} />
                 <Route path="assignments" element={<TeacherAssignments />} />
                 <Route path="students" element={<TeacherStudents />} />
+                <Route path="grades" element={<ProfessorGradesPage />} />
               </Route>
               <Route
                 path="/notifications"

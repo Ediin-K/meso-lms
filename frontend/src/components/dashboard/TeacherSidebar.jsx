@@ -6,6 +6,7 @@ import MenuBookRounded from "@mui/icons-material/MenuBookRounded";
 import QuizRounded from "@mui/icons-material/QuizRounded";
 import AssignmentRounded from "@mui/icons-material/AssignmentRounded";
 import PeopleRounded from "@mui/icons-material/PeopleRounded";
+import GradeRounded from "@mui/icons-material/GradeRounded";
 import { useAppPreferences } from "../../context/appPreferencesContext";
 
 const SidebarLink = ({ to, icon: Icon, label }) => (
@@ -35,6 +36,7 @@ export default function TeacherSidebar() {
     { to: "/teacher/quizzes", icon: QuizRounded, label: "Quizzes" },
     { to: "/teacher/assignments", icon: AssignmentRounded, label: "Assignments" },
     { to: "/teacher/students", icon: PeopleRounded, label: "Students" },
+    { to: "/teacher/grades", icon: GradeRounded, label: "Notat" },
   ];
 
   return (

@@ -309,7 +309,10 @@ export default function Header() {
                   {[
                     { label: t('header.profile'), href: profileHref },
                     { label: t('header.accountSettings'), href: null },
-                    { label: t('header.grades'), href: null },
+                    {
+                      label: t('header.grades'),
+                      href: role === 'student' ? '/student/grades' : role === 'teacher' ? '/teacher/grades' : null,
+                    },
                     { label: t('header.messages'), href: null },
                     { label: t('header.help'), href: null },
                   ].map(({ label, href }) => (
