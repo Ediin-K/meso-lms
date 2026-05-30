@@ -16,7 +16,7 @@ public class AssignmentService {
     private final LessonRepository lessonRepository;
     private final UserRepository userRepository;
 
-    // ASSIGNMENT
+   
     public List<AssignmentResponse> getAll() {
         return assignmentRepository.findAll()
                 .stream().map(this::toAssignmentResponse).toList();
