@@ -72,6 +72,13 @@ public class QuizController {
         return ResponseEntity.ok(quizService.submitQuiz(id, request));
     }
 
+    @PostMapping("/{id}/abandon/{attemptId}")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<Void> abandon(@PathVariable Long id, @PathVariable Long attemptId) {
+        quizService.abandonQuiz(id, attemptId);
+        return ResponseEntity.noContent().build();
+    }
+
     // QUESTION
     @GetMapping("/{quizId}/questions")
     public ResponseEntity<List<QuizQuestionResponse>> getQuestions(@PathVariable Long quizId) {
