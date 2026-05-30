@@ -1,5 +1,6 @@
 package com.meson.dto;
 
+import com.meson.entity.QuizType;
 import lombok.*;
 
 import java.util.List;
@@ -11,6 +12,8 @@ import java.util.List;
 public class QuizQuestionForAttemptResponse {
     private Long id;
     private String pyetja;
+    private QuizType lloji;
     private Integer rradhitja;
+    private Integer pikete;
     private List<QuizAnswerStudentResponse> answers;
 }

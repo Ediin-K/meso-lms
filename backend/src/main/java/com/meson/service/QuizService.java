@@ -27,6 +27,7 @@ public class QuizService {
     private final AnswerSubmissionRepository submissionRepository;
     private final LessonRepository lessonRepository;
     private final UserRepository userRepository;
+    private final QuizQuestionHelper questionHelper;
 
     public List<QuizResponse> getAll() {
         return quizRepository.findByStatus(QuizStatus.ACTIVE).stream()
@@ -47,6 +48,13 @@ public class QuizService {
                 .map(this::toQuizResponse).toList();
     }
 
+    public QuizAttemptStudentResponse getMyAttemptForQuiz(Long quizId) {
+        User student = getCurrentUser();
+        return attemptRepository.findFirstByQuizIdAndUserId(quizId, student.getId())
+                .map(this::toAttemptResponseForStudent)
+                .orElse(null);
+    }
+
     @Transactional
     public QuizResponse createQuiz(QuizRequest request) {
         Lesson lesson = lessonRepository.findById(request.getLessonId())
@@ -58,7 +66,7 @@ public class QuizService {
         quiz.setStatus(QuizStatus.DRAFT);
         quiz.setLesson(lesson);
         Quiz saved = quizRepository.save(quiz);
-        saveNestedQuestions(saved, request.getQuestions());
+        questionHelper.saveNestedQuestions(saved, request.getQuestions());
         return toQuizResponse(saved);
     }
 
@@ -75,6 +83,9 @@ public class QuizService {
         quiz.setPershkrimi(request.getPershkrimi());
         quiz.setKohezgjatjaMinuta(request.getKohezgjatjaMinuta());
         quiz.setLesson(lesson);
+        if (request.getQuestions() != null) {
+            questionHelper.replaceQuestions(quiz, request.getQuestions());
+        }
         return toQuizResponse(quizRepository.save(quiz));
     }
 
@@ -102,6 +113,7 @@ public class QuizService {
         question.setPyetja(request.getPyetja());
         question.setLloji(request.getLloji());
         question.setRradhitja(request.getRradhitja());
+        question.setPikete(request.getPikete() != null ? request.getPikete() : 1);
         question.setQuiz(quiz);
         return toQuestionResponse(questionRepository.save(question));
     }
@@ -245,30 +257,14 @@ public class QuizService {
                 .attemptId(attempt.getId())
                 .submitted(true)
                 .message("Kuizi u dorezua me sukses.")
+                .pikete(score)
+                .courseId(getCourseIdFromQuiz(attempt.getQuiz()))
                 .build();
     }
 
     @Transactional
     public void abandonQuiz(Long quizId, Long attemptId) {
-        User student = getCurrentUser();
-        QuizAttempt attempt = attemptRepository.findById(attemptId)
-                .orElseThrow(() -> new ResourceNotFoundException("Attempt nuk u gjet"));
-
-        if (!attempt.getQuiz().getId().equals(quizId) || !attempt.getUser().getId().equals(student.getId())) {
-            throw new AccessDeniedException("Attempt nuk i perket ketij perdoruesi.");
-        }
-        if (Boolean.TRUE.equals(attempt.getSubmitted())) {
-            throw new BadRequestException("Ky kuiz eshte dorezuar tashme.");
-        }
-        if (Boolean.TRUE.equals(attempt.getAbandoned())) {
-            throw new BadRequestException("Ky kuiz eshte braktisur tashme.");
-        }
-
-        LocalDateTime now = LocalDateTime.now();
-        attempt.setAbandoned(true);
-        attempt.setAbandonedAt(now);
-        attempt.setKohaSekondat((int) Duration.between(attempt.getStartedAt(), now).toSeconds());
-        attemptRepository.save(attempt);
+        throw new BadRequestException("Braktisja e kuizit nuk lejohet.");
     }
 
     public List<QuizAnswerStudentResponse> getAnswersByQuestionIdForStudent(Long questionId) {
@@ -283,37 +279,11 @@ public class QuizService {
     }
 
     private void saveNestedQuestions(Quiz quiz, List<QuizQuestionWithOptionsRequest> requests) {
-        if (requests == null || requests.isEmpty()) {
-            return;
-        }
-        int order = 1;
-        for (QuizQuestionWithOptionsRequest request : requests) {
-            validateOptions(request);
-            QuizQuestion question = QuizQuestion.builder()
-                    .quiz(quiz)
-                    .pyetja(request.getPyetja())
-                    .lloji(QuizType.SHUMEFISHTE)
-                    .rradhitja(order++)
-                    .build();
-            QuizQuestion savedQuestion = questionRepository.save(question);
-            for (QuizOptionRequest option : request.getOptions()) {
-                answerRepository.save(QuizAnswer.builder()
-                        .question(savedQuestion)
-                        .pergjigja(option.getPergjigja())
-                        .eshteSakte(Boolean.TRUE.equals(option.getEshteSakte()))
-                        .build());
-            }
-        }
+        questionHelper.saveNestedQuestions(quiz, requests);
     }
 
     private void validateOptions(QuizQuestionWithOptionsRequest request) {
-        if (request.getOptions() == null || request.getOptions().size() != 4) {
-            throw new BadRequestException("Cdo pyetje duhet te kete saktesisht 4 alternativa.");
-        }
-        boolean hasCorrect = request.getOptions().stream().anyMatch(o -> Boolean.TRUE.equals(o.getEshteSakte()));
-        if (!hasCorrect) {
-            throw new BadRequestException("Cdo pyetje duhet te kete te pakten nje pergjigje te sakte.");
-        }
+        questionHelper.validateQuestion(request);
     }
 
     private double calculateAndStoreScore(QuizAttempt attempt, List<QuestionSubmissionRequest> submittedAnswers) {
@@ -323,20 +293,22 @@ public class QuizService {
                 .collect(Collectors.toMap(
                         QuestionSubmissionRequest::getQuestionId,
                         a -> a.getAnswerIds() == null ? Set.of() : new HashSet<>(a.getAnswerIds()),
-                        (left, right) -> {
-                            Set<Long> merged = new HashSet<>(left);
-                            merged.addAll(right);
-                            return merged;
-                        }
+                        (left, right) -> left
                 ));
 
-        int correct = 0;
+        int totalPoints = 0;
+        int earnedPoints = 0;
+
         for (QuizQuestion question : questions) {
+            int questionPoints = question.getPikete() != null ? question.getPikete() : 1;
+            totalPoints += questionPoints;
+
             Set<Long> correctIds = answerRepository.findByQuestionId(question.getId()).stream()
                     .filter(a -> Boolean.TRUE.equals(a.getEshteSakte()))
                     .map(QuizAnswer::getId)
                     .collect(Collectors.toSet());
             Set<Long> selectedIds = selectedByQuestion.getOrDefault(question.getId(), Set.of());
+
             for (Long answerId : selectedIds) {
                 QuizAnswer answer = answerRepository.findById(answerId)
                         .orElseThrow(() -> new BadRequestException("Pergjigje e pavlefshme."));
@@ -349,11 +321,13 @@ public class QuizService {
                         .answer(answer)
                         .build());
             }
+
             if (!correctIds.isEmpty() && correctIds.equals(selectedIds)) {
-                correct++;
+                earnedPoints += questionPoints;
             }
         }
-        return questions.isEmpty() ? 0.0 : (correct * 100.0) / questions.size();
+
+        return totalPoints == 0 ? 0.0 : (earnedPoints * 100.0) / totalPoints;
     }
 
     private void submitExpiredAttempt(QuizAttempt attempt) {
@@ -376,6 +350,8 @@ public class QuizService {
                 .startedAt(attempt.getStartedAt())
                 .expiresAt(attempt.getExpiresAt())
                 .remainingSeconds(remaining)
+                .courseId(getCourseIdFromQuiz(attempt.getQuiz()))
+                .totalPikete(questionHelper.calculateTotalPoints(attempt.getQuiz().getId()))
                 .questions(questionRepository.findByQuizIdOrderByRradhitjaAsc(attempt.getQuiz().getId()).stream()
                         .map(this::toQuestionForAttempt)
                         .toList())
@@ -386,9 +362,18 @@ public class QuizService {
         return QuizQuestionForAttemptResponse.builder()
                 .id(question.getId())
                 .pyetja(question.getPyetja())
+                .lloji(question.getLloji())
                 .rradhitja(question.getRradhitja())
+                .pikete(question.getPikete())
                 .answers(getAnswersByQuestionIdForStudent(question.getId()))
                 .build();
+    }
+
+    private Long getCourseIdFromQuiz(Quiz quiz) {
+        if (quiz.getLesson() == null || quiz.getLesson().getModule() == null || quiz.getLesson().getModule().getCourse() == null) {
+            return null;
+        }
+        return quiz.getLesson().getModule().getCourse().getId();
     }
 
     public Long getCurrentStudentId() {
@@ -402,6 +387,7 @@ public class QuizService {
     }
 
     public QuizResponse toQuizResponse(Quiz quiz) {
+        long questionCount = questionRepository.countByQuizId(quiz.getId());
         return QuizResponse.builder()
                 .id(quiz.getId())
                 .titulli(quiz.getTitulli())
@@ -414,6 +400,9 @@ public class QuizService {
                 .createdAt(quiz.getCreatedAt())
                 .activatedAt(quiz.getActivatedAt())
                 .closedAt(quiz.getClosedAt())
+                .courseId(getCourseIdFromQuiz(quiz))
+                .questionCount((int) questionCount)
+                .totalPikete(questionHelper.calculateTotalPoints(quiz.getId()))
                 .build();
     }
 
@@ -423,6 +412,7 @@ public class QuizService {
                 .pyetja(q.getPyetja())
                 .lloji(q.getLloji())
                 .rradhitja(q.getRradhitja())
+                .pikete(q.getPikete())
                 .quizId(q.getQuiz().getId())
                 .build();
     }
@@ -466,7 +456,8 @@ public class QuizService {
                 .expiresAt(at.getExpiresAt())
                 .submittedAt(at.getSubmittedAt())
                 .submitted(submitted)
-                .pikete(submitted ? null : at.getPikete())
+                .attemptStatus(at.getAttemptStatus())
+                .pikete(submitted ? at.getPikete() : null)
                 .build();
     }
 }

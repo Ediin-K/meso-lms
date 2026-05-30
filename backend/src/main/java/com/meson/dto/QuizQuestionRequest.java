@@ -20,6 +20,10 @@ public class QuizQuestionRequest {
     @Min(value = 1)
     private Integer rradhitja;
 
+    @NotNull(message = "Piket nuk mund te jen bosh")
+    @Min(value = 1)
+    private Integer pikete;
+
     @NotNull(message = "QuizId nuk mund te jet bosh")
     private Long quizId;
 }

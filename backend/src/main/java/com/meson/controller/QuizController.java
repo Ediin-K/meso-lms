@@ -33,6 +33,16 @@ public class QuizController {
         return ResponseEntity.ok(quizService.getByLessonId(lessonId));
     }
 
+    @GetMapping("/{id}/my-attempt")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<QuizAttemptStudentResponse> getMyAttempt(@PathVariable Long id) {
+        QuizAttemptStudentResponse attempt = quizService.getMyAttemptForQuiz(id);
+        if (attempt == null) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(attempt);
+    }
+
     @GetMapping("/questions/{questionId}/answers/student")
     public ResponseEntity<List<QuizAnswerStudentResponse>> getAnswersForStudent(@PathVariable Long questionId) {
         return ResponseEntity.ok(quizService.getAnswersByQuestionIdForStudent(questionId));

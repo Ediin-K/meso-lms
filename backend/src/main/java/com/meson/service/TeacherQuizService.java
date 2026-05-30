@@ -26,6 +26,7 @@ public class TeacherQuizService {
     private final LessonRepository lessonRepository;
     private final UserRepository userRepository;
     private final QuizService quizService;
+    private final QuizQuestionHelper questionHelper;
 
     public List<QuizResponse> getQuizzesByLesson(Long lessonId) {
         User teacher = getCurrentUser();
@@ -51,7 +52,7 @@ public class TeacherQuizService {
                 .build();
 
         Quiz saved = quizRepository.save(quiz);
-        saveNestedQuestions(saved, request.getQuestions());
+        questionHelper.saveNestedQuestions(saved, request.getQuestions());
         return quizService.toQuizResponse(saved);
     }
 
@@ -68,6 +69,10 @@ public class TeacherQuizService {
         quiz.setTitulli(request.getTitulli());
         quiz.setPershkrimi(request.getPershkrimi());
         quiz.setKohezgjatjaMinuta(request.getKohezgjatjaMinuta());
+
+        if (request.getQuestions() != null) {
+            questionHelper.replaceQuestions(quiz, request.getQuestions());
+        }
 
         return quizService.toQuizResponse(quizRepository.save(quiz));
     }
@@ -155,7 +160,7 @@ public class TeacherQuizService {
                 .orElseThrow(() -> new AccessDeniedException("Ju nuk keni akses ne kete kuiz."));
 
         return questionRepository.findByQuizIdOrderByRradhitjaAsc(quizId).stream()
-                .map(this::toQuestionResponse)
+                .map(this::toQuestionResponseWithOptions)
                 .collect(Collectors.toList());
     }
 
@@ -172,6 +177,7 @@ public class TeacherQuizService {
                 .pyetja(request.getPyetja())
                 .lloji(request.getLloji())
                 .rradhitja(request.getRradhitja())
+                .pikete(request.getPikete() != null ? request.getPikete() : 1)
                 .quiz(quiz)
                 .build();
 
@@ -202,12 +208,27 @@ public class TeacherQuizService {
                 .orElseThrow(() -> new ResourceNotFoundException("Perdoruesi nuk u gjet."));
     }
 
+    private QuizQuestionResponse toQuestionResponseWithOptions(QuizQuestion question) {
+        return QuizQuestionResponse.builder()
+                .id(question.getId())
+                .pyetja(question.getPyetja())
+                .lloji(question.getLloji())
+                .rradhitja(question.getRradhitja())
+                .pikete(question.getPikete())
+                .quizId(question.getQuiz().getId())
+                .options(answerRepository.findByQuestionId(question.getId()).stream()
+                        .map(this::toAnswerResponse)
+                        .collect(Collectors.toList()))
+                .build();
+    }
+
     private QuizQuestionResponse toQuestionResponse(QuizQuestion question) {
         return QuizQuestionResponse.builder()
                 .id(question.getId())
                 .pyetja(question.getPyetja())
                 .lloji(question.getLloji())
                 .rradhitja(question.getRradhitja())
+                .pikete(question.getPikete())
                 .quizId(question.getQuiz().getId())
                 .build();
     }
@@ -219,33 +240,5 @@ public class TeacherQuizService {
                 .eshteSakte(answer.getEshteSakte())
                 .questionId(answer.getQuestion().getId())
                 .build();
-    }
-
-    private void saveNestedQuestions(Quiz quiz, List<QuizQuestionWithOptionsRequest> requests) {
-        if (requests == null || requests.isEmpty()) return;
-        int order = 1;
-        for (QuizQuestionWithOptionsRequest request : requests) {
-            if (request.getOptions() == null || request.getOptions().size() != 4) {
-                throw new BadRequestException("Cdo pyetje duhet te kete saktesisht 4 alternativa.");
-            }
-            boolean hasCorrect = request.getOptions().stream().anyMatch(o -> Boolean.TRUE.equals(o.getEshteSakte()));
-            if (!hasCorrect) {
-                throw new BadRequestException("Cdo pyetje duhet te kete te pakten nje pergjigje te sakte.");
-            }
-            QuizQuestion question = QuizQuestion.builder()
-                    .pyetja(request.getPyetja())
-                    .lloji(QuizType.SHUMEFISHTE)
-                    .rradhitja(order++)
-                    .quiz(quiz)
-                    .build();
-            QuizQuestion savedQuestion = questionRepository.save(question);
-            for (QuizOptionRequest option : request.getOptions()) {
-                answerRepository.save(QuizAnswer.builder()
-                        .pergjigja(option.getPergjigja())
-                        .eshteSakte(Boolean.TRUE.equals(option.getEshteSakte()))
-                        .question(savedQuestion)
-                        .build());
-            }
-        }
     }
 }

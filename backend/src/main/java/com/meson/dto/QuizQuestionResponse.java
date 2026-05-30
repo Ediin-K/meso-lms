@@ -3,6 +3,8 @@ package com.meson.dto;
 import com.meson.entity.QuizType;
 import lombok.*;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -12,5 +14,7 @@ public class QuizQuestionResponse {
     private String pyetja;
     private QuizType lloji;
     private Integer rradhitja;
+    private Integer pikete;
     private Long quizId;
+    private List<QuizAnswerResponse> options;
 }

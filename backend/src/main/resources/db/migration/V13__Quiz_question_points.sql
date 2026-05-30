@@ -1,0 +1,2 @@
+ALTER TABLE quiz_questions
+    ADD COLUMN pikete INT NOT NULL DEFAULT 1;
