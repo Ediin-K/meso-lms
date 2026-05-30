@@ -41,6 +41,10 @@ public class Course{
     private double cmimi = 0.0;
 
     @Builder.Default
+    @Column(nullable = false)
+    private Integer ects = 5;
+
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     private CourseLevel niveli = CourseLevel.FILLESTAR;
 

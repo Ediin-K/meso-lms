@@ -49,6 +49,7 @@ public class CourseService {
         course.setTitulli(request.getTitulli());
         course.setPershkrimi(request.getPershkrimi());
         course.setCmimi(request.getCmimi());
+        course.setEcts(request.getEcts() != null ? request.getEcts() : 5);
         course.setNiveli(request.getNiveli());
         course.setStatusi(request.getStatusi());
         course.setTeacher(teacher);
@@ -72,6 +73,7 @@ public class CourseService {
         course.setTitulli(request.getTitulli());
         course.setPershkrimi(request.getPershkrimi());
         course.setCmimi(request.getCmimi());
+        course.setEcts(request.getEcts() != null ? request.getEcts() : 5);
         course.setNiveli(request.getNiveli());
         course.setStatusi(request.getStatusi());
         course.setTeacher(teacher);
@@ -102,6 +104,7 @@ public class CourseService {
                 .semester(course.getSemester())
                 .enrollmentKey(course.getEnrollmentKey())
                 .cmimi(course.getCmimi())
+                .ects(course.getEcts())
                 .niveli(course.getNiveli())
                 .statusi(course.getStatusi())
                 .createdAt(course.getCreatedAt())

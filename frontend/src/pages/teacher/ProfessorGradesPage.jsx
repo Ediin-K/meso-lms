@@ -24,6 +24,7 @@ import GradesPageShell from "../../components/grades/GradesPageShell";
 import GradeTable from "../../components/grades/GradeTable";
 import GradeFormDialog from "../../components/grades/GradeFormDialog";
 import teacherContentService from "../../services/teacherContentService";
+import { useAppPreferences } from "../../context/appPreferencesContext";
 import {
   getGradesByCourse,
   createGrade,
@@ -32,6 +33,8 @@ import {
 } from "../../services/gradeService";
 
 export default function ProfessorGradesPage() {
+  const { colorMode } = useAppPreferences();
+  const isDark = colorMode === "dark";
   const [courses, setCourses] = useState([]);
   const [selectedCourseId, setSelectedCourseId] = useState("");
   const [grades, setGrades] = useState([]);
@@ -178,7 +181,9 @@ export default function ProfessorGradesPage() {
                 <em>Zgjidhni kursin...</em>
               </MenuItem>
               {courses.map((c) => (
-                <MenuItem key={c.id} value={c.id}>{c.titulli}</MenuItem>
+                <MenuItem key={c.id} value={c.id}>
+                  {c.titulli} ({c.ects ?? 5} ECTS)
+                </MenuItem>
               ))}
             </Select>
           </FormControl>
@@ -197,7 +202,13 @@ export default function ProfessorGradesPage() {
                 </InputAdornment>
               ),
             }}
-            sx={{ "& .MuiOutlinedInput-root": { backgroundColor: "#f8fafc", borderRadius: "8px" } }}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                backgroundColor: isDark ? "#1e293b" : "#f8fafc",
+                borderRadius: "8px",
+                color: isDark ? "#e2e8f0" : "inherit",
+              },
+            }}
           />
         </Box>
 
@@ -206,18 +217,18 @@ export default function ProfessorGradesPage() {
             <Chip
               size="small"
               label={`${filteredGrades.length} nota`}
-              className="!bg-sky-100 !font-semibold !text-sky-800"
+              className="!bg-sky-100 !font-semibold !text-sky-800 dark:!bg-sky-950/60 dark:!text-sky-300"
             />
             <Chip
               size="small"
               label={`${studentsWithoutGrade.length} studentë pa notë`}
-              className="!bg-amber-100 !font-semibold !text-amber-800"
+              className="!bg-amber-100 !font-semibold !text-amber-800 dark:!bg-amber-950/60 dark:!text-amber-300"
             />
             <Chip
               size="small"
               label={`${students.length} studentë total`}
               variant="outlined"
-              className="!font-semibold"
+              className="!font-semibold dark:!border-slate-600 dark:!text-slate-300"
             />
           </Box>
         )}

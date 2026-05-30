@@ -47,6 +47,7 @@ public class TeacherCourseService {
         course.setTitulli(request.getTitulli());
         course.setPershkrimi(request.getPershkrimi());
         course.setCmimi(request.getCmimi());
+        course.setEcts(request.getEcts() != null ? request.getEcts() : 5);
         course.setNiveli(request.getNiveli());
         course.setStatusi(request.getStatusi());
         course.setSemester(request.getSemester());
@@ -81,6 +82,7 @@ public class TeacherCourseService {
                 .categoryName(course.getCourseCategory() != null ? course.getCourseCategory().getEmertimi() : null)
                 .semester(course.getSemester())
                 .cmimi(course.getCmimi())
+                .ects(course.getEcts())
                 .niveli(course.getNiveli())
                 .statusi(course.getStatusi())
                 .moduleCount((int) moduleRepository.countByCourseId(course.getId()))

@@ -23,6 +23,7 @@ public class CourseResponse {
     private String enrollmentKey;
     private String categoryName;
     private Double cmimi;
+    private Integer ects;
     private CourseLevel niveli;
     private CourseStatus statusi;
     private Integer moduleCount;

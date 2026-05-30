@@ -130,6 +130,7 @@ public class GradeService {
                 .studentMbiemri(grade.getStudent().getMbiemri())
                 .courseId(grade.getCourse().getId())
                 .courseTitulli(grade.getCourse().getTitulli())
+                .courseEcts(grade.getCourse().getEcts())
                 .professorId(grade.getProfessor().getId())
                 .professorEmri(grade.getProfessor().getEmri() + " " + grade.getProfessor().getMbiemri())
                 .grade(grade.getGrade())

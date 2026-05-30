@@ -17,7 +17,7 @@ import { useAppPreferences } from "../../context/appPreferencesContext";
 function StatItem({ label, value, highlight }) {
   return (
     <Box className="flex flex-1 flex-col rounded-lg border border-slate-300 bg-white px-5 py-4 dark:border-slate-700 dark:bg-slate-900">
-      <Typography variant="caption" className="!font-semibold !uppercase !tracking-wide !text-slate-500">
+      <Typography variant="caption" className="!font-semibold !uppercase !tracking-wide !text-slate-500 dark:!text-slate-400">
         {label}
       </Typography>
       <Typography
@@ -31,7 +31,8 @@ function StatItem({ label, value, highlight }) {
 }
 
 export default function StudentGradesPage() {
-  const { t } = useAppPreferences();
+  const { t, colorMode } = useAppPreferences();
+  const isDark = colorMode === "dark";
   const userId = localStorage.getItem("userId");
 
   const [summary, setSummary] = useState({ grades: [], averageGrade: 0, totalGrades: 0 });
@@ -73,6 +74,10 @@ export default function StudentGradesPage() {
 
   const gpaLabel = summary.averageGrade > 0 ? summary.averageGrade.toFixed(2) : "—";
   const statusLabel = summary.totalGrades > 0 ? "Rregullt" : "Pa nota";
+  const totalEcts = useMemo(
+    () => (summary.grades || []).reduce((sum, g) => sum + (g.courseEcts || 0), 0),
+    [summary.grades],
+  );
 
   return (
     <GradesPageShell
@@ -86,9 +91,10 @@ export default function StudentGradesPage() {
       subtitle="Shikoni notat, komentet dhe mesataren tuaj akademike."
       icon={GradeRounded}
     >
-      <Box className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <Box className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatItem label="Mesatarja (GPA)" value={gpaLabel} highlight />
         <StatItem label="Total lëndë me notë" value={summary.totalGrades || 0} />
+        <StatItem label="Kredite ECTS" value={totalEcts || 0} />
         <StatItem label="Statusi" value={statusLabel} />
       </Box>
 
@@ -108,8 +114,9 @@ export default function StudentGradesPage() {
           }}
           sx={{
             "& .MuiOutlinedInput-root": {
-              backgroundColor: "#f8fafc",
+              backgroundColor: isDark ? "#1e293b" : "#f8fafc",
               borderRadius: "8px",
+              color: isDark ? "#e2e8f0" : "inherit",
             },
           }}
         />

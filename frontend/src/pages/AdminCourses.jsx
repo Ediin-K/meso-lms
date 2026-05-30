@@ -64,6 +64,7 @@ const EMPTY_FORM = {
   semester: 1,
   enrollmentKey: "",
   cmimi: 0.0,
+  ects: 5,
   niveli: "FILLESTAR",
   statusi: "DRAFT",
 };
@@ -311,6 +312,7 @@ export default function AdminCourses() {
       semester: course.semester,
       enrollmentKey: course.enrollmentKey || "",
       cmimi: course.cmimi,
+      ects: course.ects ?? 5,
       niveli: course.niveli,
       statusi: course.statusi,
     });
@@ -697,6 +699,9 @@ export default function AdminCourses() {
                       {t("adminCourses.table.semester", "Semestri")}
                     </TableCell>
                     <TableCell className="font-black! text-slate-400! uppercase! text-[10px]! tracking-widest! py-6!">
+                      {t("adminCourses.table.credits", "ECTS")}
+                    </TableCell>
+                    <TableCell className="font-black! text-slate-400! uppercase! text-[10px]! tracking-widest! py-6!">
                       {t("adminCourses.table.instructor", "Instruktori")}
                     </TableCell>
                     <TableCell className="font-black! text-slate-400! uppercase! text-[10px]! tracking-widest! py-6!">
@@ -713,7 +718,7 @@ export default function AdminCourses() {
                 <TableBody>
                   {filtered.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6}>
+                      <TableCell colSpan={7}>
                         <Box className="flex flex-col items-center justify-center py-24 gap-6">
                           <div className="h-24 w-24 rounded-4xl bg-slate-50 dark:bg-slate-800/50 flex items-center justify-center">
                             <MenuBookRounded className="text-5xl! text-slate-200 dark:text-slate-700" />
@@ -776,6 +781,9 @@ export default function AdminCourses() {
                           >
                             Sem. {course.semester}
                           </span>
+                        </TableCell>
+                        <TableCell className="text-slate-700! dark:text-slate-300! font-bold! text-sm!">
+                          {course.ects ?? 5}
                         </TableCell>
                         <TableCell className="text-slate-600! dark:text-slate-400! font-bold! text-sm!">
                           {course.teacherName}
@@ -1013,6 +1021,27 @@ export default function AdminCourses() {
                   type="number"
                   value={formData.cmimi}
                   onChange={field("cmimi")}
+                  InputProps={{ className: "rounded-2xl!" }}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      color: isDark ? "#f1f5f9" : "#1e293b",
+                      "& fieldset": {
+                        borderColor: isDark ? "#334155" : "#cbd5e1",
+                      },
+                    },
+                    "& .MuiInputLabel-root": {
+                      color: isDark ? "#cbd5e1" : "#64748b",
+                    },
+                  }}
+                />
+
+                <TextField
+                  label="ECTS"
+                  fullWidth
+                  type="number"
+                  inputProps={{ min: 1, max: 30 }}
+                  value={formData.ects}
+                  onChange={field("ects")}
                   InputProps={{ className: "rounded-2xl!" }}
                   sx={{
                     "& .MuiOutlinedInput-root": {

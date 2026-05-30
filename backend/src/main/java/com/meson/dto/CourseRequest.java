@@ -35,6 +35,12 @@ public class CourseRequest {
     @DecimalMin(value = "0.0", message = "Cmimi nuk mund te jet negativ")
     private Double cmimi = 0.0;
 
+    @NotNull
+    @Min(value = 1, message = "ECTS duhet te jete te pakten 1")
+    @Max(value = 30, message = "ECTS nuk mund te kaloj 30")
+    @Builder.Default
+    private Integer ects = 5;
+
     @Builder.Default
     private CourseLevel niveli = CourseLevel.FILLESTAR;
 
