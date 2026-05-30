@@ -7,20 +7,14 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class QuizAttemptResponse {
+public class QuizAttemptStudentResponse {
     private Long id;
     private Long quizId;
     private String quizTitulli;
-    private Long userId;
-    private String userEmri;
-    private Double pikete;
-    private Integer kohaSekondat;
-    private LocalDateTime data;
     private LocalDateTime startedAt;
     private LocalDateTime expiresAt;
     private LocalDateTime submittedAt;
     private Boolean submitted;
-    private Boolean abandoned;
-    private LocalDateTime abandonedAt;
-    private String attemptStatus;
+    /** Pikët shfaqen vetëm për tentativa që nuk janë dorëzuar ende (policy LMS). */
+    private Double pikete;
 }

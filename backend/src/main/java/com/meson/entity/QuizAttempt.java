@@ -27,11 +27,13 @@ public class QuizAttempt {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Builder.Default
     @Column(nullable = false)
-    private Double pikete;
+    private Double pikete = 0.0;
 
+    @Builder.Default
     @Column(nullable = false)
-    private Integer kohaSekondat;
+    private Integer kohaSekondat = 0;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime startedAt;
@@ -44,6 +46,12 @@ public class QuizAttempt {
     @Builder.Default
     @Column(nullable = false)
     private Boolean submitted = false;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private Boolean abandoned = false;
+
+    private LocalDateTime abandonedAt;
 
     @Builder.Default
     @OneToMany(mappedBy = "attempt", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
@@ -61,5 +69,12 @@ public class QuizAttempt {
         if (this.data == null) {
             this.data = now;
         }
+    }
+
+    public String getAttemptStatus() {
+        if (Boolean.TRUE.equals(this.abandoned)) return "ABANDONED";
+        if (Boolean.TRUE.equals(this.submitted)) return "SUBMITTED";
+        if (this.expiresAt != null && LocalDateTime.now().isAfter(this.expiresAt)) return "TIMED_OUT";
+        return "IN_PROGRESS";
     }
 }

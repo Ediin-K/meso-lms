@@ -72,6 +72,13 @@ public class QuizController {
         return ResponseEntity.ok(quizService.submitQuiz(id, request));
     }
 
+    @PostMapping("/{id}/abandon/{attemptId}")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<Void> abandon(@PathVariable Long id, @PathVariable Long attemptId) {
+        quizService.abandonQuiz(id, attemptId);
+        return ResponseEntity.noContent().build();
+    }
+
     // QUESTION
     @GetMapping("/{quizId}/questions")
     public ResponseEntity<List<QuizQuestionResponse>> getQuestions(@PathVariable Long quizId) {
@@ -122,6 +129,18 @@ public class QuizController {
     @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<List<QuizAttemptResponse>> getAttemptsByUser(@PathVariable Long userId) {
         return ResponseEntity.ok(quizService.getAttemptsByUserId(userId));
+    }
+
+    @GetMapping("/attempts/my")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<List<QuizAttemptStudentResponse>> getMyAttempts() {
+        return ResponseEntity.ok(quizService.getAttemptsByUserIdForStudent(quizService.getCurrentStudentId()));
+    }
+
+    @GetMapping("/attempts/student/{userId}")
+    @PreAuthorize("hasRole('ADMIN') or @securityAccessService.canAccessStudent(#userId)")
+    public ResponseEntity<List<QuizAttemptStudentResponse>> getAttemptsForStudent(@PathVariable Long userId) {
+        return ResponseEntity.ok(quizService.getAttemptsByUserIdForStudent(userId));
     }
 
     @PostMapping("/attempts")

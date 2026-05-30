@@ -29,20 +29,22 @@ public class QuizService {
     private final UserRepository userRepository;
 
     public List<QuizResponse> getAll() {
-        return quizRepository.findByPublikuarTrue().stream().map(this::toQuizResponse).toList();
+        return quizRepository.findByStatus(QuizStatus.ACTIVE).stream()
+                .map(this::toQuizResponse).toList();
     }
 
     public QuizResponse getById(Long id) {
         Quiz quiz = quizRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Kuizi nuk u gjet"));
-        if (!Boolean.TRUE.equals(quiz.getPublikuar())) {
-            throw new AccessDeniedException("Kuizi nuk eshte publikuar.");
+        if (!QuizStatus.ACTIVE.equals(quiz.getStatus())) {
+            throw new AccessDeniedException("Kuizi nuk eshte aktiv.");
         }
         return toQuizResponse(quiz);
     }
 
     public List<QuizResponse> getByLessonId(Long lessonId) {
-        return quizRepository.findByLessonIdAndPublikuarTrue(lessonId).stream().map(this::toQuizResponse).toList();
+        return quizRepository.findByLessonIdAndStatus(lessonId, QuizStatus.ACTIVE).stream()
+                .map(this::toQuizResponse).toList();
     }
 
     @Transactional
@@ -53,7 +55,7 @@ public class QuizService {
         quiz.setTitulli(request.getTitulli());
         quiz.setPershkrimi(request.getPershkrimi());
         quiz.setKohezgjatjaMinuta(request.getKohezgjatjaMinuta());
-        quiz.setPublikuar(Boolean.TRUE.equals(request.getPublikuar()));
+        quiz.setStatus(QuizStatus.DRAFT);
         quiz.setLesson(lesson);
         Quiz saved = quizRepository.save(quiz);
         saveNestedQuestions(saved, request.getQuestions());
@@ -64,12 +66,14 @@ public class QuizService {
     public QuizResponse updateQuiz(Long id, QuizRequest request) {
         Quiz quiz = quizRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Kuizi nuk u gjet"));
+        if (!QuizStatus.DRAFT.equals(quiz.getStatus())) {
+            throw new BadRequestException("Mund te modifikohet vetem kuizi ne gjendje DRAFT.");
+        }
         Lesson lesson = lessonRepository.findById(request.getLessonId())
                 .orElseThrow(() -> new ResourceNotFoundException("Leksioni nuk u gjet"));
         quiz.setTitulli(request.getTitulli());
         quiz.setPershkrimi(request.getPershkrimi());
         quiz.setKohezgjatjaMinuta(request.getKohezgjatjaMinuta());
-        quiz.setPublikuar(Boolean.TRUE.equals(request.getPublikuar()));
         quiz.setLesson(lesson);
         return toQuizResponse(quizRepository.save(quiz));
     }
@@ -84,8 +88,8 @@ public class QuizService {
     public List<QuizQuestionResponse> getQuestionsByQuizId(Long quizId) {
         Quiz quiz = quizRepository.findById(quizId)
                 .orElseThrow(() -> new ResourceNotFoundException("Kuizi nuk u gjet"));
-        if (!Boolean.TRUE.equals(quiz.getPublikuar())) {
-            throw new AccessDeniedException("Kuizi nuk eshte publikuar.");
+        if (!QuizStatus.ACTIVE.equals(quiz.getStatus())) {
+            throw new AccessDeniedException("Kuizi nuk eshte aktiv.");
         }
         return questionRepository.findByQuizIdOrderByRradhitjaAsc(quizId)
                 .stream().map(this::toQuestionResponse).toList();
@@ -141,21 +145,31 @@ public class QuizService {
                 .stream().map(this::toAttemptResponse).toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<QuizAttemptStudentResponse> getAttemptsByUserIdForStudent(Long userId) {
+        return attemptRepository.findByUserId(userId)
+                .stream()
+                .map(this::toAttemptResponseForStudent)
+                .toList();
+    }
+
     public QuizAttemptResponse createAttempt(QuizAttemptRequest request) {
         Quiz quiz = quizRepository.findById(request.getQuizId())
                 .orElseThrow(() -> new ResourceNotFoundException("Kuizi nuk u gjet"));
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("Perdoruesi nuk u gjet"));
         LocalDateTime now = LocalDateTime.now();
-        QuizAttempt attempt = new QuizAttempt();
-        attempt.setQuiz(quiz);
-        attempt.setUser(user);
-        attempt.setPikete(request.getPikete());
-        attempt.setKohaSekondat(request.getKohaSekondat());
-        attempt.setStartedAt(now);
-        attempt.setExpiresAt(now.plusSeconds(Math.max(1, request.getKohaSekondat())));
-        attempt.setSubmitted(true);
-        attempt.setSubmittedAt(now);
+        QuizAttempt attempt = QuizAttempt.builder()
+                .quiz(quiz)
+                .user(user)
+                .pikete(request.getPikete())
+                .kohaSekondat(request.getKohaSekondat())
+                .startedAt(now)
+                .expiresAt(now.plusSeconds(Math.max(1, request.getKohaSekondat())))
+                .submitted(true)
+                .submittedAt(now)
+                .abandoned(false)
+                .build();
         return toAttemptResponse(attemptRepository.save(attempt));
     }
 
@@ -164,19 +178,23 @@ public class QuizService {
         User student = getCurrentUser();
         Quiz quiz = quizRepository.findById(quizId)
                 .orElseThrow(() -> new ResourceNotFoundException("Kuizi nuk u gjet"));
-        if (!Boolean.TRUE.equals(quiz.getPublikuar())) {
-            throw new AccessDeniedException("Kuizi nuk eshte i hapur.");
+
+        if (!QuizStatus.ACTIVE.equals(quiz.getStatus())) {
+            throw new AccessDeniedException("Kuizi nuk eshte i hapur per studente. Prisni mesuesin ta aktivizoje.");
         }
 
         Optional<QuizAttempt> existing = attemptRepository.findFirstByQuizIdAndUserId(quizId, student.getId());
         if (existing.isPresent()) {
             QuizAttempt attempt = existing.get();
+            if (Boolean.TRUE.equals(attempt.getAbandoned())) {
+                throw new BadRequestException("Ke braktisur kete kuiz. Nuk mund ta rifillosh.");
+            }
             if (Boolean.TRUE.equals(attempt.getSubmitted())) {
                 throw new BadRequestException("Ky kuiz eshte dorezuar tashme.");
             }
             if (!LocalDateTime.now().isBefore(attempt.getExpiresAt())) {
                 submitExpiredAttempt(attempt);
-                throw new BadRequestException("Koha e kuizit ka perfunduar.");
+                throw new BadRequestException("Koha e kuizit ka perfunduar. Kuizi u dorezua automatikisht.");
             }
             return toStartResponse(attempt);
         }
@@ -190,6 +208,7 @@ public class QuizService {
                 .startedAt(now)
                 .expiresAt(now.plusMinutes(quiz.getKohezgjatjaMinuta()))
                 .submitted(false)
+                .abandoned(false)
                 .build();
 
         return toStartResponse(attemptRepository.save(attempt));
@@ -200,11 +219,15 @@ public class QuizService {
         User student = getCurrentUser();
         QuizAttempt attempt = attemptRepository.findById(request.getAttemptId())
                 .orElseThrow(() -> new ResourceNotFoundException("Attempt nuk u gjet"));
+
         if (!attempt.getQuiz().getId().equals(quizId) || !attempt.getUser().getId().equals(student.getId())) {
             throw new AccessDeniedException("Attempt nuk i perket ketij perdoruesi.");
         }
         if (Boolean.TRUE.equals(attempt.getSubmitted())) {
             throw new BadRequestException("Ky kuiz eshte dorezuar tashme.");
+        }
+        if (Boolean.TRUE.equals(attempt.getAbandoned())) {
+            throw new BadRequestException("Ke braktisur kete kuiz.");
         }
 
         LocalDateTime now = LocalDateTime.now();
@@ -225,6 +248,29 @@ public class QuizService {
                 .build();
     }
 
+    @Transactional
+    public void abandonQuiz(Long quizId, Long attemptId) {
+        User student = getCurrentUser();
+        QuizAttempt attempt = attemptRepository.findById(attemptId)
+                .orElseThrow(() -> new ResourceNotFoundException("Attempt nuk u gjet"));
+
+        if (!attempt.getQuiz().getId().equals(quizId) || !attempt.getUser().getId().equals(student.getId())) {
+            throw new AccessDeniedException("Attempt nuk i perket ketij perdoruesi.");
+        }
+        if (Boolean.TRUE.equals(attempt.getSubmitted())) {
+            throw new BadRequestException("Ky kuiz eshte dorezuar tashme.");
+        }
+        if (Boolean.TRUE.equals(attempt.getAbandoned())) {
+            throw new BadRequestException("Ky kuiz eshte braktisur tashme.");
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        attempt.setAbandoned(true);
+        attempt.setAbandonedAt(now);
+        attempt.setKohaSekondat((int) Duration.between(attempt.getStartedAt(), now).toSeconds());
+        attemptRepository.save(attempt);
+    }
+
     public List<QuizAnswerStudentResponse> getAnswersByQuestionIdForStudent(Long questionId) {
         return answerRepository.findByQuestionId(questionId)
                 .stream()
@@ -242,7 +288,7 @@ public class QuizService {
         }
         int order = 1;
         for (QuizQuestionWithOptionsRequest request : requests) {
-            validateFourOptions(request);
+            validateOptions(request);
             QuizQuestion question = QuizQuestion.builder()
                     .quiz(quiz)
                     .pyetja(request.getPyetja())
@@ -260,7 +306,7 @@ public class QuizService {
         }
     }
 
-    private void validateFourOptions(QuizQuestionWithOptionsRequest request) {
+    private void validateOptions(QuizQuestionWithOptionsRequest request) {
         if (request.getOptions() == null || request.getOptions().size() != 4) {
             throw new BadRequestException("Cdo pyetje duhet te kete saktesisht 4 alternativa.");
         }
@@ -345,22 +391,29 @@ public class QuizService {
                 .build();
     }
 
+    public Long getCurrentStudentId() {
+        return getCurrentUser().getId();
+    }
+
     private User getCurrentUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("Perdoruesi nuk u gjet."));
     }
 
-    private QuizResponse toQuizResponse(Quiz quiz) {
+    public QuizResponse toQuizResponse(Quiz quiz) {
         return QuizResponse.builder()
                 .id(quiz.getId())
                 .titulli(quiz.getTitulli())
                 .pershkrimi(quiz.getPershkrimi())
                 .kohezgjatjaMinuta(quiz.getKohezgjatjaMinuta())
-                .publikuar(quiz.getPublikuar())
+                .status(quiz.getStatus())
+                .publikuar(QuizStatus.ACTIVE.equals(quiz.getStatus()))
                 .lessonId(quiz.getLesson().getId())
                 .lessonTitulli(quiz.getLesson().getTitulli())
                 .createdAt(quiz.getCreatedAt())
+                .activatedAt(quiz.getActivatedAt())
+                .closedAt(quiz.getClosedAt())
                 .build();
     }
 
@@ -383,7 +436,7 @@ public class QuizService {
                 .build();
     }
 
-    private QuizAttemptResponse toAttemptResponse(QuizAttempt at) {
+    public QuizAttemptResponse toAttemptResponse(QuizAttempt at) {
         return QuizAttemptResponse.builder()
                 .id(at.getId())
                 .quizId(at.getQuiz().getId())
@@ -397,6 +450,23 @@ public class QuizService {
                 .expiresAt(at.getExpiresAt())
                 .submittedAt(at.getSubmittedAt())
                 .submitted(at.getSubmitted())
+                .abandoned(at.getAbandoned())
+                .abandonedAt(at.getAbandonedAt())
+                .attemptStatus(at.getAttemptStatus())
+                .build();
+    }
+
+    private QuizAttemptStudentResponse toAttemptResponseForStudent(QuizAttempt at) {
+        boolean submitted = Boolean.TRUE.equals(at.getSubmitted());
+        return QuizAttemptStudentResponse.builder()
+                .id(at.getId())
+                .quizId(at.getQuiz().getId())
+                .quizTitulli(at.getQuiz().getTitulli())
+                .startedAt(at.getStartedAt())
+                .expiresAt(at.getExpiresAt())
+                .submittedAt(at.getSubmittedAt())
+                .submitted(submitted)
+                .pikete(submitted ? null : at.getPikete())
                 .build();
     }
 }
