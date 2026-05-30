@@ -7,7 +7,7 @@ export default function ProfileCoursesSection({ enrollments, t }) {
   const navigate = useNavigate()
 
   return (
-    <Card elevation={0} className="rounded-2xl border border-slate-200/80 dark:!border-slate-700/80">
+    <Card elevation={0} className="rounded-2xl border border-slate-200/80 bg-white dark:!border-slate-700/80 dark:!bg-slate-900">
       <CardContent className="!p-6">
         <Typography variant="subtitle1" className="!mb-4 !flex !items-center !gap-2 !font-bold !text-slate-900 dark:!text-white">
           <SchoolRounded className="text-sky-600" fontSize="small" />
@@ -31,7 +31,7 @@ export default function ProfileCoursesSection({ enrollments, t }) {
             {enrollments.map((enrollment) => (
               <Box
                 key={enrollment.id}
-                className="cursor-pointer rounded-xl border border-slate-100 p-4 transition-colors hover:bg-sky-50/50 dark:border-slate-700 dark:hover:bg-slate-800/50"
+                className="cursor-pointer rounded-xl border border-slate-100 bg-slate-50/30 p-4 transition-colors hover:bg-sky-50/50 dark:border-slate-700 dark:bg-slate-800/40 dark:hover:bg-slate-800/70"
                 onClick={() => navigate(`/course/${enrollment.courseId}`)}
                 role="button"
                 tabIndex={0}

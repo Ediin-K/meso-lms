@@ -7,7 +7,7 @@ export default function ProfileGroupSection({ groupStatus, t }) {
   const pending = groupStatus?.pendingRequest
 
   return (
-    <Card elevation={0} className="rounded-2xl border border-slate-200/80 dark:!border-slate-700/80">
+    <Card elevation={0} className="rounded-2xl border border-slate-200/80 bg-white dark:!border-slate-700/80 dark:!bg-slate-900">
       <CardContent className="!p-6">
         <Typography variant="subtitle1" className="!mb-4 !flex !items-center !gap-2 !font-bold !text-slate-900 dark:!text-white">
           <GroupsRounded className="text-indigo-600" fontSize="small" />
