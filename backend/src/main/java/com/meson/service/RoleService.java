@@ -33,7 +33,6 @@ public class RoleService{
         role.setPershkrimi(request.getPershkrimi());
         return toResponse(roleRepository.save(role));
     }
-
     public RoleResponse update(Long id,RoleRequest request){
         Role role = roleRepository.findById(id)
                 .orElseThrow(()->new RuntimeException("Roli nuk u gjet"));

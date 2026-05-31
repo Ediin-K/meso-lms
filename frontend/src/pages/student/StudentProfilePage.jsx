@@ -10,7 +10,6 @@ import ProfileGroupSection from '../../components/student/profile/ProfileGroupSe
 import ProfileAssignmentsSection from '../../components/student/profile/ProfileAssignmentsSection'
 import ProfileQuizActivitySection from '../../components/student/profile/ProfileQuizActivitySection'
 import ProfileSchedulePreview from '../../components/student/profile/ProfileSchedulePreview'
-import ProfileSettingsSection from '../../components/student/profile/ProfileSettingsSection'
 import {
   getStudentProfile,
   updateStudentProfile,
@@ -132,7 +131,6 @@ export default function StudentProfilePage() {
               saving={savingProfile}
             />
             <ProfileGroupSection groupStatus={groupStatus} t={t} />
-            <ProfileSettingsSection userId={userId} t={t} onNotify={notify} />
           </div>
 
           <div className="flex flex-col gap-6 lg:col-span-2">

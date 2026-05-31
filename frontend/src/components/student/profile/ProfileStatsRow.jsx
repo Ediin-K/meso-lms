@@ -6,7 +6,7 @@ import AssignmentTurnedInRounded from '@mui/icons-material/AssignmentTurnedInRou
 
 function StatCard({ icon: Icon, label, value, colorClass }) {
   return (
-    <Card elevation={0} className="rounded-2xl border border-slate-200/80 dark:!border-slate-700/80">
+    <Card elevation={0} className="rounded-2xl border border-slate-200/80 bg-white dark:!border-slate-700/80 dark:!bg-slate-900">
       <CardContent className="!flex !items-center !gap-3 !p-4">
         <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${colorClass}`}>
           <Icon fontSize="small" />

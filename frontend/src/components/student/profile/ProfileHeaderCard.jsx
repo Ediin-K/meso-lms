@@ -34,7 +34,7 @@ export default function ProfileHeaderCard({ profile, t, onSave, saving }) {
 
   return (
     <>
-      <Card elevation={0} className="rounded-2xl border border-slate-200/80 dark:!border-slate-700/80">
+      <Card elevation={0} className="rounded-2xl border border-slate-200/80 bg-white dark:!border-slate-700/80 dark:!bg-slate-900">
         <CardContent className="!p-6">
           <div className="flex flex-col items-center text-center">
             <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-sky-100 text-2xl font-bold text-sky-700 dark:bg-sky-900/50 dark:text-sky-300">

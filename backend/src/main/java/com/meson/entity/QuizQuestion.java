@@ -28,6 +28,10 @@ public class QuizQuestion {
     @Column(nullable = false)
     private Integer rradhitja;
 
+    @Builder.Default
+    @Column(nullable = false)
+    private Integer pikete = 1;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "quiz_id", nullable = false)
     private Quiz quiz;

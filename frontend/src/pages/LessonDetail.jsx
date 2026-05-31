@@ -13,6 +13,7 @@ import DescriptionRounded from '@mui/icons-material/DescriptionRounded'
 import LinkRounded from '@mui/icons-material/LinkRounded'
 import QuizRounded from '@mui/icons-material/QuizRounded'
 import AssignmentRounded from '@mui/icons-material/AssignmentRounded'
+import LessonQuizCard from '../components/quiz/LessonQuizCard'
 
 export default function LessonDetail() {
     const { lessonId } = useParams()
@@ -20,7 +21,7 @@ export default function LessonDetail() {
     const { t } = useAppPreferences()
 
     const [lesson, setLesson] = useState(null)
-    const [quizzes, setQuizzes] = useState([])
+    const [courseId, setCourseId] = useState(null)
     const [assignments, setAssignments] = useState([])
     const [loading, setLoading] = useState(true)
 
@@ -28,15 +29,20 @@ export default function LessonDetail() {
         const fetchData = async () => {
             try {
                 setLoading(true)
-                const [lessonRes, quizzesRes, assignmentsRes] = await Promise.all([
+                const [lessonRes, assignmentsRes] = await Promise.all([
                     axiosInstance.get(`/lessons/${lessonId}`),
-                    axiosInstance.get(`/quizzes/lesson/${lessonId}`),
-                    axiosInstance.get(`/assignments/lesson/${lessonId}`)
-
+                    axiosInstance.get(`/assignments/lesson/${lessonId}`),
                 ])
                 setLesson(lessonRes.data)
-                setQuizzes(quizzesRes.data)
                 setAssignments(assignmentsRes.data)
+                if (lessonRes.data?.moduleId) {
+                    try {
+                        const modRes = await axiosInstance.get(`/modules/${lessonRes.data.moduleId}`)
+                        setCourseId(modRes.data?.courseId || null)
+                    } catch {
+                        setCourseId(null)
+                    }
+                }
             } catch (err) {
                 console.error(err)
             } finally {
@@ -174,31 +180,7 @@ export default function LessonDetail() {
                                     <QuizRounded className="text-sky-600" fontSize="small" />
                                     {t('lessonDetail.quizzes')}
                                 </Typography>
-                                {quizzes.length === 0 ? (
-                                    <Typography variant="body2" className="!text-slate-500">
-                                        {t('lessonDetail.noQuizzes')}
-                                    </Typography>
-                                ) : (
-                                    <div className="flex flex-col gap-3">
-                                        {quizzes.map(quiz => (
-                                            <Box
-                                                key={quiz.id}
-                                                className="flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-700 hover:bg-sky-50/50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors"
-                                                onClick={() => navigate(`/quiz/${quiz.id}`)}
-                                            >
-                                                <div>
-                                                    <Typography variant="body2" className="!font-semibold !text-slate-800 dark:!text-white">
-                                                        {quiz.titulli}
-                                                    </Typography>
-                                                    <Typography variant="caption" className="!text-slate-500">
-                                                        ⏱ {quiz.kohezgjatjaMinuta} {t('lessonDetail.minutes')}
-                                                    </Typography>
-                                                </div>
-                                                <PlayCircleFilledRounded className="text-sky-500" fontSize="small" />
-                                            </Box>
-                                        ))}
-                                    </div>
-                                )}
+                                <LessonQuizCard lessonId={lessonId} courseId={courseId} />
                             </CardContent>
                         </Card>
 

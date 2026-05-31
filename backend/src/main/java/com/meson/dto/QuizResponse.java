@@ -20,4 +20,7 @@ public class QuizResponse {
     private LocalDateTime createdAt;
     private LocalDateTime activatedAt;
     private LocalDateTime closedAt;
+    private Long courseId;
+    private Integer questionCount;
+    private Integer totalPikete;
 }

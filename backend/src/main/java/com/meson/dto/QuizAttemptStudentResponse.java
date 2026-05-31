@@ -15,6 +15,7 @@ public class QuizAttemptStudentResponse {
     private LocalDateTime expiresAt;
     private LocalDateTime submittedAt;
     private Boolean submitted;
-    /** Pikët shfaqen vetëm për tentativa që nuk janë dorëzuar ende (policy LMS). */
+    private String attemptStatus;
+    /** Pikët shfaqen vetëm për tentativa të dorëzuara. */
     private Double pikete;
 }

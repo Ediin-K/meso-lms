@@ -75,14 +75,15 @@ function PageFallback() {
 function AppLayout() {
   const location = useLocation();
   const isLoginPage = location.pathname === "/login";
+  const isQuizPage = /\/quiz\/\d+/.test(location.pathname);
 
   return (
       <div className="flex min-h-dvh flex-col bg-gradient-to-b from-sky-50 via-[#f0f7fb] to-[#d8e8f2] transition-colors dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
-        {!isLoginPage && <Header />}
+        {!isLoginPage && !isQuizPage && <Header />}
         <main className="flex flex-col flex-grow">
           <div
             id="main-content"
-            className={`flex flex-col flex-grow ${isLoginPage ? "" : "pt-[73px] sm:pt-[81px]"}`}
+            className={`flex flex-col flex-grow ${isLoginPage || isQuizPage ? "" : "pt-[73px] sm:pt-[81px]"}`}
             tabIndex={-1}
           >
             <Suspense fallback={<PageFallback />}>
@@ -100,6 +101,14 @@ function AppLayout() {
               <Route path="/course/:courseId" element={<CourseDetail />} />
               <Route path="/courses/:courseId" element={<CourseDetail />} />
               <Route path="/lesson/:lessonId" element={<LessonDetail />} />
+              <Route
+                path="/course/:courseId/quiz/:quizId"
+                element={
+                  <ProtectedRoute requiredRole="student">
+                    <QuizPage />
+                  </ProtectedRoute>
+                }
+              />
               <Route
                 path="/quiz/:quizId"
                 element={

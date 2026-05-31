@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import axiosInstance from '../services/axiosInstance'
 import { useAppPreferences } from '../context/appPreferencesContext'
@@ -29,6 +29,7 @@ import teacherContentService from '../services/teacherContentService'
 import { downloadResource, openResourcePreview } from '../services/resourceService'
 import { getCourseGroups } from '../services/courseGroupService'
 import FileUpload from '../components/common/FileUpload'
+import LessonQuizCard from '../components/quiz/LessonQuizCard'
 import {
     Dialog, DialogTitle, DialogContent, DialogActions, TextField,
     IconButton, Menu, MenuItem, ListItemIcon, ListItemText,
@@ -149,13 +150,6 @@ export default function CourseDetail() {
     const [uploading, setUploading] = useState(false)
     const [pendingFiles, setPendingFiles] = useState([])
     const [menuAnchor, setMenuAnchor] = useState({ el: null, type: null, id: null })
-
-    // Quiz Management State
-    const [quizModal, setQuizModal] = useState({ open: false, lessonId: null, quizId: null })
-    const [questions, setQuestions] = useState([])
-    const [questionForm, setQuestionForm] = useState({ pyetja: '', lloji: 'SHUMEFISHTE', rradhitja: 1 })
-    const [answerForm, setAnswerForm] = useState({ pergjigja: '', eshteSakte: false })
-
 
     // Assignment Management State
     const [submissionsModal, setSubmissionsModal] = useState({ open: false, assignmentId: null })
@@ -368,55 +362,6 @@ export default function CourseDetail() {
             setSnackbarMessage("Shkarkimi deshtoi. Kontrollo lidhjen ose provo perseri.")
             setOpenSnackbar(true)
         }
-    }
-
-    // --- QUIZ HANDLERS ---
-    const handleOpenQuizManager = async (lessonId) => {
-        try {
-            const res = await teacherContentService.getQuizzes(lessonId);
-            let quizId = null;
-            if (res.data.length > 0) {
-                quizId = res.data[0].id;
-                const questionsRes = await teacherContentService.getQuestions(quizId);
-                setQuestions(questionsRes.data);
-            } else {
-                // Auto-create quiz if doesn't exist
-                const newQuiz = await teacherContentService.createQuiz({ lessonId, titulli: "Quiz", pershkrimi: "", kohezgjatjaMinuta: 30, publikuar: false });
-                quizId = newQuiz.data.id;
-                setQuestions([]);
-            }
-            setQuizModal({ open: true, lessonId, quizId });
-        } catch (err) { console.error(err); }
-    }
-
-    const handleCreateQuestion = async () => {
-        try {
-            const res = await teacherContentService.createQuestion({
-                quizId: quizModal.quizId,
-                pyetja: questionForm.pyetja || questionForm.teksti,
-                lloji: 'SHUMEFISHTE',
-                rradhitja: questionForm.rradhitja || questions.length + 1,
-            });
-            setQuestions(prev => [...prev, res.data]);
-            setQuestionForm({ pyetja: '', lloji: 'SHUMEFISHTE', rradhitja: questions.length + 2 });
-            setSnackbarMessage("Pyetja u krijua me sukses.");
-            setOpenSnackbar(true);
-        } catch (err) { console.error(err); }
-    }
-
-    const handleAddAnswer = async (questionId) => {
-        try {
-            await teacherContentService.addAnswer(questionId, {
-                questionId,
-                pergjigja: answerForm.pergjigja || answerForm.teksti,
-                eshteSakte: answerForm.eshteSakte,
-            });
-            const questionsRes = await teacherContentService.getQuestions(quizModal.quizId);
-            setQuestions(questionsRes.data);
-            setAnswerForm({ pergjigja: '', eshteSakte: false });
-            setSnackbarMessage("Opsioni u shtua me sukses.");
-            setOpenSnackbar(true);
-        } catch (err) { console.error(err); }
     }
 
     // --- ASSIGNMENT HANDLERS ---
@@ -656,8 +601,10 @@ export default function CourseDetail() {
                                                         className="flex flex-col border-b border-slate-100/50 dark:border-slate-800/50 last:border-0"
                                                     >
                                                         <Box
-                                                            className="flex items-center justify-between px-5 py-4 hover:bg-sky-50/30 dark:hover:bg-slate-800/30 transition-colors cursor-pointer"
-                                                            onClick={() => navigate(`/lesson/${lesson.id}`)}
+                                                            className={`flex items-center justify-between px-5 py-4 transition-colors ${
+                                                              lesson.lloji === 'QUIZ' ? '' : 'hover:bg-sky-50/30 dark:hover:bg-slate-800/30 cursor-pointer'
+                                                            }`}
+                                                            onClick={() => lesson.lloji !== 'QUIZ' && navigate(`/lesson/${lesson.id}`)}
                                                         >
                                                             <div className="flex items-center gap-3">
                                                                 <span className="text-sm font-bold text-slate-400 w-6">
@@ -668,7 +615,7 @@ export default function CourseDetail() {
                                                                         {lesson.titulli}
                                                                     </Typography>
                                                                     <Typography variant="caption" className="text-slate-500! dark:text-slate-400!">
-                                                                        {lesson.lloji}
+                                                                        {lesson.lloji === 'QUIZ' ? 'QUIZ' : lesson.lloji}
                                                                     </Typography>
                                                                 </div>
                                                             </div>
@@ -676,11 +623,14 @@ export default function CourseDetail() {
                                                                 {isOwner && (
                                                                     <>
                                                                         {lesson.lloji === 'QUIZ' && (
-                                                                            <Tooltip title="Menaxho Pyetjet">
-                                                                                <IconButton size="small" onClick={(e) => {
-                                                                                    e.stopPropagation();
-                                                                                    handleOpenQuizManager(lesson.id);
-                                                                                }} className="text-amber-500!">
+                                                                            <Tooltip title="Menaxho quiz-in">
+                                                                                <IconButton
+                                                                                    component={Link}
+                                                                                    to="/teacher/quizzes"
+                                                                                    size="small"
+                                                                                    onClick={(e) => e.stopPropagation()}
+                                                                                    className="text-amber-500!"
+                                                                                >
                                                                                     <QuizRounded fontSize="small" />
                                                                                 </IconButton>
                                                                             </Tooltip>
@@ -717,9 +667,17 @@ export default function CourseDetail() {
                                                                         </IconButton>
                                                                     </>
                                                                 )}
-                                                                <PlayCircleFilledRounded className="text-sky-500" fontSize="small" />
+                                                                {!isOwner && lesson.lloji !== 'QUIZ' && (
+                                                                    <PlayCircleFilledRounded className="text-sky-500" fontSize="small" />
+                                                                )}
                                                             </div>
                                                         </Box>
+
+                                                        {lesson.lloji === 'QUIZ' && isEnrolled && !isOwner && (
+                                                            <Box className="px-5 pb-4" onClick={(e) => e.stopPropagation()}>
+                                                                <LessonQuizCard lessonId={lesson.id} courseId={courseId} compact />
+                                                            </Box>
+                                                        )}
 
                                                         {/* Resources list */}
                                                         {lesson.resources && lesson.resources.length > 0 && (
@@ -948,64 +906,6 @@ export default function CourseDetail() {
                     <Button variant="contained" onClick={handleLessonSubmit} className="rounded-full! bg-sky-600! normal-case!">
                         {lessonModal.editing ? "Përditëso" : "Krijo"}
                     </Button>
-                </DialogActions>
-            </Dialog>
-            {/* QUIZ MANAGEMENT DIALOG */}
-            <Dialog
-                open={quizModal.open}
-                onClose={() => setQuizModal({ open: false, lessonId: null, quizId: null })}
-                maxWidth="md"
-                fullWidth
-                PaperProps={{ className: "rounded-[2.5rem]! p-4!" }}
-            >
-                <DialogTitle className="font-black! text-2xl!">Menaxho Kuizin</DialogTitle>
-                <DialogContent>
-                    <Box className="flex flex-col gap-8 mt-4">
-                        {/* New Question Form */}
-                        <Box className="p-6 rounded-3xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800">
-                            <Typography variant="subtitle1" className="font-black! mb-4">Shto Pyetje të Re</Typography>
-                            <Box className="flex flex-col gap-4">
-                                <TextField label="Teksti i Pyetjes" fullWidth value={questionForm.pyetja} onChange={e => setQuestionForm({...questionForm, pyetja: e.target.value})} />
-                                <Box className="flex gap-4">
-                                    <FormControl fullWidth>
-                                        <InputLabel>Lloji</InputLabel>
-                                        <Select variant="outlined" value={questionForm.lloji} label="Lloji" onChange={e => setQuestionForm({...questionForm, lloji: e.target.value})}>
-                                            <MenuItem value="RADIO">Një zgjedhje</MenuItem>
-                                            <MenuItem value="CHECKBOX">Shumë zgjedhje</MenuItem>
-                                        </Select>
-                                    </FormControl>
-                                    <TextField label="Pikët" type="number" value={questionForm.piket} onChange={e => setQuestionForm({...questionForm, piket: Number(e.target.value)})} />
-                                </Box>
-                                <Button variant="contained" onClick={handleCreateQuestion} className="rounded-xl! bg-amber-500! normal-case! font-bold!">Krijo Pyetjen</Button>
-                            </Box>
-                        </Box>
-
-                        {/* Questions List */}
-                        <Box className="flex flex-col gap-6">
-                            {questions.map((q, idx) => (
-                                <Box key={q.id} className="p-6 rounded-3xl border border-slate-100 dark:border-slate-800">
-                                    <Typography className="font-bold! mb-4">{idx + 1}. {q.teksti} ({q.piket} pikë)</Typography>
-
-                                    <Box className="flex flex-col gap-2 ml-4">
-                                        {q.answers && q.answers.map(a => (
-                                            <Box key={a.id} className={`p-3 rounded-xl border ${a.eshteSakte ? 'border-emerald-200 bg-emerald-50 dark:bg-emerald-900/20' : 'border-slate-100'}`}>
-                                                <Typography variant="body2">{a.teksti} {a.eshteSakte && "✅"}</Typography>
-                                            </Box>
-                                        ))}
-
-                                        <Box className="flex gap-2 mt-4">
-                                            <TextField size="small" placeholder="Shto opsion..." value={answerForm.teksti} onChange={e => setAnswerForm({...answerForm, teksti: e.target.value})} />
-                                            <FormControlLabel control={<Checkbox checked={answerForm.eshteSakte} onChange={e => setAnswerForm({...answerForm, eshteSakte: e.target.checked})} />} label="E saktë" />
-                                            <Button size="small" variant="outlined" onClick={() => handleAddAnswer(q.id)} className="rounded-lg!">Shto</Button>
-                                        </Box>
-                                    </Box>
-                                </Box>
-                            ))}
-                        </Box>
-                    </Box>
-                </DialogContent>
-                <DialogActions className="p-8!">
-                    <Button onClick={() => setQuizModal({ open: false })} className="font-bold!">Mbyll</Button>
                 </DialogActions>
             </Dialog>
 

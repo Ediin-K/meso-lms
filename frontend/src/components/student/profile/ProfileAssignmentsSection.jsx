@@ -19,7 +19,7 @@ export default function ProfileAssignmentsSection({ submissions, t }) {
   }, [submissions, tab])
 
   return (
-    <Card elevation={0} className="rounded-2xl border border-slate-200/80 dark:!border-slate-700/80">
+    <Card elevation={0} className="rounded-2xl border border-slate-200/80 bg-white dark:!border-slate-700/80 dark:!bg-slate-900">
       <CardContent className="!p-6">
         <Typography variant="subtitle1" className="!mb-2 !flex !items-center !gap-2 !font-bold !text-slate-900 dark:!text-white">
           <AssignmentRounded className="text-amber-600" fontSize="small" />
@@ -39,7 +39,7 @@ export default function ProfileAssignmentsSection({ submissions, t }) {
             {filtered.slice(0, 10).map((sub) => (
               <Box
                 key={sub.id}
-                className="rounded-xl border border-slate-100 p-3 dark:border-slate-700"
+                className="rounded-xl border border-slate-100 bg-slate-50/30 p-3 dark:border-slate-700 dark:bg-slate-800/40"
               >
                 <Typography variant="body2" className="!font-semibold !text-slate-800 dark:!text-white">
                   {sub.assignmentTitulli}

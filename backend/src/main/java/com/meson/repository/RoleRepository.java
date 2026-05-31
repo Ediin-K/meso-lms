@@ -8,3 +8,4 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
     Optional<Role> findByNormalizedName(String normalizedName);
     Optional<Role> findByEmertimi(String emertimi);
 }
+
