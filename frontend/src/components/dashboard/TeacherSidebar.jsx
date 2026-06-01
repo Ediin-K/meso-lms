@@ -4,7 +4,6 @@ import SchoolRounded from "@mui/icons-material/SchoolRounded";
 import ViewModuleRounded from "@mui/icons-material/ViewModuleRounded";
 import MenuBookRounded from "@mui/icons-material/MenuBookRounded";
 import QuizRounded from "@mui/icons-material/QuizRounded";
-import AssignmentRounded from "@mui/icons-material/AssignmentRounded";
 import PeopleRounded from "@mui/icons-material/PeopleRounded";
 import GradeRounded from "@mui/icons-material/GradeRounded";
 import { useAppPreferences } from "../../context/appPreferencesContext";
@@ -34,7 +33,6 @@ export default function TeacherSidebar() {
     { to: "/teacher/modules", icon: ViewModuleRounded, label: "Modules" },
     { to: "/teacher/lessons", icon: MenuBookRounded, label: "Lessons" },
     { to: "/teacher/quizzes", icon: QuizRounded, label: "Quizzes" },
-    { to: "/teacher/assignments", icon: AssignmentRounded, label: "Assignments" },
     { to: "/teacher/students", icon: PeopleRounded, label: "Students" },
     { to: "/teacher/grades", icon: GradeRounded, label: "Notat" },
   ];

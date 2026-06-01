@@ -12,7 +12,6 @@ import PlayCircleFilledRounded from '@mui/icons-material/PlayCircleFilledRounded
 import DescriptionRounded from '@mui/icons-material/DescriptionRounded'
 import LinkRounded from '@mui/icons-material/LinkRounded'
 import QuizRounded from '@mui/icons-material/QuizRounded'
-import AssignmentRounded from '@mui/icons-material/AssignmentRounded'
 import WorkspacePremiumRounded from '@mui/icons-material/WorkspacePremiumRounded'
 import FolderOpenRounded from '@mui/icons-material/FolderOpenRounded'
 import PictureAsPdfRounded from '@mui/icons-material/PictureAsPdfRounded'
@@ -25,6 +24,7 @@ import SlideshowRounded from '@mui/icons-material/SlideshowRounded'
 import TableChartRounded from '@mui/icons-material/TableChartRounded'
 import FolderZipRounded from '@mui/icons-material/FolderZipRounded'
 import LessonQuizCard from '../components/quiz/LessonQuizCard'
+import LessonAssignmentCard from '../components/course/LessonAssignmentCard'
 import progressService from '../services/progressService'
 import { downloadResource, openResourcePreview, getViewUrl } from '../services/resourceService'
 
@@ -201,10 +201,9 @@ export default function LessonDetail() {
     const navigate = useNavigate()
     const { t } = useAppPreferences()
 
-    const [lesson, setLesson]         = useState(null)
-    const [courseId, setCourseId]     = useState(null)
-    const [assignment, setAssignment] = useState(null)
-    const [loading, setLoading]       = useState(true)
+    const [lesson, setLesson]     = useState(null)
+    const [courseId, setCourseId] = useState(null)
+    const [loading, setLoading]   = useState(true)
     const [completion, setCompletion] = useState(null)
 
     // Mark lesson as viewed — backend auto-completes course if progress hits 100%
@@ -220,12 +219,8 @@ export default function LessonDetail() {
         const fetchData = async () => {
             try {
                 setLoading(true)
-                const [lessonRes, assignmentsRes] = await Promise.all([
-                    axiosInstance.get(`/lessons/${lessonId}`),
-                    axiosInstance.get(`/assignments/lesson/${lessonId}`),
-                ])
+                const lessonRes = await axiosInstance.get(`/lessons/${lessonId}`)
                 setLesson(lessonRes.data)
-                setAssignments(assignmentsRes.data)
                 if (lessonRes.data?.moduleId) {
                     try {
                         const modRes = await axiosInstance.get(`/modules/${lessonRes.data.moduleId}`)
@@ -286,6 +281,13 @@ export default function LessonDetail() {
                         {lesson.titulli}
                     </Typography>
                 </Box>
+
+                {/* Assignment type — show submit card prominently before grid */}
+                {lesson.lloji === 'ASSIGNMENT' && (
+                    <Box className="mb-6">
+                        <LessonAssignmentCard lessonId={lessonId} />
+                    </Box>
+                )}
 
                 <div className="grid gap-6 lg:grid-cols-3">
 
@@ -379,38 +381,10 @@ export default function LessonDetail() {
                             </CardContent>
                         </Card>
 
-                        {/* Assignments */}
-                        <Card elevation={0} className="rounded-2xl border border-slate-200/80 bg-white dark:!bg-slate-900/50 dark:!border-slate-700/80">
-                            <CardContent className="!p-5">
-                                <Typography variant="subtitle1" className="!font-bold !text-slate-900 dark:!text-white !mb-4 flex items-center gap-2">
-                                    <AssignmentRounded className="text-sky-600" fontSize="small" />
-                                    {t('lessonDetail.assignments')}
-                                </Typography>
-                                {assignments.length === 0 ? (
-                                    <Typography variant="body2" className="!text-slate-500">
-                                        {t('lessonDetail.noAssignments')}
-                                    </Typography>
-                                ) : (
-                                    <div className="flex flex-col gap-3">
-                                        {assignments.map(assignment => (
-                                            <Box
-                                                key={assignment.id}
-                                                className="p-3 rounded-xl border border-slate-100 dark:border-slate-700 hover:bg-sky-50/50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors"
-                                                onClick={() => navigate(`/assignment/${assignment.id}`)}
-                                            >
-                                                <Typography variant="body2" className="!font-semibold !text-slate-800 dark:!text-white">
-                                                    {assignment.title}
-                                                </Typography>
-                                                <Typography variant="caption" className="!text-slate-500 !block !mt-1">
-                                                    ⏰ {t('lessonDetail.deadline')} {new Date(assignment.deadline).toLocaleDateString()}
-                                                </Typography>
-                                                <Chip label={assignment.isOpen ? 'Hapur' : 'Mbyllur'} size="small" className="!mt-2 !text-xs" color={assignment.isOpen ? 'success' : 'default'} />
-                                            </Box>
-                                        ))}
-                                    </div>
-                                )}
-                            </CardContent>
-                        </Card>
+                        {/* Assignment in sidebar only for non-ASSIGNMENT lessons (e.g. a lesson that also has an assignment) */}
+                        {lesson.lloji !== 'ASSIGNMENT' && (
+                            <LessonAssignmentCard lessonId={lessonId} />
+                        )}
                     </div>
                 </div>
             </Container>

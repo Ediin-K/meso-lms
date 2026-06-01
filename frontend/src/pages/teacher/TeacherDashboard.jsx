@@ -39,14 +39,6 @@ export default function TeacherDashboard() {
       bg: "bg-indigo-100 dark:bg-indigo-900/40",
     },
     {
-      title: "Detyrat",
-      desc: "Krijoni detyra për leksionet tuaja, bashkëngjitni udhëzime dhe shikoni dorëzimet e studentëve.",
-      icon: AssignmentRounded,
-      path: "/teacher/assignments",
-      color: "text-emerald-600",
-      bg: "bg-emerald-100 dark:bg-emerald-900/40",
-    },
-    {
       title: "Studentët",
       desc: "Shikoni listën e studentëve të regjistruar dhe progresin e tyre.",
       icon: PeopleRounded,

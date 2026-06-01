@@ -41,7 +41,6 @@ const TeacherCourses = lazy(() => import("./pages/teacher/TeacherCourses.jsx"));
 const TeacherModules = lazy(() => import("./pages/teacher/TeacherModules.jsx"));
 const TeacherLessons = lazy(() => import("./pages/teacher/TeacherLessons.jsx"));
 const TeacherQuizzes = lazy(() => import("./pages/teacher/TeacherQuizzes.jsx"));
-const TeacherAssignments = lazy(() => import("./pages/teacher/TeacherAssignments.jsx"));
 const TeacherStudents = lazy(() => import("./pages/teacher/TeacherStudents.jsx"));
 const ProfessorGradesPage = lazy(() => import("./pages/teacher/ProfessorGradesPage.jsx"));
 const StudentGradesPage = lazy(() => import("./pages/student/StudentGradesPage.jsx"));
@@ -276,9 +275,9 @@ function AppLayout() {
                 <Route index element={<TeacherDashboard />} />
                 <Route path="courses" element={<TeacherCourses />} />
                 <Route path="modules" element={<TeacherModules />} />
+                <Route path="modules/:courseId" element={<TeacherModules />} />
                 <Route path="lessons" element={<TeacherLessons />} />
                 <Route path="quizzes" element={<TeacherQuizzes />} />
-                <Route path="assignments" element={<TeacherAssignments />} />
                 <Route path="students" element={<TeacherStudents />} />
                 <Route path="grades" element={<ProfessorGradesPage />} />
               </Route>

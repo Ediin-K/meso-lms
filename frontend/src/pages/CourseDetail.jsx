@@ -25,6 +25,8 @@ import VideocamRounded from '@mui/icons-material/VideocamRounded'
 import DescriptionRounded from '@mui/icons-material/DescriptionRounded'
 import QuizRounded from '@mui/icons-material/QuizRounded'
 import AssignmentTurnedInRounded from '@mui/icons-material/AssignmentTurnedInRounded'
+import UploadFileRounded from '@mui/icons-material/UploadFileRounded'
+import CloseRounded from '@mui/icons-material/CloseRounded'
 import teacherContentService from '../services/teacherContentService'
 import progressService from '../services/progressService'
 import { downloadResource, openResourcePreview } from '../services/resourceService'
@@ -152,6 +154,8 @@ export default function CourseDetail() {
     const [lessonForm, setLessonForm] = useState({ titulli: '', permbajtja: '', lloji: 'TEKST', videoUrl: '', resourceUrl: '', rradhitja: 1, deadline: '' })
     const [uploading, setUploading] = useState(false)
     const [pendingFiles, setPendingFiles] = useState([])
+    const [pendingAssignmentFile, setPendingAssignmentFile] = useState(null)
+    const [currentAssignmentAttachment, setCurrentAssignmentAttachment] = useState(null)
     const [menuAnchor, setMenuAnchor] = useState({ el: null, type: null, id: null })
 
     const [courseProgress, setCourseProgress] = useState(null)
@@ -267,16 +271,22 @@ export default function CourseDetail() {
                     setPendingFiles([])
                 }
             }
-            // If ASSIGNMENT lesson, save the deadline
+            // If ASSIGNMENT lesson, save the deadline and optional instruction file
             if (lessonForm.lloji === 'ASSIGNMENT' && lessonForm.deadline) {
                 try {
                     await assignmentService.upsertForLesson(lessonId, lessonForm.deadline + ':00')
-                } catch (err) { console.error("Gabim në ruajtjen e afatit:", err) }
+                    if (pendingAssignmentFile) {
+                        await assignmentService.uploadAttachment(lessonId, pendingAssignmentFile)
+                        setPendingAssignmentFile(null)
+                    }
+                } catch (err) { console.error("Gabim në ruajtjen e detyrës:", err) }
             }
             const res = await axiosInstance.get(`/modules/${lessonModal.moduleId}/lessons`)
             setLessons(prev => ({ ...prev, [lessonModal.moduleId]: res.data }))
             setSnackbarMessage(lessonModal.editing ? "Leksioni u përditësua me sukses." : "Leksioni u krijua me sukses.")
             setOpenSnackbar(true)
+            setPendingAssignmentFile(null)
+            setCurrentAssignmentAttachment(null)
             setLessonModal({ open: false, editing: null, moduleId: null })
         } catch (err) { console.error(err) }
     }
@@ -645,9 +655,9 @@ export default function CourseDetail() {
                                                     >
                                                         <Box
                                                             className={`flex items-center justify-between px-5 py-4 transition-colors ${
-                                                              lesson.lloji === 'QUIZ' ? '' : 'hover:bg-sky-50/30 dark:hover:bg-slate-800/30 cursor-pointer'
+                                                              lesson.lloji === 'QUIZ' || lesson.lloji === 'ASSIGNMENT' ? '' : 'hover:bg-sky-50/30 dark:hover:bg-slate-800/30 cursor-pointer'
                                                             }`}
-                                                            onClick={() => lesson.lloji !== 'QUIZ' && navigate(`/lesson/${lesson.id}`)}
+                                                            onClick={() => lesson.lloji !== 'QUIZ' && lesson.lloji !== 'ASSIGNMENT' && navigate(`/lesson/${lesson.id}`)}
                                                         >
                                                             <div className="flex items-center gap-3">
                                                                 <span className="text-sm font-bold text-slate-400 w-6">
@@ -690,6 +700,8 @@ export default function CourseDetail() {
                                                                         )}
                                                                         <IconButton size="small" onClick={(e) => {
                                                                             e.stopPropagation()
+                                                                            setPendingAssignmentFile(null)
+                                                                            setCurrentAssignmentAttachment(null)
                                                                             setLessonForm({
                                                                                 titulli: lesson.titulli,
                                                                                 permbajtja: lesson.permbajtja,
@@ -705,6 +717,10 @@ export default function CourseDetail() {
                                                                                     .then(r => {
                                                                                         if (r.data?.deadline)
                                                                                             setLessonForm(f => ({ ...f, deadline: r.data.deadline.slice(0, 16) }))
+                                                                                        setCurrentAssignmentAttachment({
+                                                                                            hasAttachment: r.data?.hasAttachment || false,
+                                                                                            attachmentName: r.data?.attachmentName || null,
+                                                                                        })
                                                                                     }).catch(() => {})
                                                                             }
                                                                         }}>
@@ -718,7 +734,7 @@ export default function CourseDetail() {
                                                                         </IconButton>
                                                                     </>
                                                                 )}
-                                                                {!isOwner && lesson.lloji !== 'QUIZ' && (
+                                                                {!isOwner && lesson.lloji !== 'QUIZ' && lesson.lloji !== 'ASSIGNMENT' && (
                                                                     <PlayCircleFilledRounded className="text-sky-500" fontSize="small" />
                                                                 )}
                                                             </div>
@@ -879,7 +895,11 @@ export default function CourseDetail() {
             {/* LESSON MANAGEMENT DIALOG */}
             <Dialog
                 open={lessonModal.open}
-                onClose={() => setLessonModal({ open: false, editing: null, moduleId: null })}
+                onClose={() => {
+                    setPendingAssignmentFile(null)
+                    setCurrentAssignmentAttachment(null)
+                    setLessonModal({ open: false, editing: null, moduleId: null })
+                }}
                 maxWidth="sm"
                 fullWidth
                 PaperProps={{ className: "rounded-3xl! p-2!" }}
@@ -934,15 +954,93 @@ export default function CourseDetail() {
                     />
 
                     {lessonForm.lloji === 'ASSIGNMENT' && (
-                        <TextField
-                            label="Afati i dorëzimit *"
-                            type="datetime-local"
-                            fullWidth
-                            value={lessonForm.deadline}
-                            onChange={e => setLessonForm({ ...lessonForm, deadline: e.target.value })}
-                            InputLabelProps={{ shrink: true }}
-                            helperText="Studenti nuk mund të dorëzojë pas këtij afati"
-                        />
+                        <Box className="rounded-2xl border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50/40 dark:bg-emerald-950/20 p-4 flex flex-col gap-4">
+                            <Typography variant="subtitle2" className="font-bold! text-emerald-800! dark:text-emerald-300! flex items-center gap-1">
+                                Detajet e Detyrës
+                            </Typography>
+
+                            {/* Date + Time picker */}
+                            <Box>
+                                <Typography variant="caption" className="font-bold! text-slate-500! block mb-1">
+                                    Afati i dorëzimit *
+                                </Typography>
+                                <Box className="flex gap-3">
+                                    <TextField
+                                        label="Data"
+                                        type="date"
+                                        size="small"
+                                        fullWidth
+                                        value={lessonForm.deadline?.slice(0, 10) || ''}
+                                        onChange={e => {
+                                            const time = lessonForm.deadline?.slice(11, 16) || '23:59'
+                                            setLessonForm(f => ({ ...f, deadline: e.target.value + 'T' + time }))
+                                        }}
+                                        InputLabelProps={{ shrink: true }}
+                                        inputProps={{ min: new Date().toISOString().slice(0, 10) }}
+                                    />
+                                    <TextField
+                                        label="Ora"
+                                        type="time"
+                                        size="small"
+                                        fullWidth
+                                        value={lessonForm.deadline?.slice(11, 16) || ''}
+                                        onChange={e => {
+                                            const date = lessonForm.deadline?.slice(0, 10) || new Date().toISOString().slice(0, 10)
+                                            setLessonForm(f => ({ ...f, deadline: date + 'T' + e.target.value }))
+                                        }}
+                                        InputLabelProps={{ shrink: true }}
+                                    />
+                                </Box>
+                                {lessonForm.deadline && (
+                                    <Typography variant="caption" className="text-emerald-700! dark:text-emerald-400! mt-1 block">
+                                        Afati: {new Date(lessonForm.deadline).toLocaleString('sq-AL', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })}
+                                    </Typography>
+                                )}
+                            </Box>
+
+                            {/* Instruction file upload */}
+                            <Box>
+                                <Typography variant="caption" className="font-bold! text-slate-500! block mb-1">
+                                    Skedar udhëzimesh (opsional)
+                                </Typography>
+                                {currentAssignmentAttachment?.hasAttachment && !pendingAssignmentFile && (
+                                    <Box className="flex items-center gap-2 p-2 rounded-xl border border-sky-200 bg-sky-50 dark:bg-sky-950/30 dark:border-sky-800 mb-2">
+                                        <AttachFileRounded fontSize="small" className="text-sky-600!" />
+                                        <Typography variant="caption" className="flex-1 truncate dark:text-slate-300!">
+                                            {currentAssignmentAttachment.attachmentName}
+                                        </Typography>
+                                        <Tooltip title="Hiq skedarin">
+                                            <IconButton
+                                                size="small"
+                                                className="text-red-500!"
+                                                onClick={async () => {
+                                                    try {
+                                                        await assignmentService.removeAttachment(lessonModal.editing)
+                                                        setCurrentAssignmentAttachment(p => ({ ...p, hasAttachment: false, attachmentName: null }))
+                                                    } catch (err) { console.error(err) }
+                                                }}
+                                            >
+                                                <DeleteRounded fontSize="small" />
+                                            </IconButton>
+                                        </Tooltip>
+                                    </Box>
+                                )}
+                                <label className="block cursor-pointer">
+                                    <Box className="flex items-center gap-2 px-3 py-2 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-700 hover:border-sky-400 transition-colors">
+                                        <UploadFileRounded className="text-sky-500!" fontSize="small" />
+                                        <Typography variant="caption" className="flex-1 truncate text-slate-500!">
+                                            {pendingAssignmentFile ? pendingAssignmentFile.name : (currentAssignmentAttachment?.hasAttachment ? 'Zëvendëso skedarin…' : 'Ngarko skedar udhëzimesh…')}
+                                        </Typography>
+                                        {pendingAssignmentFile && (
+                                            <IconButton size="small" className="text-slate-400!" onClick={e => { e.preventDefault(); setPendingAssignmentFile(null) }}>
+                                                <CloseRounded fontSize="small" />
+                                            </IconButton>
+                                        )}
+                                    </Box>
+                                    <input type="file" className="sr-only" onChange={e => setPendingAssignmentFile(e.target.files?.[0] || null)} />
+                                </label>
+                            </Box>
+                        </Box>
                     )}
 
                     <>
@@ -971,8 +1069,22 @@ export default function CourseDetail() {
                     </>
                 </DialogContent>
                 <DialogActions className="px-6! pb-6!">
-                    <Button onClick={() => setLessonModal({ open: false, editing: null, moduleId: null })} className="normal-case!">Anulo</Button>
-                    <Button variant="contained" onClick={handleLessonSubmit} className="rounded-full! bg-sky-600! normal-case!">
+                    <Button
+                        onClick={() => {
+                            setPendingAssignmentFile(null)
+                            setCurrentAssignmentAttachment(null)
+                            setLessonModal({ open: false, editing: null, moduleId: null })
+                        }}
+                        className="normal-case!"
+                    >
+                        Anulo
+                    </Button>
+                    <Button
+                        variant="contained"
+                        onClick={handleLessonSubmit}
+                        disabled={lessonForm.lloji === 'ASSIGNMENT' && !lessonForm.deadline}
+                        className="rounded-full! bg-sky-600! normal-case!"
+                    >
                         {lessonModal.editing ? "Përditëso" : "Krijo"}
                     </Button>
                 </DialogActions>
