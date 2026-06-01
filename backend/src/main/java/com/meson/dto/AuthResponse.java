@@ -1,5 +1,6 @@
 package com.meson.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -9,6 +10,7 @@ public class AuthResponse {
     private String token;
     private String email;
     private String role;
+    @JsonIgnore
     private String refreshToken;
     private Long userId;
 }

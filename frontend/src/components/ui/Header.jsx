@@ -265,8 +265,8 @@ export default function Header() {
 
             {isAuthenticated ? (
               <button
-                onClick={() => {
-                  logout()
+                onClick={async () => {
+                  await logout()
                   navigate('/login')
                 }}
                 className="hidden rounded-full px-2 py-2 text-sm font-semibold text-slate-600 md:inline-flex md:px-3"
@@ -334,9 +334,9 @@ export default function Header() {
                     type="button"
                     role="menuitem"
                     className="flex w-full items-center rounded-xl px-3 py-2.5 text-left text-sm font-medium text-rose-600 outline-none hover:bg-rose-50 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-rose-400"
-                    onClick={() => {
+                    onClick={async () => {
                       setProfileOpen(false)
-                      logout()
+                      await logout()
                       navigate('/login')
                     }}
                   >
@@ -458,8 +458,8 @@ export default function Header() {
               <button
                 type="button"
                 className="w-full text-left rounded-xl py-3 text-sm font-semibold text-slate-600 outline-none hover:bg-slate-900/[0.05] focus-visible:ring-2 focus-visible:ring-sky-500"
-                onClick={() => {
-                  logout()
+                onClick={async () => {
+                  await logout()
                   navigate('/login')
                 }}
               >

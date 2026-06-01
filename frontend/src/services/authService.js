@@ -1,3 +1,5 @@
+import axiosInstance from './axiosInstance'
+
 const API_URL = 'http://localhost:8080/api/auth';
 
 export const login = async (email, password) => {
@@ -6,6 +8,7 @@ export const login = async (email, password) => {
         headers: {
             'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({ email, password }),
     });
 
@@ -15,21 +18,24 @@ export const login = async (email, password) => {
 
     const data = await response.json();
     localStorage.setItem('token', data.token)
-    localStorage.setItem('refreshToken', data.refreshToken)
     localStorage.setItem('userId', data.userId)
-    localStorage.setItem('email', email)        // ✅ shto këtë
-    localStorage.setItem('meson-role', data.role ?? '') // ✅ shto këtë
+    localStorage.setItem('email', email)
+    localStorage.setItem('meson-role', data.role ?? '')
 
     return {
         ...data,
-        email: email,  // ✅ shto këtë
+        email: email,
     };
 };
 
-export const logout = () => {
+export const logout = async () => {
+    try {
+        await axiosInstance.post('/auth/logout')
+    } catch {
+        // vazhdo edhe nëse backend-i dështon
+    }
     localStorage.removeItem('token')
     localStorage.removeItem('email')
-    localStorage.removeItem('refreshToken')
     localStorage.removeItem('meson-role')
     localStorage.removeItem('userId')
     localStorage.removeItem('lastCourseId')
