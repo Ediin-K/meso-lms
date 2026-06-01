@@ -41,7 +41,7 @@ public class AssignmentService {
         return toResponse(findAssignment(id));
     }
 
-    // ── Teacher: create or update assignment for a lesson (upsert) ───────────
+   
 
     public AssignmentResponse upsertForLesson(Long lessonId, LocalDateTime deadline, Long teacherId) {
         Lesson lesson = lessonRepository.findById(lessonId)
