@@ -48,12 +48,11 @@ export function AppPreferencesProvider({ children }) {
   const [role, setRoleState] = useState(readStoredRole)
   const [colorMode, setColorModeState] = useState(readStoredColorMode)
   const [isAuthenticated, setIsAuthenticated] = useState(
-      !!localStorage.getItem('token')
+      !!localStorage.getItem('userId')
   )
   const logout = useCallback(() => {
-    localStorage.removeItem('token')
+    localStorage.removeItem('userId')
     localStorage.removeItem('email')
-    localStorage.removeItem('refreshToken')
     localStorage.removeItem(STORAGE_ROLE)
     setIsAuthenticated(false)
     setRoleState('guest')

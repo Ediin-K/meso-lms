@@ -136,8 +136,6 @@ export default function Login() {
       const data = await login(email, password)
 
       localStorage.setItem('email', data.email)
-      localStorage.setItem('token', data.token)
-
       setIsAuthenticated(true)
 
       if (data.role) {

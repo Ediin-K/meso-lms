@@ -7,18 +7,6 @@ const axiosInstance = axios.create({
     withCredentials: true,
 })
 
-axiosInstance.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem('token')
-        if (token) {
-            config.headers = config.headers || {}
-            config.headers.Authorization = `Bearer ${token}`
-        }
-        return config
-    },
-    (error) => Promise.reject(error)
-)
-
 axiosInstance.interceptors.response.use(
     (response) => response,
     async (error) => {
@@ -28,17 +16,13 @@ axiosInstance.interceptors.response.use(
             originalRequest._retry = true
 
             try {
-                // Cookie httpOnly dërgohet automatikisht nga browser-i
-                const response = await axios.post(
+                // Cookie-t dërgohen automatikisht nga browser-i
+                await axios.post(
                     `${API_BASE_URL}/auth/refresh`,
                     {},
                     { withCredentials: true }
                 )
 
-                localStorage.setItem('token', response.data.token)
-
-                originalRequest.headers = originalRequest.headers || {}
-                originalRequest.headers.Authorization = `Bearer ${response.data.token}`
                 return axiosInstance(originalRequest)
             } catch {
                 localStorage.clear()

@@ -4,6 +4,7 @@ import com.meson.repository.UserRepository;
 import com.meson.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -32,17 +33,19 @@ public class JwtFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        // 1. Merr Authorization header
-        String authHeader = request.getHeader("Authorization");
+        // 1. Merr token: fillimisht nga cookie, fallback te Authorization header (Swagger/Postman)
+        String token = extractTokenFromCookie(request);
+        if (token == null) {
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                token = authHeader.substring(7);
+            }
+        }
 
-        // 2. Kontrollo nëse ka token
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        if (token == null) {
             filterChain.doFilter(request, response);
             return;
         }
-
-        // 3. Nxjerr token (hiq "Bearer ")
-        String token = authHeader.substring(7);
 
         // 4. Nxjerr emailin dhe rolin nga token
         String email = jwtService.extractEmail(token);
@@ -83,5 +86,15 @@ public class JwtFilter extends OncePerRequestFilter {
 
         // 10. Vazhdo me kërkesën
         filterChain.doFilter(request, response);
+    }
+
+    private String extractTokenFromCookie(HttpServletRequest request) {
+        if (request.getCookies() == null) return null;
+        for (Cookie cookie : request.getCookies()) {
+            if ("accessToken".equals(cookie.getName())) {
+                return cookie.getValue();
+            }
+        }
+        return null;
     }
 }

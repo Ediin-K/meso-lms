@@ -17,7 +17,6 @@ export const login = async (email, password) => {
     }
 
     const data = await response.json();
-    localStorage.setItem('token', data.token)
     localStorage.setItem('userId', data.userId)
     localStorage.setItem('email', email)
     localStorage.setItem('meson-role', data.role ?? '')
@@ -32,19 +31,14 @@ export const logout = async () => {
     try {
         await axiosInstance.post('/auth/logout')
     } catch {
-        // vazhdo edhe nëse backend-i dështon
+        // vazhdo
     }
-    localStorage.removeItem('token')
     localStorage.removeItem('email')
     localStorage.removeItem('meson-role')
     localStorage.removeItem('userId')
     localStorage.removeItem('lastCourseId')
 };
 
-export const getToken = () => {
-    return localStorage.getItem('token');
-};
-
 export const isAuthenticated = () => {
-    return !!localStorage.getItem('token');
+    return !!localStorage.getItem('userId');
 };
