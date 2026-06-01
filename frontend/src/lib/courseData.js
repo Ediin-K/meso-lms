@@ -1,4 +1,4 @@
-// src/lib/courseData.js
+
 export const COURSES_DATA = {
     cs: {
         id: 'cs',

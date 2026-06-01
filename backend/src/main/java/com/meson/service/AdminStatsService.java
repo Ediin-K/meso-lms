@@ -47,8 +47,6 @@ public class AdminStatsService {
         );
     }
 
-    // ── private helpers ────────────────────────────────────────────────────
-
     private List<MonthlyCountDTO> buildEnrollmentsByMonth() {
         int year = LocalDateTime.now().getYear();
         List<Enrollment> all = enrollmentRepository.findAll();

@@ -57,7 +57,6 @@ export default function Contact() {
     const [submitted, setSubmitted] = useState(false)
     const { t } = useAppPreferences()
 
-
     const charCount = useMemo(() => Math.min(form.message.length, 600), [form.message])
 
     const handleChange = (field) => (e) => {

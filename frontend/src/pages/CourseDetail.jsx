@@ -49,16 +49,19 @@ function formatFileSize(bytes) {
     return `${(bytes / 1024 / 1024).toFixed(1)} MB`
 }
 
-function resourceIcon(type) {
-    if (type === 'PDF') return PictureAsPdfRounded
-    if (type === 'IMAGE') return ImageRounded
-    if (type === 'VIDEO') return VideocamRounded
-    if (type === 'DOCUMENT' || type === 'PRESENTATION' || type === 'SPREADSHEET') return DescriptionRounded
-    return AttachFileRounded
+function ResourceTypeIcon({ type, sx }) {
+    switch (type) {
+        case 'PDF':          return <PictureAsPdfRounded sx={sx} />
+        case 'IMAGE':        return <ImageRounded sx={sx} />
+        case 'VIDEO':        return <VideocamRounded sx={sx} />
+        case 'DOCUMENT':
+        case 'PRESENTATION':
+        case 'SPREADSHEET':  return <DescriptionRounded sx={sx} />
+        default:             return <AttachFileRounded sx={sx} />
+    }
 }
 
 function LearningResourceCard({ resource, isOwner, isDark, onPreview, onDownload, onDelete }) {
-    const Icon = resourceIcon(resource.resourceType)
     const text = isDark ? '#f8fafc' : '#0f172a'
     const muted = isDark ? '#cbd5e1' : '#64748b'
     const border = isDark ? '#334155' : '#e2e8f0'
@@ -73,7 +76,7 @@ function LearningResourceCard({ resource, isOwner, isDark, onPreview, onDownload
                 className="h-11 w-11 rounded-xl flex items-center justify-center shrink-0"
                 sx={{ bgcolor: isDark ? 'rgba(125,211,252,0.14)' : 'rgba(14,165,233,0.10)' }}
             >
-                <Icon sx={{ color: isDark ? '#bae6fd' : '#0369a1' }} />
+                <ResourceTypeIcon type={resource.resourceType} sx={{ color: isDark ? '#bae6fd' : '#0369a1' }} />
             </Box>
             <Box className="min-w-0 flex-1">
                 <Typography sx={{ color: text, fontWeight: 800 }} noWrap title={resource.emriOrigjinal}>
@@ -132,7 +135,6 @@ export default function CourseDetail() {
     const [loading, setLoading] = useState(true)
     const [isEnrolled, setIsEnrolled] = useState(false)
 
-    // Deletion & Toast States
     const [deleteTarget, setDeleteTarget] = useState(null)
     const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false)
     const [snackbarMessage, setSnackbarMessage] = useState("")
@@ -147,7 +149,6 @@ export default function CourseDetail() {
     const userId = localStorage.getItem('userId')
     const [isOwner, setIsOwner] = useState(false)
 
-    // Management State
     const [moduleModal, setModuleModal] = useState({ open: false, editing: null })
     const [lessonModal, setLessonModal] = useState({ open: false, editing: null, moduleId: null })
     const [moduleForm, setModuleForm] = useState({ titulli: '', pershkrimi: '', rradhitja: 1 })
@@ -156,7 +157,6 @@ export default function CourseDetail() {
     const [pendingFiles, setPendingFiles] = useState([])
     const [pendingAssignmentFile, setPendingAssignmentFile] = useState(null)
     const [currentAssignmentAttachment, setCurrentAssignmentAttachment] = useState(null)
-    const [menuAnchor, setMenuAnchor] = useState({ el: null, type: null, id: null })
 
     const [courseProgress, setCourseProgress] = useState(null)
     const [submissionsModal, setSubmissionsModal] = useState({ open: false, lessonId: null, lessonTitle: '' })
@@ -271,7 +271,7 @@ export default function CourseDetail() {
                     setPendingFiles([])
                 }
             }
-            // If ASSIGNMENT lesson, save the deadline and optional instruction file
+            
             if (lessonForm.lloji === 'ASSIGNMENT' && lessonForm.deadline) {
                 try {
                     await assignmentService.upsertForLesson(lessonId, lessonForm.deadline + ':00')
@@ -338,7 +338,7 @@ export default function CourseDetail() {
                     failCount++;
                 }
             }
-            // Refresh lessons to show new file(s)
+            
             const res = await axiosInstance.get(`/modules/${lessonModal.moduleId}/lessons`)
             setLessons(prev => ({ ...prev, [lessonModal.moduleId]: res.data }))
 
@@ -385,7 +385,6 @@ export default function CourseDetail() {
         }
     }
 
-    // --- ASSIGNMENT HANDLERS ---
     const handleOpenSubmissions = async (lesson) => {
         setSubmissionsModal({ open: true, lessonId: lesson.id, lessonTitle: lesson.titulli })
         setSubsLoading(true)
@@ -435,7 +434,7 @@ export default function CourseDetail() {
         <section className="flex flex-col min-h-screen">
             <Container maxWidth="lg" className="grow py-8 px-4 sm:px-6 lg:px-8 mt-4 sm:mt-8">
 
-                {/* BACK */}
+                {}
                 <Button
                     startIcon={<ArrowBackRounded />}
                     onClick={() => navigate(-1)}
@@ -444,7 +443,7 @@ export default function CourseDetail() {
                     {t('course.backToSubjects')}
                 </Button>
 
-                {/* HEADER */}
+                {}
                 <Box className="mb-8">
                     <Typography variant="overline" className="font-bold! tracking-widest! text-sky-600! dark:text-sky-400!">
                         {course.categoryName}
@@ -468,7 +467,7 @@ export default function CourseDetail() {
                     </div>
                 </Box>
 
-                {/* ENROLLMENT BANNER */}
+                {}
                 {!isEnrolled && (
                     <Card elevation={0} className="rounded-2xl border border-amber-200/80 bg-amber-50/50 dark:border-amber-700/40! dark:bg-amber-900/10! mb-6">
                         <CardContent className="p-5! flex items-center justify-between flex-wrap gap-4">
@@ -491,7 +490,7 @@ export default function CourseDetail() {
                     </Card>
                 )}
 
-                {/* STUDENT PROGRESS CARD */}
+                {}
                 {courseProgress && !isOwner && (
                     <Card elevation={0} className="rounded-2xl border border-slate-200/80 bg-white dark:bg-slate-900/50! dark:border-slate-700/80! mb-6">
                         <CardContent className="p-5!">
@@ -503,14 +502,14 @@ export default function CourseDetail() {
                                     {courseProgress.viewedLessons}/{courseProgress.totalLessons} leksione &nbsp;·&nbsp; {Math.round(courseProgress.progressPercent)}%
                                 </span>
                             </div>
-                            {/* Overall bar */}
+                            {}
                             <div className="mb-4 h-3 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
                                 <div
                                     className="h-full rounded-full bg-sky-500 transition-all duration-500"
                                     style={{ width: `${courseProgress.progressPercent}%` }}
                                 />
                             </div>
-                            {/* Per-module breakdown */}
+                            {}
                             <div className="flex flex-col gap-2">
                                 {courseProgress.modules.map((mod) => (
                                     <div key={mod.moduleId}>
@@ -531,7 +530,7 @@ export default function CourseDetail() {
                     </Card>
                 )}
 
-                {/* MODULES HEADER */}
+                {}
                 <Box className="flex items-center justify-between mb-6">
                     <Typography variant="h5" className="font-bold! text-slate-900! dark:text-white!">
                         Përmbajtja e Kursit
@@ -551,7 +550,7 @@ export default function CourseDetail() {
                     )}
                 </Box>
 
-                {/* MODULES */}
+                {}
                 {!isEnrolled ? (
                     <Box className="flex flex-col justify-center items-center py-20 px-4 text-center bg-white/60 dark:bg-slate-900/60 rounded-3xl border border-dashed border-slate-300 dark:border-slate-700">
                         <LockRounded className="text-6xl! text-slate-300 dark:text-slate-600 mb-4" />
@@ -752,7 +751,7 @@ export default function CourseDetail() {
                                                             </Box>
                                                         )}
 
-                                                        {/* Resources list */}
+                                                        {}
                                                         {lesson.resources && lesson.resources.length > 0 && (
                                                             <Box className="px-4 sm:px-14 pb-4 flex flex-col gap-2">
                                                                 {lesson.resources.map(res => (
@@ -797,7 +796,7 @@ export default function CourseDetail() {
             </Container>
             <Footer />
 
-             {/* MODAL */}
+             {}
             {showModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
                     <Card elevation={0} className="w-full max-w-md mx-4 rounded-3xl border border-slate-200/80 bg-white dark:bg-slate-900/95! dark:border-slate-700/80!">
@@ -808,7 +807,7 @@ export default function CourseDetail() {
                             <Typography variant="body2" className="text-slate-500! dark:text-slate-400! mb-6!">
                                 Fut kodin e regjistrimit që të ka dhënë mësuesi
                             </Typography>
-                            {/* Group selection removed; auto-select first group in useEffect. */}
+                            {}
 
                             <input
                                 onChange={(e) => setEnrollmentKey(e.target.value)}
@@ -857,7 +856,7 @@ export default function CourseDetail() {
                 </div>
             )}
 
-            {/* MODULE MANAGEMENT DIALOG */}
+            {}
             <Dialog
                 open={moduleModal.open}
                 onClose={() => setModuleModal({ open: false, editing: null })}
@@ -892,7 +891,7 @@ export default function CourseDetail() {
                 </DialogActions>
             </Dialog>
 
-            {/* LESSON MANAGEMENT DIALOG */}
+            {}
             <Dialog
                 open={lessonModal.open}
                 onClose={() => {
@@ -959,7 +958,7 @@ export default function CourseDetail() {
                                 Detajet e Detyrës
                             </Typography>
 
-                            {/* Date + Time picker */}
+                            {}
                             <Box>
                                 <Typography variant="caption" className="font-bold! text-slate-500! block mb-1">
                                     Afati i dorëzimit *
@@ -998,7 +997,7 @@ export default function CourseDetail() {
                                 )}
                             </Box>
 
-                            {/* Instruction file upload */}
+                            {}
                             <Box>
                                 <Typography variant="caption" className="font-bold! text-slate-500! block mb-1">
                                     Skedar udhëzimesh (opsional)
@@ -1090,7 +1089,7 @@ export default function CourseDetail() {
                 </DialogActions>
             </Dialog>
 
-            {/* SUBMISSIONS DIALOG */}
+            {}
             <Dialog
                 open={submissionsModal.open}
                 onClose={() => setSubmissionsModal({ open: false, lessonId: null, lessonTitle: '' })}
@@ -1146,7 +1145,7 @@ export default function CourseDetail() {
                     <Button onClick={() => setSubmissionsModal({ open: false, lessonId: null, lessonTitle: '' })} className="font-bold!">Mbyll</Button>
                 </DialogActions>
             </Dialog>
-            {/* DELETE CONFIRMATION DIALOG */}
+            {}
             <Dialog
                 open={openDeleteConfirm}
                 onClose={() => {
@@ -1224,7 +1223,7 @@ export default function CourseDetail() {
                 </DialogActions>
             </Dialog>
 
-            {/* SUCCESS TOAST */}
+            {}
             <Snackbar
                 open={openSnackbar}
                 autoHideDuration={4000}

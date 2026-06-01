@@ -1,7 +1,7 @@
 import axiosInstance from './axiosInstance'
 
 const assignmentService = {
-    // Student
+    
     getByLesson:     (lessonId) => axiosInstance.get(`/assignments/lesson/${lessonId}`),
     getById:         (id)       => axiosInstance.get(`/assignments/${id}`),
     getMySubmission: (id)       => axiosInstance.get(`/assignments/${id}/my-submission`),
@@ -18,7 +18,6 @@ const assignmentService = {
     downloadAttachment: (id) =>
         axiosInstance.get(`/assignments/${id}/attachment`, { responseType: 'blob' }),
 
-    // Teacher — lesson-scoped
     upsertForLesson: (lessonId, deadline) =>
         axiosInstance.post(`/teacher/lessons/${lessonId}/assignment`, { deadline }),
 
@@ -42,7 +41,6 @@ const assignmentService = {
     downloadSubmissionFile: (subId) =>
         axiosInstance.get(`/teacher/submissions/${subId}/file`, { responseType: 'blob' }),
 
-    // Teacher — overview
     getAll: () => axiosInstance.get('/teacher/assignments'),
 }
 

@@ -27,7 +27,6 @@ public class TeacherAssignmentController {
     private final AssignmentService assignmentService;
     private final UserRepository userRepository;
 
-    /** Create or update the assignment tied to this ASSIGNMENT-type lesson. */
     @PostMapping("/lessons/{lessonId}/assignment")
     public AssignmentResponse upsert(@PathVariable Long lessonId,
                                      @RequestBody Map<String, String> body) {
@@ -42,7 +41,6 @@ public class TeacherAssignmentController {
         return ResponseEntity.noContent().build();
     }
 
-    /** Upload/replace the instruction file for an assignment. */
     @PostMapping("/lessons/{lessonId}/assignment/attachment")
     public AssignmentResponse uploadAttachment(@PathVariable Long lessonId,
                                                @RequestParam("file") MultipartFile file) {
@@ -54,13 +52,11 @@ public class TeacherAssignmentController {
         return assignmentService.removeAttachment(lessonId, currentUserId());
     }
 
-    /** All submissions for the assignment on this lesson. */
     @GetMapping("/lessons/{lessonId}/assignment/submissions")
     public List<AssignmentSubmissionResponse> getSubmissions(@PathVariable Long lessonId) {
         return assignmentService.getSubmissionsByLesson(lessonId, currentUserId());
     }
 
-    /** Download one student's submitted file. */
     @GetMapping("/submissions/{subId}/file")
     public ResponseEntity<Resource> downloadSubmission(@PathVariable Long subId) {
         Resource resource = assignmentService.serveSubmissionFile(subId, currentUserId());
@@ -72,7 +68,6 @@ public class TeacherAssignmentController {
                 .body(resource);
     }
 
-    /** All assignments across all this teacher's lessons. */
     @GetMapping("/assignments")
     public List<AssignmentResponse> getAll() {
         return assignmentService.getTeacherAssignments(currentUserId());

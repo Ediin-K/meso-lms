@@ -7,21 +7,6 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 
-/**
- * @param {object} props
- * @param {string} props.id
- * @param {string} props.label
- * @param {string} props.value
- * @param {(e: import('react').ChangeEvent<HTMLInputElement>) => void} props.onChange
- * @param {(e: import('react').FocusEvent<HTMLInputElement>) => void} [props.onBlur]
- * @param {string} [props.error]
- * @param {boolean} props.showPassword
- * @param {() => void} props.onToggleVisibility
- * @param {{ label: string, level: string, segments: number }} [props.strength]
- * @param {boolean} [props.showStrength]
- * @param {string} [props.autoComplete]
- * @param {boolean} [props.showCapsLockHint]
- */
 export default function PasswordField({
   id,
   label,
@@ -56,9 +41,7 @@ export default function PasswordField({
       if (typeof e.getModifierState === 'function') {
         setCapsLockOn(e.getModifierState('CapsLock'))
       }
-    } catch {
-      /* ignore */
-    }
+    } catch { void 0 }
   }
 
   const handleBlur = (e) => {

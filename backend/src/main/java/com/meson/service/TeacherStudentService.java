@@ -28,9 +28,7 @@ public class TeacherStudentService {
 
     public List<EnrollmentResponse> getStudentsByCourse(Long courseId) {
         User teacher = getCurrentUser();
-        // Here we could add a check if course belongs to teacher if we use findByCourseId
-        // but finding by courseId AND teacherId is safer.
-        // For simplicity, let's just use the courseTeacherId filter.
+        
         return enrollmentRepository.findByCourseId(courseId).stream()
                 .filter(e -> e.getCourse().getTeacher().getId().equals(teacher.getId()))
                 .map(this::toResponse)

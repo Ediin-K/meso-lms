@@ -149,7 +149,7 @@ export default function Notifications() {
         <Footer />
       </div>
 
-      {/* SUCCESS TOAST */}
+      {}
       <Snackbar
         open={openSnackbar}
         autoHideDuration={3000}

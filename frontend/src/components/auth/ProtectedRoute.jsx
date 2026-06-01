@@ -1,4 +1,4 @@
-// src/components/auth/ProtectedRoute.jsx
+
 import { Navigate } from "react-router-dom";
 import { useAppPreferences } from "../../context/appPreferencesContext.js";
 

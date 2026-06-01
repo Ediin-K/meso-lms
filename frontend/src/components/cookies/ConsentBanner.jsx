@@ -67,7 +67,7 @@ const ConsentBanner = () => {
           },
         }}
       >
-        {/* Top Accent Gradient Line */}
+        {}
         <Box 
           className="h-1.5 w-full bg-gradient-to-r from-blue-500 via-indigo-500 to-cyan-400"
         />
@@ -166,7 +166,7 @@ const ConsentBanner = () => {
           </Box>
         </Box>
 
-        {/* Close button for minimalists */}
+        {}
         <IconButton 
           size="small"
           onClick={handleRejectNonEssential}

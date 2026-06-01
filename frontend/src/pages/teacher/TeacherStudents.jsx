@@ -48,7 +48,6 @@ export default function TeacherStudents() {
   const [loadingStudents, setLoadingStudents] = useState(false);
   const [error, setError]               = useState('');
 
-  // Detail modal
   const [detailOpen, setDetailOpen]     = useState(false);
   const [detailStudent, setDetailStudent] = useState(null);
   const [detailProgress, setDetailProgress] = useState(null);
@@ -90,7 +89,7 @@ export default function TeacherStudents() {
     <Box className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-950">
       <Container maxWidth="xl" className="py-8 mt-4 sm:mt-8 flex-grow">
 
-        {/* Back button */}
+        {}
         <Box className="mb-8">
           <Button
             startIcon={<ArrowBackRounded />}
@@ -101,7 +100,7 @@ export default function TeacherStudents() {
           </Button>
         </Box>
 
-        {/* Header */}
+        {}
         <Box className="mb-8 flex items-center gap-4">
           <Box className="h-12 w-12 rounded-2xl bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400 flex items-center justify-center">
             <PeopleRounded />
@@ -116,7 +115,7 @@ export default function TeacherStudents() {
 
         {error && <Alert severity="error" className="!mb-6" onClose={() => setError('')}>{error}</Alert>}
 
-        {/* Course selector */}
+        {}
         <Card elevation={0} className="rounded-2xl border border-slate-200 bg-white dark:!border-slate-800 dark:!bg-slate-900 mb-6">
           <CardContent className="!p-5">
             <Typography variant="subtitle2" className="!mb-3 !font-bold dark:!text-white">Zgjidh kursin</Typography>
@@ -139,7 +138,7 @@ export default function TeacherStudents() {
           </CardContent>
         </Card>
 
-        {/* Student list */}
+        {}
         {!selectedCourse && (
           <div className="rounded-[2rem] border-2 border-dashed border-slate-200 dark:border-slate-800 p-16 text-center">
             <SchoolRounded className="!text-5xl text-slate-200 dark:text-slate-700 !mb-3" />
@@ -217,7 +216,7 @@ export default function TeacherStudents() {
         </div>
       </Container>
 
-      {/* Per-student detail modal */}
+      {}
       <Dialog
         open={detailOpen}
         onClose={() => setDetailOpen(false)}
@@ -243,7 +242,7 @@ export default function TeacherStudents() {
           )}
           {!detailLoading && detailProgress && (
             <div className="space-y-5 mt-2">
-              {/* Overall */}
+              {}
               <div className="rounded-xl bg-sky-50 dark:bg-sky-950/30 p-4">
                 <div className="mb-2 flex items-center justify-between">
                   <Typography variant="body2" className="font-bold! dark:!text-white">Totali</Typography>
@@ -258,7 +257,7 @@ export default function TeacherStudents() {
                 />
               </div>
 
-              {/* Per module */}
+              {}
               <div className="space-y-3">
                 {detailProgress.modules.map((mod, i) => (
                   <div key={mod.moduleId}>

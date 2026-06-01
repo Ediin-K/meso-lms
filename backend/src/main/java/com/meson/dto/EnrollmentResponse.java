@@ -1,4 +1,4 @@
-// EnrollmentResponse.java
+
 package com.meson.dto;
 
 import com.meson.entity.EnrollmentStatus;

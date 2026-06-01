@@ -5,8 +5,6 @@ import lombok.*;
 import java.util.List;
 import java.util.ArrayList;
 
-
-
 @Entity
 @Table(name="course_categories")
 @Data

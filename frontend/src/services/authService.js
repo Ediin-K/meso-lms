@@ -30,9 +30,7 @@ export const login = async (email, password) => {
 export const logout = async () => {
     try {
         await axiosInstance.post('/auth/logout')
-    } catch {
-        // vazhdo
-    }
+    } catch { void 0 }
     localStorage.removeItem('email')
     localStorage.removeItem('meson-role')
     localStorage.removeItem('userId')

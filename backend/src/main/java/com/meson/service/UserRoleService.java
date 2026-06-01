@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-
 @Service
 @RequiredArgsConstructor
 public class UserRoleService {
@@ -70,6 +69,5 @@ public class UserRoleService {
         response.setRole(userRole.getRole().getEmertimi());
         return response;
     }
-
 
 }

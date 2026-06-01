@@ -11,13 +11,11 @@ import AssignmentTurnedInRounded from "@mui/icons-material/AssignmentTurnedInRou
 import { useAppPreferences } from "../../context/appPreferencesContext.js"
 import Footer from "../../components/ui/Footer.jsx"
 
-
 const STUDENT_TASK_KEYS = ['task1', 'task2', 'task3']
 
 export default function StudentDashboard() {
     const { t } = useAppPreferences()
     const navigate = useNavigate()
-
 
     const semesters = Array.from({ length: 6 }, (_, i) => i + 1)
     const lastCourseId = localStorage.getItem('lastCourseId')
@@ -40,7 +38,7 @@ export default function StudentDashboard() {
 
             <div className="mt-5 grid grid-cols-1 gap-4 lg:grid-cols-12 lg:gap-5 lg:items-stretch">
 
-                {/* Majtas: njoftime */}
+                {}
                 <aside className="order-2 flex flex-col lg:order-1 lg:col-span-3">
                     <Card
                         elevation={0}
@@ -78,7 +76,7 @@ export default function StudentDashboard() {
                     </Card>
                 </aside>
 
-                {/* Mes: vazhdo ku e le */}
+                {}
                 <div className="order-1 lg:order-2 lg:col-span-6">
                     <Card
                         elevation={0}
@@ -110,7 +108,7 @@ export default function StudentDashboard() {
                     </Card>
                 </div>
 
-                {/* Djathtas: detyra */}
+                {}
                 <aside className="order-3 lg:col-span-3">
                     <Card
                         elevation={0}

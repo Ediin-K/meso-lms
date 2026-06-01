@@ -56,7 +56,7 @@ export default function About() {
   return (
     <div className="flex w-full min-h-0 flex-1 flex-col">
       <div className="about-page flex min-h-0 flex-1 flex-col rounded-2xl border border-sky-200/45 bg-gradient-to-b from-white via-sky-50/35 to-slate-50 px-2 py-5 shadow-[0_1px_3px_rgba(15,23,42,0.04)] ring-1 ring-sky-100/40 transition-colors dark:border-slate-700/50 dark:from-slate-900 dark:via-slate-900/95 dark:to-slate-950 dark:ring-slate-800/50 sm:px-4 sm:py-7">
-        {/* Hero */}
+        {}
         <section
           className="relative overflow-hidden rounded-3xl border border-sky-100/80 bg-slate-900 shadow-xl shadow-sky-200/25 dark:border-slate-700/80 dark:shadow-slate-950/50"
           aria-labelledby="about-hero-heading"
@@ -113,7 +113,7 @@ export default function About() {
         </section>
 
         <Container maxWidth="lg" className="!mt-12 !px-1 sm:!px-3" component="div">
-          {/* Mission & Vision */}
+          {}
           <div className="grid gap-6 md:grid-cols-2 md:gap-8">
             <Card
               elevation={0}
@@ -150,7 +150,7 @@ export default function About() {
             </Card>
           </div>
 
-          {/* What is Meson */}
+          {}
           <Box className="mt-14 text-center md:text-left">
             <Typography
               variant="overline"
@@ -202,7 +202,7 @@ export default function About() {
             })}
           </div>
 
-          {/* Team */}
+          {}
           <Box className="mt-16">
             <Typography
               variant="overline"
@@ -243,7 +243,7 @@ export default function About() {
             </div>
           </Box>
 
-          {/* Trust */}
+          {}
           <Card
             elevation={0}
             className={`${cardBase} mt-14 border-sky-200/70 bg-gradient-to-br from-sky-50/90 via-white to-indigo-50/40 dark:border-slate-600/80 dark:from-slate-900 dark:via-slate-900/90 dark:to-indigo-950/40`}
@@ -266,7 +266,7 @@ export default function About() {
             </CardContent>
           </Card>
 
-          {/* Stats */}
+          {}
           <Box className="mt-14 text-center">
             <Typography
               variant="overline"
@@ -305,7 +305,7 @@ export default function About() {
             </div>
           </Box>
 
-          {/* Why choose us */}
+          {}
           <Box className="mt-16 mb-4">
             <Typography
               variant="h4"
@@ -338,7 +338,7 @@ export default function About() {
             </div>
           </Box>
 
-          {/* Final CTA */}
+          {}
           <section
             className="relative mt-12 overflow-hidden rounded-3xl border border-sky-200/60 bg-gradient-to-br from-sky-600 via-indigo-700 to-slate-900 px-6 py-12 text-center shadow-xl dark:border-slate-700/80"
             aria-labelledby="about-cta-heading"

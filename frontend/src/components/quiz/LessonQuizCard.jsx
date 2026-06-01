@@ -32,9 +32,7 @@ export default function LessonQuizCard({ lessonId, courseId, compact = false }) 
             try {
               const attRes = await quizService.getMyAttempt(quiz.id);
               if (attRes.status === 200 && attRes.data) attemptMap[quiz.id] = attRes.data;
-            } catch {
-              // no attempt
-            }
+            } catch { void 0 }
           }),
         );
         if (mounted) setAttempts(attemptMap);

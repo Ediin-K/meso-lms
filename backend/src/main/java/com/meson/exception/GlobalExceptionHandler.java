@@ -50,7 +50,6 @@ public class GlobalExceptionHandler {
         return error(HttpStatus.FORBIDDEN, ex.getMessage());
     }
 
-    /** Business rule violations thrown as RuntimeException in existing services. */
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Map<String, Object>> handleRuntime(RuntimeException ex) {
         return error(HttpStatus.BAD_REQUEST, ex.getMessage() != null ? ex.getMessage() : "Kerkesa deshtoi");

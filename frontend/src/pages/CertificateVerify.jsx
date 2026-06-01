@@ -52,10 +52,10 @@ export default function CertificateVerify() {
     return (
         <Box className="flex min-h-screen items-center justify-center bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-slate-950 dark:to-slate-900 px-4 py-12">
             <Container maxWidth="sm">
-                {/* Certificate card */}
+                {}
                 <div className="overflow-hidden rounded-3xl shadow-2xl shadow-emerald-200/40 dark:shadow-none">
 
-                    {/* Header */}
+                    {}
                     <div className="bg-gradient-to-r from-emerald-500 to-teal-600 px-8 py-10 text-center">
                         <WorkspacePremiumRounded className="!text-7xl text-white/90 !mb-4" />
                         <Typography variant="overline" className="!font-bold !tracking-widest !text-white/70 !block">
@@ -66,9 +66,9 @@ export default function CertificateVerify() {
                         </Typography>
                     </div>
 
-                    {/* Body */}
+                    {}
                     <div className="bg-white dark:bg-slate-900 px-8 py-7">
-                        {/* Recipient */}
+                        {}
                         <div className="mb-6 text-center">
                             <Typography variant="caption" className="!font-bold !uppercase !tracking-widest !text-slate-400 dark:!text-slate-500 !block !mb-1">
                                 Lëshuar për
@@ -100,7 +100,7 @@ export default function CertificateVerify() {
                             </div>
                         </div>
 
-                        {/* Unique code */}
+                        {}
                         <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 px-4 py-3 mb-6">
                             <Typography variant="caption" className="!font-bold !uppercase !tracking-wider !text-slate-400 dark:!text-slate-500 !block !mb-1">
                                 Kodi unik i verifikimit
@@ -110,7 +110,7 @@ export default function CertificateVerify() {
                             </Typography>
                         </div>
 
-                        {/* Verified banner */}
+                        {}
                         <div className="rounded-xl bg-emerald-500 px-4 py-3 flex items-center gap-3 mb-6">
                             <VerifiedRounded className="!text-2xl text-white shrink-0" />
                             <div>

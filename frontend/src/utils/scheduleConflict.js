@@ -34,9 +34,6 @@ const sameGroupKey = (a, b) => {
   return false;
 };
 
-/**
- * @returns {"group" | "professor" | "assistant" | null}
- */
 export const getScheduleConflict = (schedules, candidate, excludeIndex = null) => {
   const candidateEnd = candidate.endTime || computeScheduleEndTime(candidate.startTime);
 

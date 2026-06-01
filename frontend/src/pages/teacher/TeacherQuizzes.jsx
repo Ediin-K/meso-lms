@@ -124,7 +124,7 @@ export default function TeacherQuizzes() {
       ]);
       setResults(resultsRes.data);
       setAllAttempts(attemptsRes.data);
-    } catch { /* poll silently */ }
+    } catch { void 0 }
   }, []);
 
   useEffect(() => {
@@ -203,7 +203,7 @@ export default function TeacherQuizzes() {
 
   return (
     <Container maxWidth="xl" className="py-8">
-      {/* Page header */}
+      {}
       <Box className="mb-6 flex items-center gap-3">
         <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300">
           <QuizRounded />
@@ -221,7 +221,7 @@ export default function TeacherQuizzes() {
       {message && <Alert severity="success" className="!mb-4" onClose={() => setMessage('')}>{message}</Alert>}
       {error   && <Alert severity="error"   className="!mb-4" onClose={() => setError('')}>{error}</Alert>}
 
-      {/* Tab bar */}
+      {}
       <div className="mb-6 flex gap-1 border-b border-slate-200 dark:border-slate-700">
         {TABS.map((tab) => (
           <button
@@ -239,10 +239,10 @@ export default function TeacherQuizzes() {
         ))}
       </div>
 
-      {/* ── Tab: Quiz list ── */}
+      {}
       {activeTab === 'list' && (
         <div className="space-y-5">
-          {/* Selectors */}
+          {}
           <Card elevation={0} className="rounded-2xl border border-slate-200 bg-white dark:!border-slate-800 dark:!bg-slate-900">
             <CardContent className="!p-5">
               <div className="mb-2 flex items-center justify-between">
@@ -282,7 +282,7 @@ export default function TeacherQuizzes() {
             </CardContent>
           </Card>
 
-          {/* Quiz cards */}
+          {}
           {!selectedLesson && (
             <Alert severity="info">Zgjidh kursin, modulin dhe leksionin QUIZ për të parë quiz-et.</Alert>
           )}
@@ -303,7 +303,7 @@ export default function TeacherQuizzes() {
               const cfg = STATUS_CONFIG[quiz.status] || STATUS_CONFIG.DRAFT;
               return (
                 <div key={quiz.id} className="flex flex-col rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
-                  {/* Card top */}
+                  {}
                   <div className="flex flex-1 flex-col p-5">
                     <div className="mb-3 flex items-start justify-between gap-2">
                       <Typography className="!font-black leading-snug dark:!text-white">{quiz.titulli}</Typography>
@@ -316,7 +316,7 @@ export default function TeacherQuizzes() {
                     </Typography>
                   </div>
 
-                  {/* Primary action buttons */}
+                  {}
                   <div className="grid grid-cols-2 gap-2 px-5 pb-3">
                     <Button
                       variant="contained"
@@ -338,7 +338,7 @@ export default function TeacherQuizzes() {
                     </Button>
                   </div>
 
-                  {/* Secondary actions */}
+                  {}
                   <div className="flex flex-wrap gap-1.5 border-t border-slate-100 px-5 py-3 dark:border-slate-800">
                     {quiz.status === 'DRAFT' && (
                       <>
@@ -368,7 +368,7 @@ export default function TeacherQuizzes() {
         </div>
       )}
 
-      {/* ── Tab: Create ── */}
+      {}
       {activeTab === 'create' && (
         <QuizWizard
           courses={courses}
@@ -392,7 +392,7 @@ export default function TeacherQuizzes() {
         />
       )}
 
-      {/* ── Tab: Live Dashboard ── */}
+      {}
       {activeTab === 'live' && (
         <Card elevation={0} className="rounded-2xl border border-slate-200 bg-white dark:!border-slate-800 dark:!bg-slate-900">
           <CardContent className="!p-5">
@@ -458,7 +458,7 @@ export default function TeacherQuizzes() {
         </Card>
       )}
 
-      {/* ── Tab: Statistics / Results ── */}
+      {}
       {activeTab === 'results' && (
         <Card elevation={0} className="rounded-2xl border border-slate-200 bg-white dark:!border-slate-800 dark:!bg-slate-900">
           <CardContent className="!p-5">

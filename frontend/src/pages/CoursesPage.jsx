@@ -45,14 +45,14 @@ export default function CoursesPage() {
   return (
     <section className="flex flex-col flex-grow py-12 bg-slate-50/50 dark:bg-slate-950/20">
       <Container maxWidth="lg">
-        {/* SIMPLE HEADER */}
+        {}
         <Box className="mb-10">
           <Typography variant="h4" className="!font-black !text-slate-900 dark:!text-white tracking-tight">
             {t("header.navCourses", "Kurset")}
           </Typography>
         </Box>
 
-        {/* MINIMAL TABLE - Exact Admin Pattern but Simplified */}
+        {}
         <Card
           elevation={0}
           className="!rounded-[2rem] border border-slate-200/60 bg-white/90 dark:!bg-slate-900/50 backdrop-blur-xl overflow-hidden"

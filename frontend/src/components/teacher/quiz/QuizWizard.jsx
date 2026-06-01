@@ -72,7 +72,7 @@ export default function QuizWizard({
       loadQuizForEdit(editingQuiz);
     }
     if (!editingQuiz) setLoadedQuizId(null);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  
   }, [editingQuiz?.id]);
 
   const resetWizard = () => {
@@ -199,7 +199,7 @@ export default function QuizWizard({
 
   return (
     <Card elevation={0} className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:!border-slate-700 dark:!bg-slate-900">
-      {/* Header */}
+      {}
       <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-6 py-4 dark:border-slate-800 dark:bg-slate-800/50">
         <div>
           <Typography variant="subtitle1" className="!font-black dark:!text-white">
@@ -217,7 +217,7 @@ export default function QuizWizard({
       </div>
 
       <CardContent className="!p-6">
-        {/* Custom step indicator */}
+        {}
         <div className="mb-8 flex items-start justify-center gap-0">
           {STEPS.map((label, i) => (
             <div key={label} className="flex items-start">
@@ -248,7 +248,7 @@ export default function QuizWizard({
           ))}
         </div>
 
-        {/* ── Step 0: Setup ── */}
+        {}
         {activeStep === 0 && (
           <div className="space-y-6">
             <div>
@@ -326,12 +326,12 @@ export default function QuizWizard({
           </div>
         )}
 
-        {/* ── Step 1: Questions ── */}
+        {}
         {activeStep === 1 && (
           <div className="space-y-4">
             {form.questions.map((question, qIdx) => (
               <div key={qIdx} className="overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700">
-                {/* Question header bar */}
+                {}
                 <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 bg-slate-50 px-4 py-3 dark:border-slate-700 dark:bg-slate-800/50">
                   <div className="flex items-center gap-2">
                     <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-500 text-xs font-black text-white">
@@ -376,7 +376,7 @@ export default function QuizWizard({
                   </div>
                 </div>
 
-                {/* Question body */}
+                {}
                 <div className="space-y-3 p-4">
                   <TextField
                     label="Teksti i pyetjes"
@@ -451,7 +451,7 @@ export default function QuizWizard({
           </div>
         )}
 
-        {/* ── Step 2: Summary ── */}
+        {}
         {activeStep === 2 && (
           <div className="space-y-4">
             <div className="rounded-xl border border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 p-4 dark:border-amber-900/30 dark:from-amber-950/20 dark:to-orange-950/20">
@@ -483,7 +483,7 @@ export default function QuizWizard({
           </div>
         )}
 
-        {/* Navigation */}
+        {}
         <Box className="mt-8 flex items-center justify-between border-t border-slate-100 pt-5 dark:border-slate-800">
           <Button
             disabled={activeStep === 0}

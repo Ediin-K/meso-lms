@@ -48,7 +48,7 @@ export default function Header() {
       setIsScrolled(window.scrollY > 10)
     }
     window.addEventListener('scroll', handleScroll)
-    // check initially
+    
     handleScroll()
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])

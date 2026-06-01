@@ -16,6 +16,6 @@ public class QuizAttemptStudentResponse {
     private LocalDateTime submittedAt;
     private Boolean submitted;
     private String attemptStatus;
-    /** Pikët shfaqen vetëm për tentativa të dorëzuara. */
+    
     private Double pikete;
 }

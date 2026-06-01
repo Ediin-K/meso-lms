@@ -1,4 +1,4 @@
-/** Shared admin groups / wizard theme tokens and MUI sx helpers. */
+
 import { scheduleCardSx, schedulePrimaryButtonSx, scheduleTheme } from "../../schedule/scheduleTheme";
 
 export const WIZARD_STEPS = [
@@ -10,7 +10,6 @@ export const WIZARD_STEPS = [
 export const ROOM_PRESETS = ["101", "132", "205", "301", "A1", "B2"];
 export const DRAFT_STORAGE_KEY = "meson-group-wizard-draft";
 
-/** Theme tokens for admin groups module (light/dark). */
 export function getGroupsTheme(isDark) {
   void isDark;
   return {
@@ -130,7 +129,6 @@ export function primaryButtonSx() {
   return schedulePrimaryButtonSx();
 }
 
-/** Build staff lookup by courseId from wizard staff rows. */
 export function buildStaffByCourse(staffRows, courses, teachers) {
   const map = {};
   for (const row of staffRows) {

@@ -52,7 +52,7 @@ const ConsentModal = ({ open, onClose, onSave }) => {
   }, [open])
 
   const handleToggle = (key) => (event) => {
-    if (key === 'necessary') return; // always enabled
+    if (key === 'necessary') return; 
     setCurrentPreferences((prev) => ({ ...prev, [key]: event.target.checked }));
   };
 

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axiosInstance from '../services/axiosInstance'
-import { useAppPreferences } from '../context/appPreferencesContext'
+
 import Footer from '../components/ui/Footer'
 import {
     Typography, Container, Box, CircularProgress, Card, CardContent, Chip, Button
@@ -25,7 +25,7 @@ function CertificateCard({ cert }) {
 
     return (
         <div className="overflow-hidden rounded-2xl border border-emerald-200 dark:border-emerald-800/60">
-            {/* Colored header */}
+            {}
             <div className="bg-gradient-to-r from-emerald-500 to-teal-600 px-5 py-4 flex items-center gap-3">
                 <WorkspacePremiumRounded className="!text-3xl text-white/90" />
                 <div className="min-w-0 flex-1">
@@ -39,7 +39,7 @@ function CertificateCard({ cert }) {
                 <VerifiedRounded className="!text-2xl text-white/80 shrink-0" />
             </div>
 
-            {/* Body */}
+            {}
             <div className="bg-emerald-50 dark:bg-emerald-950/20 px-5 py-4">
                 <div className="flex items-center justify-between gap-3 mb-3">
                     <div>
@@ -58,7 +58,7 @@ function CertificateCard({ cert }) {
                     />
                 </div>
 
-                {/* Code */}
+                {}
                 <div
                     onClick={copy}
                     className="cursor-pointer rounded-xl border border-emerald-200 dark:border-emerald-800/50 bg-white dark:bg-slate-900/60 px-3 py-2 flex items-center justify-between gap-2 hover:border-emerald-400 transition-colors"
@@ -91,7 +91,6 @@ function CertificateCard({ cert }) {
 
 export default function ProfilePage() {
     const navigate = useNavigate()
-
 
     const userId = localStorage.getItem('userId')
 
@@ -133,7 +132,7 @@ export default function ProfilePage() {
         <section className="flex flex-col min-h-screen">
             <Container maxWidth="lg" className="flex-grow py-8 px-4 sm:px-6 lg:px-8 mt-4 sm:mt-8">
 
-                {/* HEADER */}
+                {}
                 <Box className="mb-10">
                     <Typography variant="overline" className="!font-bold !tracking-widest !text-sky-600 dark:!text-sky-400">
                         Profili
@@ -145,7 +144,7 @@ export default function ProfilePage() {
 
                 <div className="grid gap-6 lg:grid-cols-3">
 
-                    {/* SIDEBAR — info personale */}
+                    {}
                     <div className="lg:col-span-1">
                         <Card elevation={0} className="rounded-2xl border border-slate-200/80 dark:!border-slate-700/80">
                             <CardContent className="!p-6">
@@ -191,10 +190,10 @@ export default function ProfilePage() {
                         </Card>
                     </div>
 
-                    {/* CONTENT */}
+                    {}
                     <div className="lg:col-span-2 flex flex-col gap-6">
 
-                        {/* ENROLLMENTS */}
+                        {}
                         <Card elevation={0} className="rounded-2xl border border-slate-200/80 dark:!border-slate-700/80">
                             <CardContent className="!p-6">
                                 <Typography variant="subtitle1" className="!font-bold !text-slate-900 dark:!text-white !mb-4 flex items-center gap-2">
@@ -238,7 +237,7 @@ export default function ProfilePage() {
                             </CardContent>
                         </Card>
 
-                        {/* CERTIFICATES */}
+                        {}
                         <Card elevation={0} className="rounded-2xl border border-slate-200/80 dark:!border-slate-700/80">
                             <CardContent className="!p-6">
                                 <Typography variant="subtitle1" className="!font-bold !text-slate-900 dark:!text-white !mb-4 flex items-center gap-2">

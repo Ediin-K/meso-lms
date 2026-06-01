@@ -24,7 +24,6 @@ public class AssignmentController {
     private final AssignmentService assignmentService;
     private final UserRepository userRepository;
 
-    /** Returns the assignment for a lesson, or 204 if none exists. */
     @GetMapping("/lesson/{lessonId}")
     public ResponseEntity<AssignmentResponse> getByLesson(@PathVariable Long lessonId) {
         return assignmentService.getByLesson(lessonId)

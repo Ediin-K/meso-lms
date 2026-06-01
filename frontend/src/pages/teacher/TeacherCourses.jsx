@@ -51,7 +51,7 @@ const SEMESTER_STYLE = {
 
 export default function TeacherCourses() {
   const navigate = useNavigate();
-  const { t, mode } = useAppPreferences();
+  const { mode } = useAppPreferences();
   const isDark = mode === "dark";
 
   const [courses, setCourses] = useState([]);
@@ -72,7 +72,7 @@ export default function TeacherCourses() {
     try {
       const res = await teacherContentService.getCourses();
       setCourses(res.data);
-    } catch (err) {
+    } catch {
       setError("Gabim gjatë marrjes së kurseve.");
     } finally {
       setLoading(false);
@@ -83,20 +83,6 @@ export default function TeacherCourses() {
     fetchCourses();
   }, []);
 
-  const handleOpenEdit = (course) => {
-    setSelectedCourse(course);
-    setFormData({
-      titulli: course.titulli,
-      pershkrimi: course.pershkrimi,
-      semester: course.semester,
-      enrollmentKey: course.enrollmentKey || "",
-      niveli: course.niveli,
-      statusi: course.statusi,
-      categoryId: course.categoryId
-    });
-    setOpenDialog(true);
-  };
-
   const handleSubmit = async () => {
     setSaving(true);
     try {
@@ -105,7 +91,7 @@ export default function TeacherCourses() {
       setSnackbarMessage("Kursi u përditësua me sukses.");
       setOpenSnackbar(true);
       setOpenDialog(false);
-    } catch (err) {
+    } catch {
       setError("Gabim gjatë përditësimit.");
     } finally {
       setSaving(false);
@@ -122,7 +108,7 @@ export default function TeacherCourses() {
   return (
     <Box className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-950">
       <Container maxWidth="xl" className="py-8 mt-4 sm:mt-8 grow">
-        {/* BACK BUTTON & TOP STRIP */}
+        {}
         <Box className="flex items-center justify-between mb-8">
           <Button
             startIcon={<ArrowBackRounded />}
@@ -140,7 +126,7 @@ export default function TeacherCourses() {
           </Box>
         </Box>
 
-        {/* HEADER SECTION */}
+        {}
         <Box className="mb-12 flex flex-col lg:flex-row lg:items-end justify-between gap-8">
           <div>
             <Typography
@@ -187,7 +173,7 @@ export default function TeacherCourses() {
 
         {error && <Alert severity="error" className="mb-6 rounded-2xl!">{error}</Alert>}
 
-        {/* QUICK STATS STRIP */}
+        {}
         <Grid container spacing={3} className="mb-10">
           {[
             {
@@ -229,7 +215,7 @@ export default function TeacherCourses() {
           ))}
         </Grid>
 
-        {/* TABLE CONTAINER */}
+        {}
         <Card
           elevation={0}
           className="rounded-[2.5rem]! border border-slate-200/60 bg-white/80 dark:bg-slate-900/50! backdrop-blur-xl overflow-hidden shadow-2xl shadow-slate-200/20 dark:shadow-none"
@@ -389,7 +375,7 @@ export default function TeacherCourses() {
           )}
         </Card>
 
-        {/* EDIT DIALOG */}
+        {}
         <Dialog
           open={openDialog}
           onClose={() => setOpenDialog(false)}

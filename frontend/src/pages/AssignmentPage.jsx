@@ -122,7 +122,7 @@ export default function AssignmentPage() {
                 Kthehu te leksioni
             </Button>
 
-            {/* Assignment card */}
+            {}
             <Card elevation={0} className="rounded-2xl border border-slate-200 dark:!bg-slate-900/50 dark:!border-slate-700 !mb-6">
                 <CardContent className="!p-6">
                     <div className="flex items-start gap-3 mb-4">
@@ -150,7 +150,7 @@ export default function AssignmentPage() {
                         </Typography>
                     )}
 
-                    {/* Teacher attachment */}
+                    {}
                     {assignment.hasAttachment && (
                         <div className="flex items-center gap-3 p-3 rounded-xl bg-sky-50 dark:bg-sky-950/30 border border-sky-200 dark:border-sky-800">
                             <AttachFileRounded className="text-sky-600" fontSize="small" />
@@ -172,7 +172,7 @@ export default function AssignmentPage() {
                 </CardContent>
             </Card>
 
-            {/* Submission section */}
+            {}
             <Card elevation={0} className="rounded-2xl border border-slate-200 dark:!bg-slate-900/50 dark:!border-slate-700">
                 <CardContent className="!p-6">
                     <Typography variant="subtitle1" className="!font-bold !text-slate-900 dark:!text-white !mb-4">

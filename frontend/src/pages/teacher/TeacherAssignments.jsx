@@ -18,8 +18,6 @@ import UploadFileRounded    from '@mui/icons-material/UploadFileRounded'
 import assignmentService    from '../../services/assignmentService'
 import Footer               from '../../components/ui/Footer'
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
 function fmtDeadline(dl) {
     return new Date(dl).toLocaleString('sq-AL', {
         day: '2-digit', month: 'short', year: 'numeric',
@@ -40,33 +38,27 @@ function openStatusChip(isOpen) {
 
 const EMPTY_FORM = { title: '', description: '', deadline: '', lessonId: '' }
 
-// ── Main component ────────────────────────────────────────────────────────────
-
 export default function TeacherAssignments() {
     const [assignments, setAssignments]   = useState([])
     const [lessons, setLessons]           = useState([])
     const [loading, setLoading]           = useState(true)
     const [error, setError]               = useState('')
 
-    // create / edit dialog
     const [formOpen, setFormOpen]         = useState(false)
     const [editing, setEditing]           = useState(null)
     const [form, setForm]                 = useState(EMPTY_FORM)
     const [saving, setSaving]             = useState(false)
 
-    // attachment dialog
     const [attachOpen, setAttachOpen]     = useState(false)
     const [attachTarget, setAttachTarget] = useState(null)
     const [attachFile, setAttachFile]     = useState(null)
     const [attachSaving, setAttachSaving] = useState(false)
 
-    // submissions dialog
     const [subsOpen, setSubsOpen]         = useState(false)
     const [subsTarget, setSubsTarget]     = useState(null)
     const [submissions, setSubmissions]   = useState([])
     const [subsLoading, setSubsLoading]   = useState(false)
 
-    // delete confirm
     const [deleteId, setDeleteId]         = useState(null)
 
     const load = useCallback(async () => {
@@ -86,8 +78,6 @@ export default function TeacherAssignments() {
     }, [])
 
     useEffect(() => { load() }, [load])
-
-    // ── Form helpers ──────────────────────────────────────────────────────────
 
     const openCreate = () => {
         setEditing(null)
@@ -130,8 +120,6 @@ export default function TeacherAssignments() {
         }
     }
 
-    // ── Delete ────────────────────────────────────────────────────────────────
-
     const confirmDelete = async () => {
         try {
             await assignmentService.remove(deleteId)
@@ -141,8 +129,6 @@ export default function TeacherAssignments() {
             setError('Fshirja dështoi.')
         }
     }
-
-    // ── Attachment ────────────────────────────────────────────────────────────
 
     const openAttach = (a) => {
         setAttachTarget(a)
@@ -173,8 +159,6 @@ export default function TeacherAssignments() {
         }
     }
 
-    // ── Submissions ───────────────────────────────────────────────────────────
-
     const openSubs = async (a) => {
         setSubsTarget(a)
         setSubsOpen(true)
@@ -202,8 +186,6 @@ export default function TeacherAssignments() {
             setError('Shkarkimi dështoi.')
         }
     }
-
-    // ── Render ────────────────────────────────────────────────────────────────
 
     return (
         <section className="flex flex-col min-h-screen">
@@ -290,7 +272,7 @@ export default function TeacherAssignments() {
 
             <Footer />
 
-            {/* ── Create / Edit dialog ──────────────────────────────────────── */}
+            {}
             <Dialog open={formOpen} onClose={() => setFormOpen(false)} maxWidth="sm" fullWidth
                 PaperProps={{ className: 'rounded-2xl! dark:bg-slate-900!' }}>
                 <DialogTitle className="!font-bold dark:!text-white">
@@ -351,7 +333,7 @@ export default function TeacherAssignments() {
                 </DialogActions>
             </Dialog>
 
-            {/* ── Attachment dialog ─────────────────────────────────────────── */}
+            {}
             <Dialog open={attachOpen} onClose={() => setAttachOpen(false)} maxWidth="xs" fullWidth
                 PaperProps={{ className: 'rounded-2xl! dark:bg-slate-900!' }}>
                 <DialogTitle className="!font-bold dark:!text-white flex items-center justify-between">
@@ -395,7 +377,7 @@ export default function TeacherAssignments() {
                 </DialogActions>
             </Dialog>
 
-            {/* ── Submissions dialog ────────────────────────────────────────── */}
+            {}
             <Dialog open={subsOpen} onClose={() => setSubsOpen(false)} maxWidth="md" fullWidth
                 PaperProps={{ className: 'rounded-2xl! dark:bg-slate-900!' }}>
                 <DialogTitle className="!font-bold dark:!text-white flex items-center justify-between">
@@ -441,7 +423,7 @@ export default function TeacherAssignments() {
                 </DialogContent>
             </Dialog>
 
-            {/* ── Delete confirm ────────────────────────────────────────────── */}
+            {}
             <Dialog open={!!deleteId} onClose={() => setDeleteId(null)} maxWidth="xs" fullWidth
                 PaperProps={{ className: 'rounded-2xl! dark:bg-slate-900!' }}>
                 <DialogTitle className="!font-bold dark:!text-white">Konfirmo fshirjen</DialogTitle>

@@ -33,7 +33,6 @@ public class JwtFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        // 1. Merr token: fillimisht nga cookie, fallback te Authorization header (Swagger/Postman)
         String token = extractTokenFromCookie(request);
         if (token == null) {
             String authHeader = request.getHeader("Authorization");
@@ -47,19 +46,15 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-        // 4. Nxjerr emailin dhe rolin nga token
         String email = jwtService.extractEmail(token);
         String tokenRole = jwtService.extractRole(token);
 
-        // 5. Kontrollo nëse useri ekziston dhe nuk është autentifikuar
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            // 6. Gjej userin nga DB
             var userOptional = userRepository.findByEmail(email);
 
             if (userOptional.isPresent() && jwtService.isTokenValid(token, email)) {
                 
-                // 7. Merr rolet nga token dhe krijo UserDetails
                 var authorities = new java.util.ArrayList<org.springframework.security.core.GrantedAuthority>();
                 if (tokenRole != null) {
                     authorities.add(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_" + tokenRole.toUpperCase()));
@@ -71,7 +66,6 @@ public class JwtFilter extends OncePerRequestFilter {
                         .authorities(authorities)
                         .build();
 
-                // 8. Krijo Authentication token
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(
                                 userDetails, null, userDetails.getAuthorities());
@@ -79,12 +73,10 @@ public class JwtFilter extends OncePerRequestFilter {
                 authToken.setDetails(
                         new WebAuthenticationDetailsSource().buildDetails(request));
 
-                // 9. Vendos Authentication në SecurityContext
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
 
-        // 10. Vazhdo me kërkesën
         filterChain.doFilter(request, response);
     }
 

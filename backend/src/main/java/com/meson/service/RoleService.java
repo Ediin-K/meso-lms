@@ -42,7 +42,6 @@ public class RoleService{
         return toResponse(roleRepository.save(role));
     }
 
-
     public void delete(Long id) {
         Role role = roleRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Roli nuk u gjet"));
@@ -59,7 +58,5 @@ public class RoleService{
         response.setPershkrimi(role.getPershkrimi());
         return response;
     }
-
-
 
 }

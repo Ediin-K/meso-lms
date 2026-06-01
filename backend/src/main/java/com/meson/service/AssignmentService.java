@@ -30,8 +30,6 @@ public class AssignmentService {
     private final UserRepository userRepository;
     private final FileStorageService fileStorageService;
 
-
-
     public Optional<AssignmentResponse> getByLesson(Long lessonId) {
         return assignmentRepository.findByLessonId(lessonId)
                 .map(this::toResponse);
@@ -40,8 +38,6 @@ public class AssignmentService {
     public AssignmentResponse getById(Long id) {
         return toResponse(findAssignment(id));
     }
-
-   
 
     public AssignmentResponse upsertForLesson(Long lessonId, LocalDateTime deadline, Long teacherId) {
         Lesson lesson = lessonRepository.findById(lessonId)
@@ -65,14 +61,10 @@ public class AssignmentService {
         });
     }
 
-    // ── Teacher: all assignments ──────────────────────────────────────────────
-
     public List<AssignmentResponse> getTeacherAssignments(Long teacherId) {
         return assignmentRepository.findByLessonModuleCourseTeacherId(teacherId)
                 .stream().map(this::toResponse).toList();
     }
-
-    // ── Teacher: attachment ───────────────────────────────────────────────────
 
     public AssignmentResponse uploadAttachment(Long lessonId, MultipartFile file, Long teacherId) {
         Assignment assignment = findTeacherAssignmentByLesson(lessonId, teacherId);
@@ -90,8 +82,6 @@ public class AssignmentService {
         assignment.setAttachmentName(null);
         return toResponse(assignmentRepository.save(assignment));
     }
-
-    // ── Teacher: submissions ──────────────────────────────────────────────────
 
     public List<AssignmentSubmissionResponse> getSubmissionsByLesson(Long lessonId, Long teacherId) {
         Assignment assignment = findTeacherAssignmentByLesson(lessonId, teacherId);
@@ -113,8 +103,6 @@ public class AssignmentService {
         return sub.getFileName();
     }
 
-    // ── Attachment download ───────────────────────────────────────────────────
-
     public Resource serveAttachment(Long assignmentId) {
         Assignment assignment = findAssignment(assignmentId);
         if (assignment.getAttachmentPath() == null)
@@ -125,8 +113,6 @@ public class AssignmentService {
     public String getAttachmentName(Long assignmentId) {
         return findAssignment(assignmentId).getAttachmentName();
     }
-
-    // ── Student: submission ───────────────────────────────────────────────────
 
     public AssignmentSubmissionResponse submit(Long assignmentId, MultipartFile file, Long studentId) {
         Assignment assignment = findAssignment(assignmentId);
@@ -157,8 +143,6 @@ public class AssignmentService {
         return submissionRepository.findByStudentId(studentId)
                 .stream().map(this::toSubmissionResponse).toList();
     }
-
-    // ── Private helpers ───────────────────────────────────────────────────────
 
     private Assignment findAssignment(Long id) {
         return assignmentRepository.findById(id)

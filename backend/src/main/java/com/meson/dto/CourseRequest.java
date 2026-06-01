@@ -47,8 +47,4 @@ public class CourseRequest {
     @Builder.Default
     private CourseStatus statusi= CourseStatus.DRAFT;
 
-
-
-
-
 }

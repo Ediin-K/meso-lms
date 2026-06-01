@@ -2,22 +2,6 @@ import TextField from '@mui/material/TextField'
 import InputAdornment from '@mui/material/InputAdornment'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 
-/**
- * @param {object} props
- * @param {string} props.id
- * @param {string} props.label
- * @param {string} props.value
- * @param {(e: import('react').ChangeEvent<HTMLInputElement>) => void} props.onChange
- * @param {(e: import('react').FocusEvent<HTMLInputElement>) => void} [props.onBlur]
- * @param {string} [props.error]
- * @param {import('react').ReactNode} [props.helperText]
- * @param {string} [props.type]
- * @param {boolean} [props.autoFocus]
- * @param {string} [props.autoComplete]
- * @param {import('react').ElementType | null} [props.startIcon]
- * @param {string} [props.placeholder]
- * @param {string} [props['aria-describedby']]
- */
 export default function InputField({
   id,
   label,

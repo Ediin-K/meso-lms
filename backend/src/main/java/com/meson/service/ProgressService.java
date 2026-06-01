@@ -67,14 +67,6 @@ public class ProgressService {
         return buildProgress(courseId, studentId);
     }
 
-    // ── helpers ──────────────────────────────────────────────────────────────
-
-    /**
-     * Recalculates enrollment.progresi.
-     * If the student has viewed every lesson and the enrollment is still AKTIV,
-     * marks it PERFUNDUAR and creates the certificate.
-     * Returns the certificate code if just completed, null otherwise.
-     */
     private String recalculateAndMaybeComplete(Long studentId, Long courseId) {
         return enrollmentRepository.findByUserIdAndCourseId(studentId, courseId)
                 .map(enrollment -> {

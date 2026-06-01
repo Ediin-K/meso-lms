@@ -1,14 +1,6 @@
-/**
- * Meson LMS — legal document version (keep in sync with backend `termsVersion` / DB).
- * Content is informational and user-friendly; institutions should have counsel review.
- * References: Kosovo Law 06/L-082 on Personal Data Protection; GDPR-aligned practices.
- */
 
 export const LEGAL_DOCUMENT_VERSION = '2026.04.05'
 
-/** @typedef {{ id: string, heading: string, paragraphs: string[] }} LegalSection */
-
-/** @type {{ en: { title: string, subtitle: string, sections: LegalSection[] }, sq: { title: string, subtitle: string, sections: LegalSection[] } }} */
 export const PRIVACY_POLICY = {
   en: {
     title: 'Privacy Policy',
@@ -185,7 +177,6 @@ export const PRIVACY_POLICY = {
   },
 }
 
-/** @type {{ en: { title: string, subtitle: string, sections: LegalSection[] }, sq: { title: string, subtitle: string, sections: LegalSection[] } }} */
 export const COOKIE_POLICY = {
   en: {
     title: 'Cookie Policy',
@@ -257,7 +248,6 @@ export const COOKIE_POLICY = {
   },
 }
 
-/** @type {{ en: { title: string, subtitle: string, sections: LegalSection[] }, sq: { title: string, subtitle: string, sections: LegalSection[] } }} */
 export const TERMS_OF_SERVICE = {
   en: {
     title: 'Terms of Service',

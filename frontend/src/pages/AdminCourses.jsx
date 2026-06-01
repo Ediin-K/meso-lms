@@ -141,7 +141,6 @@ export default function AdminCourses() {
       throw new Error(text || "Gabim gjatë krijimit");
     }
 
-    // Nëse body është bosh, mos provo ta parse-sh
     const text = await response.text();
     return text ? JSON.parse(text) : {};
   };
@@ -288,9 +287,6 @@ export default function AdminCourses() {
     if (!response.ok) throw new Error(await response.text());
   };
 
-  // ─── HANDLERS ─────────────────────────────────────────────────
-
-  // Hap dialogun për shtim
   const handleOpenAdd = () => {
     setIsEdit(false);
     setSelectedCourse(null);
@@ -299,11 +295,10 @@ export default function AdminCourses() {
     setOpenDialog(true);
   };
 
-  // Hap dialogun për editim
   const handleOpenEdit = (course) => {
     setIsEdit(true);
     setSelectedCourse(course);
-    // Mbush form-in me të dhënat e kursit ekzistues
+    
     setFormData({
       titulli: course.titulli,
       pershkrimi: course.pershkrimi,
@@ -320,21 +315,20 @@ export default function AdminCourses() {
     setOpenDialog(true);
   };
 
-  // Submit - Krijo ose Përditëso
   const handleSubmit = async () => {
     setSaving(true);
     setFormError(null);
     try {
       if (isEdit) {
         const updated = await updateCourse(selectedCourse.id, formData);
-        // Zëvendëso kursin e vjetër me të riun në state
+        
         setCourses((prev) =>
           prev.map((c) => (c.id === updated.id ? updated : c)),
         );
         setSnackbarMessage("Kursi u përditësua me sukses.");
       } else {
         const created = await createCourse(formData);
-        // Shto kursin e ri në listë
+        
         setCourses((prev) => [...prev, created]);
         setSnackbarMessage("Kursi u krijua me sukses.");
       }
@@ -347,7 +341,6 @@ export default function AdminCourses() {
     }
   };
 
-  // Fshi kurs
   const handleOpenDelete = (course) => {
     setDeleteTarget(course);
     setOpenDeleteConfirm(true);
@@ -358,7 +351,7 @@ export default function AdminCourses() {
 
     try {
       await deleteCourse(deleteTarget.id);
-      // Largo kursin nga state pa re-fetch
+      
       setCourses((prev) => prev.filter((c) => c.id !== deleteTarget.id));
       setSnackbarMessage(`${deleteTarget.titulli} u fshi me sukses.`);
       setOpenSnackbar(true);
@@ -510,24 +503,20 @@ export default function AdminCourses() {
   const field = (k) => (e) =>
     setFormData((f) => ({ ...f, [k]: e.target.value }));
 
-  // Merr kurset kur komponenti ngarkohet
   useEffect(() => {
     fetchCourses();
   }, []);
 
-  // Filtro kurset sipas kërkimit
   const filtered = courses.filter(
     (c) =>
       (c.titulli?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
       (c.categoryName?.toLowerCase() || "").includes(searchTerm.toLowerCase()),
   );
 
-  // ─── UI ───────────────────────────────────────────────────────
-
   return (
     <Box className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-950">
       <Container maxWidth="xl" className="py-8 mt-4 sm:mt-8 grow">
-        {/* BACK BUTTON */}
+        {}
         <Box className="mb-8">
           <Button
             startIcon={<ArrowBackRounded />}
@@ -538,7 +527,7 @@ export default function AdminCourses() {
           </Button>
         </Box>
 
-        {/* HEADER */}
+        {}
         <Box className="mb-12 flex flex-col lg:flex-row lg:items-end justify-between gap-8">
           <div>
             <Typography
@@ -597,7 +586,7 @@ export default function AdminCourses() {
           </Box>
         </Box>
 
-        {/* ERROR GLOBAL */}
+        {}
         {error && (
           <Alert
             severity="error"
@@ -608,7 +597,7 @@ export default function AdminCourses() {
           </Alert>
         )}
 
-        {/* STATS */}
+        {}
         <Grid container spacing={3} className="mb-10">
           {[
             {
@@ -666,7 +655,7 @@ export default function AdminCourses() {
           ))}
         </Grid>
 
-        {/* TABLE */}
+        {}
         <Card
           elevation={0}
           className="rounded-[2.5rem]! border border-slate-200/60 bg-white/80 dark:bg-slate-900/50! backdrop-blur-xl overflow-hidden shadow-2xl shadow-slate-200/20 dark:shadow-none"
@@ -839,7 +828,7 @@ export default function AdminCourses() {
           )}
         </Card>
 
-        {/* DIALOG - SHTO / NDRYSHO */}
+        {}
         <Dialog
           open={openDialog}
           onClose={() => setOpenDialog(false)}
@@ -884,7 +873,7 @@ export default function AdminCourses() {
           <DialogContent
             className={`!px-6 py-4! ${isDark ? "bg-slate-900/20!" : ""}`}
           >
-            {/* ERROR NË FORM */}
+            {}
             {formError && (
               <Alert
                 severity="error"
@@ -896,7 +885,7 @@ export default function AdminCourses() {
             )}
 
             <Box className="flex flex-col gap-5 mt-4">
-              {/* TITULLI */}
+              {}
               <TextField
                 label="Titulli i Lëndës *"
                 fullWidth
@@ -919,7 +908,7 @@ export default function AdminCourses() {
                 }}
               />
 
-              {/* PERSHKRIMI */}
+              {}
               <TextField
                 label="Përshkrimi"
                 fullWidth
@@ -944,7 +933,7 @@ export default function AdminCourses() {
                 }}
               />
 
-              {/* TEACHER ID & CATEGORY ID */}
+              {}
               <Box className="flex gap-4">
                 <TextField
                   label="Teacher ID *"
@@ -986,7 +975,7 @@ export default function AdminCourses() {
                 />
               </Box>
 
-              {/* SEMESTER & CMIMI */}
+              {}
               <Box className="flex gap-4">
                 <FormControl fullWidth>
                   <InputLabel sx={{ color: isDark ? "#cbd5e1" : "#64748b" }}>
@@ -1057,7 +1046,7 @@ export default function AdminCourses() {
                 />
               </Box>
 
-              {/* NIVELI & STATUSI */}
+              {}
               <Box className="flex gap-4">
                 <FormControl fullWidth>
                   <InputLabel sx={{ color: isDark ? "#cbd5e1" : "#64748b" }}>
@@ -1110,7 +1099,7 @@ export default function AdminCourses() {
                 </FormControl>
               </Box>
 
-              {/* ENROLLMENT KEY */}
+              {}
               <TextField
                 label="Enrollment Key (opsionale)"
                 fullWidth
@@ -1162,7 +1151,7 @@ export default function AdminCourses() {
           </DialogActions>
         </Dialog>
 
-        {/* GROUPS DIALOG */}
+        {}
         <Dialog
           open={groupDialog.open}
           onClose={() => setGroupDialog({ open: false, course: null })}
@@ -1391,7 +1380,7 @@ export default function AdminCourses() {
           </DialogActions>
         </Dialog>
 
-        {/* DELETE CONFIRMATION DIALOG */}
+        {}
         <Dialog
           open={openDeleteConfirm}
           onClose={() => {
@@ -1473,7 +1462,7 @@ export default function AdminCourses() {
           </DialogActions>
         </Dialog>
 
-        {/* SNACKBAR */}
+        {}
         <Snackbar
           open={openSnackbar}
           autoHideDuration={4000}

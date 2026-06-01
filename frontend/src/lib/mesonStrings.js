@@ -1,4 +1,3 @@
-/** Përkthime të centralizuara — përdoren me t('path.to.key') */
 
 export const STRINGS = {
   sq: {

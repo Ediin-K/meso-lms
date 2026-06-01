@@ -1,10 +1,5 @@
 import CircularProgress from '@mui/material/CircularProgress'
 
-/**
- * @param {object} props
- * @param {boolean} [props.loading]
- * @param {import('react').ReactNode} props.children
- */
 export default function LoginSubmitButton({ loading, children }) {
   return (
     <button

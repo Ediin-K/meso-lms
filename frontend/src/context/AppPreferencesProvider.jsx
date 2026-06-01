@@ -10,9 +10,7 @@ function readStoredLocale() {
   try {
     const v = localStorage.getItem(STORAGE_LOCALE)
     if (v === 'sq' || v === 'en') return v
-  } catch {
-    /* ignore */
-  }
+  } catch { void 0 }
   return 'sq'
 }
 
@@ -24,9 +22,7 @@ function readStoredRole() {
     if (['guest', 'student', 'teacher', 'parent', 'admin'].includes(v)) {
       return v
     }
-  } catch {
-    /* ignore */
-  }
+  } catch { void 0 }
   return 'guest'
 }
 
@@ -34,9 +30,7 @@ function readStoredColorMode() {
   try {
     const v = localStorage.getItem(STORAGE_THEME)
     if (v === 'dark' || v === 'light') return v
-  } catch {
-    /* ignore */
-  }
+  } catch { void 0 }
   if (typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
     return 'dark'
   }
@@ -62,9 +56,7 @@ export function AppPreferencesProvider({ children }) {
     setLocaleState(v)
     try {
       localStorage.setItem(STORAGE_LOCALE, v)
-    } catch {
-      /* ignore */
-    }
+    } catch { void 0 }
   }, [])
 
   const setRole = useCallback((next) => {
@@ -79,9 +71,7 @@ export function AppPreferencesProvider({ children }) {
     setColorModeState(v)
     try {
       localStorage.setItem(STORAGE_THEME, v)
-    } catch {
-      /* ignore */
-    }
+    } catch { void 0 }
   }, [])
 
   const toggleColorMode = useCallback(() => {
@@ -89,9 +79,7 @@ export function AppPreferencesProvider({ children }) {
       const v = prev === 'dark' ? 'light' : 'dark'
       try {
         localStorage.setItem(STORAGE_THEME, v)
-      } catch {
-        /* ignore */
-      }
+      } catch { void 0 }
       return v
     })
   }, [])

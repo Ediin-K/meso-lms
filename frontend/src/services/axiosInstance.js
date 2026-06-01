@@ -16,7 +16,7 @@ axiosInstance.interceptors.response.use(
             originalRequest._retry = true
 
             try {
-                // Cookie-t dërgohen automatikisht nga browser-i
+                
                 await axios.post(
                     `${API_BASE_URL}/auth/refresh`,
                     {},

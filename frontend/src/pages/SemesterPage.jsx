@@ -36,7 +36,7 @@ export default function SemesterPage() {
         <section className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-950">
             <Container maxWidth="lg" className="flex-grow py-8 px-4 sm:px-6 lg:px-8 mt-4 sm:mt-8">
 
-                {/* BACK BUTTON */}
+                {}
                 <Button 
                     startIcon={<ArrowBackRounded />} 
                     onClick={() => navigate(-1)}
@@ -45,7 +45,7 @@ export default function SemesterPage() {
                     {t('semester.back', 'Back to Dashboard')}
                 </Button>
 
-                {/* HEADER */}
+                {}
                 <Box className="mb-10 text-center md:text-left">
                     <Typography variant="overline" className="!font-bold !tracking-widest !text-sky-600 dark:!text-sky-400">
                         {t('semester.overline', 'COURSE BROWSER')}
@@ -58,7 +58,7 @@ export default function SemesterPage() {
                     </Typography>
                 </Box>
 
-                {/* CONTENT */}
+                {}
                 {loading ? (
                     <Box className="flex justify-center items-center py-24">
                         <CircularProgress className="!text-sky-500" />
@@ -143,7 +143,7 @@ export default function SemesterPage() {
                 )}
             </Container>
 
-            {/* FOOTER */}
+            {}
             <div className="mt-auto">
                 <Footer />
             </div>

@@ -17,7 +17,6 @@ public class QuizController {
 
     private final QuizService quizService;
 
-    // QUIZ
     @GetMapping
     public ResponseEntity<List<QuizResponse>> getAll() {
         return ResponseEntity.ok(quizService.getAll());
@@ -89,7 +88,6 @@ public class QuizController {
         return ResponseEntity.noContent().build();
     }
 
-    // QUESTION
     @GetMapping("/{quizId}/questions")
     public ResponseEntity<List<QuizQuestionResponse>> getQuestions(@PathVariable Long quizId) {
         return ResponseEntity.ok(quizService.getQuestionsByQuizId(quizId));
@@ -108,7 +106,6 @@ public class QuizController {
         return ResponseEntity.noContent().build();
     }
 
-    // ANSWER
     @GetMapping("/questions/{questionId}/answers")
     @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<List<QuizAnswerResponse>> getAnswers(@PathVariable Long questionId) {
@@ -128,7 +125,6 @@ public class QuizController {
         return ResponseEntity.noContent().build();
     }
 
-    // ATTEMPT
     @GetMapping("/{quizId}/attempts")
     @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<List<QuizAttemptResponse>> getAttemptsByQuiz(@PathVariable Long quizId) {

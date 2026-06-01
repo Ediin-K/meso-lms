@@ -52,29 +52,26 @@ const EMPTY_MODULE = {
 export default function TeacherModules() {
   const { courseId } = useParams();
   const navigate = useNavigate();
-  const { t, mode } = useAppPreferences();
+  const { mode } = useAppPreferences();
   const isDark = mode === "dark";
 
   const [courses, setCourses] = useState([]);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [modules, setModules] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [, setError] = useState(null);
 
-  // Modal states
   const [openDialog, setOpenDialog] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [editingModule, setEditingModule] = useState(null);
   const [formData, setFormData] = useState(EMPTY_MODULE);
   const [saving, setSaving] = useState(false);
 
-  // Deletion & Toast States
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [openSnackbar, setOpenSnackbar] = useState(false);
 
-  // Quiz results dialog
   const [resultsOpen, setResultsOpen] = useState(false);
   const [resultsModuleName, setResultsModuleName] = useState('');
   const [resultsLoading, setResultsLoading] = useState(false);
@@ -96,7 +93,7 @@ export default function TeacherModules() {
     try {
       const res = await teacherContentService.getCourses();
       setCourses(res.data);
-    } catch (err) {
+    } catch {
       setError("Gabim gjatë marrjes së kurseve.");
     } finally {
       setLoading(false);
@@ -112,7 +109,7 @@ export default function TeacherModules() {
       ]);
       setSelectedCourse(courseRes.data);
       setModules(modulesRes.data);
-    } catch (err) {
+    } catch {
       setError("Gabim gjatë marrjes së të dhënave.");
     } finally {
       setLoading(false);
@@ -200,7 +197,7 @@ export default function TeacherModules() {
         )
       );
       setResultsQuizzes(quizArrays.flat());
-    } catch { /* ignore */ } finally {
+    } catch { void 0 } finally {
       setResultsLoading(false);
     }
   };
@@ -212,7 +209,7 @@ export default function TeacherModules() {
     try {
       const res = await quizService.getResults(quiz.id);
       setResultsAttempts(res.data || []);
-    } catch { /* ignore */ } finally {
+    } catch { void 0 } finally {
       setResultsAttemptsLoading(false);
     }
   };
@@ -229,7 +226,7 @@ export default function TeacherModules() {
     <Box className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-950">
       <Container maxWidth="xl" className="py-8 mt-4 sm:mt-8 grow">
         
-        {/* BREADCRUMBS & NAVIGATION */}
+        {}
         <Box className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <Breadcrumbs 
             separator={<Box className="w-1 h-1 rounded-full bg-slate-300 mx-2" />}
@@ -257,9 +254,9 @@ export default function TeacherModules() {
           </Button>
         </Box>
 
-        {/* CONTENT */}
+        {}
         {!courseId ? (
-          /* STEP 1: COURSE SELECTION */
+          
           <Box>
             <Box className="mb-12">
               <Typography variant="h3" className="font-black! text-slate-900! dark:text-white! mb-2">
@@ -350,7 +347,7 @@ export default function TeacherModules() {
             </Grid>
           </Box>
         ) : (
-          /* STEP 2: MODULE MANAGEMENT */
+          
           <Box>
             <Box className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
               <div>
@@ -372,7 +369,7 @@ export default function TeacherModules() {
             </Box>
 
             <Grid container spacing={3}>
-              {modules.map((mod, index) => (
+              {modules.map((mod) => (
                 <Grid item xs={12} key={mod.id}>
                   <Card 
                     elevation={0}
@@ -454,7 +451,7 @@ export default function TeacherModules() {
         </div>
       </Container>
 
-      {/* MODULE DIALOG */}
+      {}
       <Dialog 
         open={openDialog} 
         onClose={() => setOpenDialog(false)}
@@ -511,7 +508,7 @@ export default function TeacherModules() {
         </DialogActions>
       </Dialog>
 
-      {/* DELETE CONFIRMATION DIALOG */}
+      {}
       <Dialog
         open={openDeleteConfirm}
         onClose={() => {
@@ -585,7 +582,7 @@ export default function TeacherModules() {
         </DialogActions>
       </Dialog>
 
-      {/* QUIZ RESULTS DIALOG */}
+      {}
       <Dialog
         open={resultsOpen}
         onClose={() => setResultsOpen(false)}
@@ -682,7 +679,7 @@ export default function TeacherModules() {
         </DialogContent>
       </Dialog>
 
-      {/* SUCCESS TOAST */}
+      {}
       <Snackbar
         open={openSnackbar}
         autoHideDuration={4000}

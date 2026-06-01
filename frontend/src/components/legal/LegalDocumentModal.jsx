@@ -9,16 +9,6 @@ import CloseRoundedIcon from '@mui/icons-material/CloseRounded'
 import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded'
 import { useAppPreferences } from '../../context/appPreferencesContext.js'
 
-/**
- * Scrollable legal document modal with an acknowledge ("I have read") button.
- *
- * @param {object}  props
- * @param {boolean} props.open
- * @param {() => void} props.onClose
- * @param {{ title: string, subtitle: string, sections: { id: string, heading: string, paragraphs: string[] }[] }} props.document
- * @param {() => void} [props.onAcknowledge]           - Called when user clicks "I have read & understood"
- * @param {boolean}    [props.requireScrollToAcknowledge] - If true, button is disabled until scrolled to bottom
- */
 export default function LegalDocumentModal({
   open,
   onClose,

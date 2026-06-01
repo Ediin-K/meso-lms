@@ -59,7 +59,7 @@ export default function QuizPage() {
               setAlreadySubmitted(true);
               setFinished(true);
             }
-          } catch { /* ignore */ }
+          } catch { void 0 }
         }
       })
       .finally(() => {

@@ -10,5 +10,5 @@ public class QuizAnswerStudentResponse {
     private Long id;
     private String pergjigja;
     private Long questionId;
-    // eshteSakte NUK është këtu
+    
 }

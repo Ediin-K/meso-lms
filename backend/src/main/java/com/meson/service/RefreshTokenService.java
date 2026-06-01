@@ -35,7 +35,6 @@ public class RefreshTokenService {
         RefreshToken refreshToken = refreshTokenRepository.findByToken(request.getRefreshToken())
                 .orElseThrow(() -> new RuntimeException("Refresh token nuk u gjet"));
 
-
         if (refreshToken.isRevoked()) {
             throw new RuntimeException("Refresh token eshte invaliduar");
         }

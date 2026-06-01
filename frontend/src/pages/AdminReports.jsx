@@ -111,7 +111,7 @@ export default function AdminReports() {
           {t("home.admin.services.backToPanel", "Kthehu te Paneli")}
         </Button>
 
-        {/* Header */}
+        {}
         <Box className="mb-8">
           <Box className="flex items-center gap-3 mb-2">
             <div className="h-10 w-10 rounded-xl bg-violet-100 dark:bg-violet-900/40 flex items-center justify-center">
@@ -126,7 +126,7 @@ export default function AdminReports() {
           </Typography>
         </Box>
 
-        {/* Tab nav */}
+        {}
         <Box className="flex gap-2 mb-8 p-1.5 bg-slate-100 dark:bg-slate-800/60 rounded-2xl w-fit">
           {[
             { key: "overview", label: "Pasqyrë" },
@@ -159,7 +159,7 @@ export default function AdminReports() {
           </Box>
         ) : (
           <>
-            {/* Stat cards */}
+            {}
             <Grid container spacing={3} className="!mb-8">
               {statCards.map((card) => (
                 <Grid item xs={12} sm={6} md={3} key={card.key}>
@@ -176,7 +176,7 @@ export default function AdminReports() {
             </Grid>
 
             <Grid container spacing={3}>
-              {/* Chart 1 — Enrollments by month */}
+              {}
               {(activeTab === "overview" || activeTab === "users") && (
                 <Grid item xs={12} md={activeTab === "overview" ? 8 : 12}>
                   <Card elevation={0} className="rounded-2xl border border-slate-200/80 bg-white dark:!bg-slate-900/60 dark:!border-slate-700/80 shadow-sm">
@@ -218,7 +218,7 @@ export default function AdminReports() {
                 </Grid>
               )}
 
-              {/* Chart 2 — Enrollment statuses */}
+              {}
               {(activeTab === "overview" || activeTab === "users") && (
                 <Grid item xs={12} md={activeTab === "overview" ? 4 : 6}>
                   <Card elevation={0} className="rounded-2xl border border-slate-200/80 bg-white dark:!bg-slate-900/60 dark:!border-slate-700/80 shadow-sm h-full">
@@ -263,7 +263,7 @@ export default function AdminReports() {
                 </Grid>
               )}
 
-              {/* Chart 3 — Courses by category */}
+              {}
               {(activeTab === "overview" || activeTab === "courses") && (
                 <Grid item xs={12} md={activeTab === "overview" ? 12 : 12}>
                   <Card elevation={0} className="rounded-2xl border border-slate-200/80 bg-white dark:!bg-slate-900/60 dark:!border-slate-700/80 shadow-sm">

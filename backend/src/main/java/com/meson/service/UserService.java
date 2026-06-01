@@ -114,7 +114,6 @@ public class UserService {
     public User update(Long id, UpdateUserDTO dto) {
         User user = getById(id);
 
-
         if (dto.getEmail() != null && !dto.getEmail().equals(user.getEmail())) {
             if (userRepository.existsByEmailIgnoreCase(dto.getEmail())) {
                 throw new RuntimeException("Email ekziston tashmë");

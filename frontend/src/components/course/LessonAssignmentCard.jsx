@@ -27,8 +27,8 @@ export default function LessonAssignmentCard({ lessonId }) {
                 try {
                     const subRes = await assignmentService.getMySubmission(res.data.id)
                     if (mounted && subRes.data) setSubmitted(true)
-                } catch { /* 404 = not submitted yet */ }
-            } catch { /* no assignment */ }
+                } catch { void 0 }
+            } catch { void 0 }
             finally { if (mounted) setLoading(false) }
         })()
         return () => { mounted = false }
@@ -110,7 +110,7 @@ export default function LessonAssignmentCard({ lessonId }) {
                             </Typography>
                         )}
 
-                        {/* Instruction file download */}
+                        {}
                         {assignment.hasAttachment && (
                             <Box
                                 className="mt-2 flex items-center gap-2 px-2 py-1 rounded-lg border border-sky-200 dark:border-sky-800 bg-sky-50/80 dark:bg-sky-950/30 cursor-pointer hover:bg-sky-100 dark:hover:bg-sky-900/40 transition-colors w-fit"

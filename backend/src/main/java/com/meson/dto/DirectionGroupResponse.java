@@ -17,6 +17,6 @@ public class DirectionGroupResponse {
     private Integer currentStudents;
     private Integer remainingSeats;
     private Boolean isFull;
-    /** ACTIVE, FULL (capacity reached), or CLOSED (admin closed enrollment). */
+    
     private String status;
 }

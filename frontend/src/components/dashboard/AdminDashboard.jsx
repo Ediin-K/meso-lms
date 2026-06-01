@@ -37,7 +37,6 @@ import GroupsRounded from "@mui/icons-material/GroupsRounded";
 import ArrowForwardRounded from "@mui/icons-material/ArrowForwardRounded";
 import Footer from "../ui/Footer";
 
-// Moved outside to prevent re-creation on every render (fix ESLint react-hooks/static-components)
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
@@ -81,7 +80,6 @@ export default function AdminDashboard() {
       .finally(() => setLoading(false));
   }, []);
 
-  // MOCK DATA FOR CHARTS - Localized
   const registrationData = [
     { month: t("months.jan"), students: 400, courses: 20 },
     { month: t("months.feb"), students: 700, courses: 25 },
@@ -182,7 +180,7 @@ export default function AdminDashboard() {
   return (
     <Container maxWidth="xl" className="py-8 mt-4 sm:mt-8">
       <Box className="mb-10 rounded-[3rem] border border-slate-200/60 bg-white/80 p-6 shadow-2xl shadow-slate-200/20 sm:p-12 dark:!border-slate-700/60 dark:!bg-slate-900/50 dark:shadow-none">
-        {/* HEADER */}
+        {}
         <Box className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <Typography
@@ -212,7 +210,7 @@ export default function AdminDashboard() {
           </div>
         </Box>
 
-        {/* STATS STRIP */}
+        {}
         {!loading && stats ? (
           <Box className="mt-10 grid grid-cols-2 lg:grid-cols-4 gap-4">
             {[
@@ -275,7 +273,7 @@ export default function AdminDashboard() {
           </Box>
         )}
 
-        {/* ANALYTICS SECTION */}
+        {}
         <Typography
           variant="h5"
           className="!mt-16 !mb-8 !font-black !text-slate-800 dark:!text-white flex items-center justify-center gap-3"
@@ -286,7 +284,7 @@ export default function AdminDashboard() {
 
         <Box className="max-w-[1400px] mx-auto">
           <Grid container spacing={4} justifyContent="center">
-            {/* Registration Trends */}
+            {}
             <Grid item xs={12} md={4}>
               <Card className="!rounded-[2.5rem] !border-none !bg-slate-50/50 dark:!bg-slate-800/30 !p-8 shadow-inner h-full">
                 <Typography
@@ -351,7 +349,7 @@ export default function AdminDashboard() {
               </Card>
             </Grid>
 
-            {/* Category Distribution */}
+            {}
             <Grid item xs={12} md={4}>
               <Card className="!rounded-[2.5rem] !border-none !bg-slate-50/50 dark:!bg-slate-800/30 !p-8 shadow-inner h-full">
                 <Typography
@@ -392,7 +390,7 @@ export default function AdminDashboard() {
               </Card>
             </Grid>
 
-            {/* Enrollment Status */}
+            {}
             <Grid item xs={12} md={4}>
               <Card className="!rounded-[2.5rem] !border-none !bg-slate-50/50 dark:!bg-slate-800/30 !p-8 shadow-inner h-full">
                 <Typography
@@ -443,7 +441,7 @@ export default function AdminDashboard() {
           </Grid>
         </Box>
 
-        {/* SERVICES GRID */}
+        {}
         <Typography
           variant="h5"
           className="!mt-20 !mb-8 !font-black !text-slate-800 dark:!text-white flex items-center justify-center gap-3"
@@ -494,7 +492,7 @@ export default function AdminDashboard() {
                 </Box>
               </CardContent>
 
-              {/* Subtle background glow on hover */}
+              {}
               <Box className="absolute inset-0 bg-gradient-to-br from-sky-500/0 via-transparent to-sky-500/0 opacity-0 group-hover:opacity-10 transition-opacity duration-500 pointer-events-none" />
             </Card>
           ))}

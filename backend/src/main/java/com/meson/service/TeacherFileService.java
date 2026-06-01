@@ -29,7 +29,7 @@ public class TeacherFileService {
 
     public List<LessonResourceResponse> getResourcesByLesson(Long lessonId) {
         User teacher = getCurrentUser();
-        // Validate ownership
+        
         lessonRepository.findByIdAndModuleCourseTeacherId(lessonId, teacher.getId())
                 .orElseThrow(() -> new AccessDeniedException("Ju nuk keni akses në këtë lëndë."));
 
@@ -44,13 +44,11 @@ public class TeacherFileService {
         Lesson lesson = lessonRepository.findByIdAndModuleCourseTeacherId(lessonId, teacher.getId())
                 .orElseThrow(() -> new AccessDeniedException("Ju nuk keni akses në këtë lëndë."));
 
-        // Validate file type (basic extension check)
         String originalFilename = file.getOriginalFilename();
         if (originalFilename == null || !isValidExtension(originalFilename)) {
             throw new RuntimeException("Tipi i skedarit nuk lejohet.");
         }
 
-        // Structured path: courses/{courseId}/lessons/{lessonId}
         String subPath = "courses/" + lesson.getModule().getCourse().getId() + "/lessons/" + lessonId;
         String storedPath = fileStorageService.store(file, subPath);
 
@@ -73,7 +71,6 @@ public class TeacherFileService {
         LessonResource resource = lessonResourceRepository.findById(resourceId)
                 .orElseThrow(() -> new RuntimeException("Skedari nuk u gjet."));
 
-        // Check ownership of the course the lesson belongs to
         if (!resource.getLesson().getModule().getCourse().getTeacher().getId().equals(teacher.getId())) {
             throw new AccessDeniedException("Ju nuk keni akses për të fshirë këtë skedar.");
         }

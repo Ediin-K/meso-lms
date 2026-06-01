@@ -31,12 +31,7 @@ public class TeacherLessonService {
 
     public List<LessonResponse> getLessonsByModule(Long moduleId) {
         User teacher = getCurrentUser();
-        // Here we rely on findByModuleId and then check ownership if needed, or better, 
-        // use a custom query if we want to be very strict. 
-        // For simplicity and following the rule "findByIdAndModuleCourseTeacherId", 
-        // we can fetch all lessons of a module and then filter or just use a specific query.
         
-        // Let's ensure the module belongs to the teacher first.
         moduleRepository.findByIdAndCourseTeacherId(moduleId, teacher.getId())
                 .orElseThrow(() -> new AccessDeniedException("Ju nuk keni akses në këtë modul ose moduli nuk ekziston."));
 
