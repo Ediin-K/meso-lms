@@ -30,7 +30,7 @@ public class AssignmentService {
     private final UserRepository userRepository;
     private final FileStorageService fileStorageService;
 
-    // ── Student: get assignment for a lesson (single) ─────────────────────────
+
 
     public Optional<AssignmentResponse> getByLesson(Long lessonId) {
         return assignmentRepository.findByLessonId(lessonId)
