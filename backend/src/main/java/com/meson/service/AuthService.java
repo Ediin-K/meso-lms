@@ -40,8 +40,7 @@ public class AuthService {
         if (!isPasswordValid) {
             throw new RuntimeException("Email ose password gabim");
         }
-
-        // 4. Merr rolin
+// Merr Rolin e Userit 
         Role role = userRoleRepository.findByUser(user)
                 .stream()
                 .findFirst()
