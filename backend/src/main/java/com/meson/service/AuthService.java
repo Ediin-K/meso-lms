@@ -55,7 +55,7 @@ public class AuthService {
                 ? role.getEmertimi().toLowerCase()
                 : "guest";
 
-        // 5. Generate JWT
+      // Generate JWT Tokeni.
         String token = jwtService.generateToken(user.getEmail(), roleName);
 
         
