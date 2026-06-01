@@ -46,6 +46,8 @@ public class RefreshTokenService {
 
         User user = refreshToken.getUser();
 
+        revokeAllUserTokens(user);
+
         String role = user.getUserRoles()
                 .stream()
                 .findFirst()
