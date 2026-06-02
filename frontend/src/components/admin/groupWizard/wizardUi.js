@@ -208,6 +208,5 @@ export function seedScheduleRowsFromStaff(staffRows, emptyScheduleRow) {
     startTime: "10:00",
     endTime: "",
     room: "",
-    color: "sky",
   }));
 }

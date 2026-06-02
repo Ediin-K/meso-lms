@@ -10,15 +10,6 @@ const SESSION_OPTIONS = [
   { value: "EXERCISE", label: "Ushtrime" },
 ];
 
-const COLOR_OPTIONS = [
-  { value: "sky", label: "Sky" },
-  { value: "emerald", label: "Emerald" },
-  { value: "violet", label: "Violet" },
-  { value: "amber", label: "Amber" },
-  { value: "rose", label: "Rose" },
-  { value: "slate", label: "Slate" },
-];
-
 export default function ScheduleEntryCard({
   row,
   index,
@@ -118,16 +109,6 @@ export default function ScheduleEntryCard({
       <Box className="min-w-0 lg:col-span-2">
         <RoomInput value={row.room} onChange={(v) => onChange(index, "room", v)} isDark={isDark} />
       </Box>
-      <Box className="min-w-0">
-        <TruncatedSelect
-          label="Ngjyra"
-          value={row.color || "sky"}
-          onChange={(e) => onChange(index, "color", e.target.value)}
-          options={COLOR_OPTIONS}
-          isDark={isDark}
-          maxLabelLen={12}
-        />
-      </Box>
     </>
   );
 
@@ -161,7 +142,7 @@ export default function ScheduleEntryCard({
           className="grid gap-2 min-w-[720px]"
           style={{
             gridTemplateColumns:
-              "minmax(160px,1.4fr) minmax(200px,1.2fr) minmax(100px,0.75fr) minmax(110px,0.85fr) minmax(95px,0.65fr) minmax(95px,0.65fr) minmax(130px,1fr) minmax(95px,0.65fr)",
+              "minmax(160px,1.4fr) minmax(200px,1.2fr) minmax(100px,0.75fr) minmax(110px,0.85fr) minmax(95px,0.65fr) minmax(95px,0.65fr) minmax(130px,1fr)",
           }}
         >
           {gridFields}

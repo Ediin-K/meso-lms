@@ -96,7 +96,6 @@ const emptyScheduleRow = () => ({
   startTime: "10:00",
   endTime: "",
   room: "",
-  color: "sky",
 });
 
 const dayOptions = DAYS.map((d) => ({ value: d, label: DAY_LABELS[d] }));
@@ -386,7 +385,6 @@ export default function AdminGroups() {
             : r.endTime
           : null,
         room: r.room || null,
-        color: r.color || "sky",
       })),
   });
 

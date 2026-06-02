@@ -21,6 +21,7 @@ import {
     getStudentAssignmentSubmissions,
     getMyQuizAttempts,
 } from "../../services/studentProfileService.js"
+import progressService from "../../services/progressService.js"
 
 export default function StudentDashboard() {
     const { t } = useAppPreferences()
@@ -34,6 +35,7 @@ export default function StudentDashboard() {
     const [certificates, setCertificates] = useState([])
     const [submissions, setSubmissions] = useState([])
     const [quizAttempts, setQuizAttempts] = useState([])
+    const [courseProgressById, setCourseProgressById] = useState({})
 
     useEffect(() => {
         let ignore = false
@@ -58,7 +60,27 @@ export default function StudentDashboard() {
             if (results.some((result) => result.status === 'rejected')) {
                 setError("Disa te dhena dinamike nuk u ngarkuan.")
             }
-            if (results[0].status === 'fulfilled') setEnrollments(results[0].value)
+            if (results[0].status === 'fulfilled') {
+                const loadedEnrollments = results[0].value
+                setEnrollments(loadedEnrollments)
+
+                const progressResults = await Promise.allSettled(
+                    loadedEnrollments
+                        .filter((enrollment) => enrollment.courseId)
+                        .map((enrollment) => progressService.getCourseProgress(enrollment.courseId)),
+                )
+
+                if (ignore) return
+
+                const progressMap = {}
+                progressResults.forEach((result) => {
+                    if (result.status === 'fulfilled') {
+                        const progress = result.value.data
+                        progressMap[String(progress.courseId)] = progress
+                    }
+                })
+                setCourseProgressById(progressMap)
+            }
             if (results[1].status === 'fulfilled') setCertificates(results[1].value)
             if (results[2].status === 'fulfilled') setSubmissions(results[2].value)
             if (results[3].status === 'fulfilled') setQuizAttempts(results[3].value)
@@ -76,13 +98,21 @@ export default function StudentDashboard() {
         [enrollments],
     )
 
+    const progressEnrollments = useMemo(
+        () => enrollments.filter((enrollment) => enrollment.courseId && enrollment.statusi !== 'ANULUAR'),
+        [enrollments],
+    )
+
     const averageProgress = useMemo(() => {
-        const values = activeEnrollments
-            .map((enrollment) => enrollment.progresi)
+        const values = progressEnrollments
+            .map((enrollment) => {
+                const courseProgress = courseProgressById[String(enrollment.courseId)]?.progressPercent
+                return courseProgress ?? enrollment.progresi
+            })
             .filter((progress) => progress != null)
         if (!values.length) return 0
         return Math.round(values.reduce((sum, progress) => sum + progress, 0) / values.length)
-    }, [activeEnrollments])
+    }, [courseProgressById, progressEnrollments])
 
     const latestEnrollment = activeEnrollments[0] || enrollments[0]
     const lastCourseId = localStorage.getItem('lastCourseId') || latestEnrollment?.courseId
